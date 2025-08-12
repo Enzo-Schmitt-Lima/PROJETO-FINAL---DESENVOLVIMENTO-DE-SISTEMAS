@@ -10,7 +10,7 @@ Backlog
     descrição: Como cliente, quero ser capaz de escolher acompanhamentos para as minhas bebidas, como gelo e limão, laranja e gelo e outros acompanhamentos, para que eu possa desfrutar de minha bebida da melhor maneira possível.
 
 - Remoção de ingredientes de acordo com o gosto do cliente
-    descrição: 
+    descrição: Como cliente, gostaria de poder fazer a remoção de ingredientes de minha preferência no meu pedido antes de ser finalizado por questões de paladar restritivo ou seletivo.
 - Avaliação/feedback
     descrição: como cliente, gostaria que a pizzaria colocasse a opção de, ao fim do atendimento, dar feedback ao estabelecimento para que nossas opiniões (como clientes) influenciem nas melhorias da pizzaria
 - Notificação de quando o pedido estiver pronto
