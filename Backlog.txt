@@ -24,6 +24,6 @@ Backlog - Atividade 06 Histórias de Clientes
 - Solicitar o garçom
     descrição: Como cliente, quero poder solicitar o atendimento do garçom remotamente, para poder receber o atendimento ou receber assistência
 - Pagamento com o celular
-    descrição:
+    Como cliente, gostaria de poder pagar a conta de forma digital através do meu celular por ser mais prático
 - Cancelar pedido
-    descrição:
+    Como cliente, gostaria que tivesse a opção de cancelar o pedido caso aja algum imprevisto 
