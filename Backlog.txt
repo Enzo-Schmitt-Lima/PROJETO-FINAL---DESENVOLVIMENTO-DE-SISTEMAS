@@ -12,11 +12,11 @@ Backlog - Atividade 06 Histórias de Clientes
 - Remoção de ingredientes de acordo com o gosto do cliente
     descrição: 
 - Avaliação/feedback
-    descrição:
+    descrição: como cliente, gostaria que a pizzaria colocasse a opção de, ao fim do atendimento, dar feedback ao estabelecimento para que nossas opiniões (como clientes) influenciem nas melhorias da pizzaria
 - Notificação de quando o pedido estiver pronto
-    descrição:
+    descrição: como cliente, gostaria que a pizzaria adicionasse notificações quando o pedido estivesse pronto para maior autonomia
 - SAC (atendimento ao cliente com contato dos devs)
-    descrição:
+    descrição: como cliente, gostaria que a pizzaria pudesse colocar a opção de um sac para sanar maiores duvidas sobre o estabelecimento
 - Cadastro/Login
     descrição: Como cliente, eu quero poder ter uma conta com meu email, nome, telefone e senha no aplicativo, para poder salvar minhas informações e fazer pedidos mais rápidos no futuro
 - Cardápio
