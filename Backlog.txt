@@ -15,11 +15,11 @@ Backlog
 - SAC (atendimento ao cliente com contato dos devs)
     descrição:
 - Cadastro/Login
-    descrição:
+    descrição: Como cliente, eu quero poder ter uma conta com meu email, nome, telefone e senha no aplicativo, para poder salvar minhas informações e fazer pedidos mais rápidos no futuro
 - Cardápio
-    descrição:
+    descrição: Como cliente, quero poder visualizar um cardápio digital, para poder escolher corretamente o sabor, Acompanhamentos e bebidas que eu desejo
 - Solicitar o garçom
-    descrição:
+    descrição: Como cliente, quero poder solicitar o atendimento do garçom remotamente, para poder receber o atendimento ou receber assistência
 - Pagamento com o celular
     descrição:
 - cancelar pedido
