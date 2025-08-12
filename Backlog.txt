@@ -1,0 +1,14 @@
+Backlog
+
+- Escanear QR code pro cardápio
+- Status do pedido
+- Acompanhamentos de bebidas
+- Remoção de ingredientes de acordo com o gosto do cliente
+- Avaliação/feedback
+- Notificação de quando o pedido estiver pronto
+- SAC (atendimento ao cliente com contato dos devs)
+- Cadastro/Login
+- Cardápio
+- Solicitar o garçom
+- Pagamento com o celular
+- cancelar pedido
