@@ -1,14 +1,26 @@
 Backlog
 
 - Escanear QR code pro cardápio
+    descrição: 
 - Status do pedido
+    descrição:
 - Acompanhamentos de bebidas
+    descrição: 
 - Remoção de ingredientes de acordo com o gosto do cliente
+    descrição:
 - Avaliação/feedback
+    descrição:
 - Notificação de quando o pedido estiver pronto
+    descrição:
 - SAC (atendimento ao cliente com contato dos devs)
+    descrição:
 - Cadastro/Login
+    descrição:
 - Cardápio
+    descrição:
 - Solicitar o garçom
+    descrição:
 - Pagamento com o celular
+    descrição:
 - cancelar pedido
+    descrição:
