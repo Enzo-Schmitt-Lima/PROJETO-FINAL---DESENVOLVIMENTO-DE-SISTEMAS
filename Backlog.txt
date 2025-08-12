@@ -1,13 +1,16 @@
-Backlog
+Backlog - Atividade 06 Histórias de Clientes
 
 - Escanear QR code pro cardápio
-    descrição: 
+    descrição: Como cliente, quero ser capaz de acessar o cardápio escaneando o QR Code do mesmo, para ver os produtos disponíveis.
+
 - Status do pedido
-    descrição:
+    descrição: Como cliente, quero ser capaz de acompanhar a produção do meu pedido, como etapas de recebido, preparando, pronto e entregue, para ter noção da entrega.
+
 - Acompanhamentos de bebidas
-    descrição: 
+    descrição: Como cliente, quero ser capaz de escolher acompanhamentos para as minhas bebidas, como gelo e limão, laranja e gelo e outros acompanhamentos, para que eu possa desfrutar de minha bebida da melhor maneira possível.
+
 - Remoção de ingredientes de acordo com o gosto do cliente
-    descrição:
+    descrição: 
 - Avaliação/feedback
     descrição:
 - Notificação de quando o pedido estiver pronto
@@ -22,5 +25,5 @@ Backlog
     descrição: Como cliente, quero poder solicitar o atendimento do garçom remotamente, para poder receber o atendimento ou receber assistência
 - Pagamento com o celular
     descrição:
-- cancelar pedido
+- Cancelar pedido
     descrição:
