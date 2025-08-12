@@ -11,19 +11,27 @@ Backlog
 
 - Remoção de ingredientes de acordo com o gosto do cliente
     descrição: Como cliente, gostaria de poder fazer a remoção de ingredientes de minha preferência no meu pedido antes de ser finalizado por questões de paladar restritivo ou seletivo.
+
 - Avaliação/feedback
     descrição: como cliente, gostaria que a pizzaria colocasse a opção de, ao fim do atendimento, dar feedback ao estabelecimento para que nossas opiniões (como clientes) influenciem nas melhorias da pizzaria
+
 - Notificação de quando o pedido estiver pronto
     descrição: como cliente, gostaria que a pizzaria adicionasse notificações quando o pedido estivesse pronto para maior autonomia
+
 - SAC (atendimento ao cliente com contato dos devs)
     descrição: como cliente, gostaria que a pizzaria pudesse colocar a opção de um sac para sanar maiores duvidas sobre o estabelecimento
+
 - Cadastro/Login
     descrição: Como cliente, eu quero poder ter uma conta com meu email, nome, telefone e senha no aplicativo, para poder salvar minhas informações e fazer pedidos mais rápidos no futuro
+
 - Cardápio
     descrição: Como cliente, quero poder visualizar um cardápio digital, para poder escolher corretamente o sabor, Acompanhamentos e bebidas que eu desejo
+
 - Solicitar o garçom
     descrição: Como cliente, quero poder solicitar o atendimento do garçom remotamente, para poder receber o atendimento ou receber assistência
+
 - Pagamento com o celular
     Como cliente, gostaria de poder pagar a conta de forma digital através do meu celular por ser mais prático
+    
 - Cancelar pedido
     Como cliente, gostaria que tivesse a opção de cancelar o pedido caso aja algum imprevisto 
