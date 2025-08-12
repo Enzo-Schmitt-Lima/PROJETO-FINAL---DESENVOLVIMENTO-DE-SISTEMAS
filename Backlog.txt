@@ -1,4 +1,4 @@
-Backlog - Atividade 06 Histórias de Clientes
+Backlog 
 
 - Escanear QR code pro cardápio
     descrição: Como cliente, quero ser capaz de acessar o cardápio escaneando o QR Code do mesmo, para ver os produtos disponíveis.
