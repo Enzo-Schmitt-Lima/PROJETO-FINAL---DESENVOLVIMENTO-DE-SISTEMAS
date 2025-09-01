@@ -35,3 +35,6 @@ Backlog
     
 - Cancelar pedido
     Como cliente, gostaria que tivesse a opção de cancelar o pedido caso aja algum imprevisto 
+
+- Aba de pesquisa
+	como cliente, gostaria de pesquisar as pizzas que eu desejo, para poder escolher com mais precisão e rapidez. 
