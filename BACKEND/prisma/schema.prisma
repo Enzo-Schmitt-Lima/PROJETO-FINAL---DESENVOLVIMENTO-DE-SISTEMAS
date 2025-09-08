@@ -1,19 +1,19 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+ 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+ 
 generator client {
   provider = "prisma-client-js"
   // output   = "../src/generated/prisma"
 }
-
+ 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+ 
 // criar uma migration: yarn-prisma-migrate-dev
 model User{
   id String @id @default(uuid())
@@ -22,20 +22,24 @@ model User{
   password String
   created_at DateTime? @default(now())
   update_at DateTime? @default(now())
-
+ 
   @@map("users")
 }
-
+ 
 model Category {
   id String @id @default(uuid())
   name String
   created_at DateTime? @default(now())
   update_at DateTime? @default(now())
-
+ 
+  parentId   String?    // parent opcional
+  parent     Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children   Category[] @relation("CategoryHierarchy")
+ 
   @@map("categories")
   products Product[]
-} 
-
+}
+ 
 model Product {
   id String @id @default(uuid())
   name String
@@ -44,14 +48,14 @@ model Product {
   banner String
   created_at DateTime? @default(now())
   update_at DateTime? @default(now())
-
+ 
   category Category @relation(fields: [category_id], references: [id])
-
+ 
   @@map("products")
   category_id String
   items Item[]
 }
-
+ 
 model Order {
   id String @id @default(uuid())
   table Int
@@ -60,21 +64,24 @@ model Order {
   name String?  
   created_at DateTime? @default(now())
   update_at DateTime? @default(now())
-
+ 
   @@map("orders")
   items Item[]
 }
-
+ 
 model Item {
   id String @id @default(uuid())
   amount Int
   created_at DateTime? @default(now())
   update_at DateTime? @default(now())
-
+ 
   order Order @relation(fields: [order_id], references: [id])
   product Product @relation(fields: [product_id], references: [id])
-
+ 
   @@map("items")
   order_id String
   product_id String
 }
+ 
+Prisma Schema Overview
+The Prisma schema is the main method of configuration when using Prisma. It is typically called schema.prisma and contains your database connection and data model.
