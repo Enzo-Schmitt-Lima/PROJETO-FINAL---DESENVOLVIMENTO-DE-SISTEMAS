@@ -1,5 +1,4 @@
 import prismaClient from "../../../prisma";
-
 interface CategoryRequest {
     name: string;
     parentId?: string;
@@ -21,7 +20,7 @@ class CreateCategoryService {
                 throw new Error('Categoria pai não encontrada');
             }
         }
-
+       
         const category = await prismaClient.category.create({
             data: {
                 name,
