@@ -1,80 +1,83 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+  // This is your Prisma schema file,
+  // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+  // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+  // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-  // output   = "../src/generated/prisma"
-}
+  generator client {
+    provider = "prisma-client-js"
+    // output   = "../src/generated/prisma"
+  }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
 
-// criar uma migration: yarn-prisma-migrate-dev
-model User{
-  id String @id @default(uuid())
-  name String
-  email String
-  password String
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
+  model User{
+    id String @id @default(uuid())
+    name String
+    email String
+    password String
+    created_at DateTime? @default(now())
+    update_at DateTime? @default(now())
 
-  @@map("users")
-}
+    @@map("users")
+  }
 
-model Category {
-  id String @id @default(uuid())
-  name String
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
+  model Category {
+    id String @id @default(uuid())
+    name String
+    created_at DateTime? @default(now())
+    update_at DateTime? @default(now())
 
-  @@map("categories")
-  products Product[]
-} 
+    parentId   String?    
+    parent     Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+    children   Category[] @relation("CategoryHierarchy")
 
-model Product {
-  id String @id @default(uuid())
-  name String
-  price String
-  description String
-  banner String
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
+    @@map("categories")
+    products Product[]
+  } 
 
-  category Category @relation(fields: [category_id], references: [id])
+  model Product {
+    id String @id @default(uuid())
+    name String
+    price String
+    description String
+    banner String
+    created_at DateTime? @default(now())
+    update_at DateTime? @default(now())
 
-  @@map("products")
-  category_id String
-  items Item[]
-}
+    category Category @relation(fields: [category_id], references: [id])
 
-model Order {
-  id String @id @default(uuid())
-  table Int
-  status Boolean @default(false)
-  draft Boolean @default(true)
-  name String?  
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
+    @@map("products")
+    category_id String
+    items Item[]
+  }
 
-  @@map("orders")
-  items Item[]
-}
+  model Order {
+    id String @id @default(uuid())
+    table Int
+    status Boolean @default(false)
+    draft Boolean @default(true)
+    name String?  
+    created_at DateTime? @default(now())
+    update_at DateTime? @default(now())
 
-model Item {
-  id String @id @default(uuid())
-  amount Int
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
+    @@map("orders")
+    items Item[]
+  }
 
-  order Order @relation(fields: [order_id], references: [id])
-  product Product @relation(fields: [product_id], references: [id])
+  model Item {
+    id String @id @default(uuid())
+    amount Int
+    created_at DateTime? @default(now())
+    update_at DateTime? @default(now())
 
-  @@map("items")
-  order_id String
-  product_id String
-}
+    order Order @relation(fields: [order_id], references: [id])
+    product Product @relation(fields: [product_id], references: [id])
+
+    @@map("items")
+    order_id String
+    product_id String
+  }
