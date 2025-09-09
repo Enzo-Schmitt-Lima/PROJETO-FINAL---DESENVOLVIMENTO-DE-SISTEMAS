@@ -24,7 +24,7 @@ class CreateCategoryService {
         const category = await prismaClient.category.create({
             data: {
                 name,
-                parentId: parentId || null,
+                parentId: parentId || null, 
             },
             select: {
                 id: true,

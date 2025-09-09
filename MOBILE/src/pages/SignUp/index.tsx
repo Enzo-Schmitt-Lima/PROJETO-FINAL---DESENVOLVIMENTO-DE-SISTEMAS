@@ -5,7 +5,7 @@ import {
 import { AuthContext } from "../../contexts/AuthContext";
 
 
-export default function SignUp({ navigation }: any) {
+export default function SignUp({ navigation }: any){
   const { signUp, loadingAuth } = useContext(AuthContext);
 
   const [name, setName] = useState('');
