@@ -10,7 +10,6 @@ interface AuthRequest {
 class AuthUserService {
     async execute({ email, password}: AuthRequest) {
 
-        // verificar se o email existe
         const user = await prismaClient.user.findFirst({
             where:{
                 email: email
@@ -21,7 +20,6 @@ class AuthUserService {
             throw new Error("User/password incorrect")
         }
 
-        // Verificar se a senha que ele enviou está correta
         const passwordMatch = await compare(password, user.password)
 
         if(!passwordMatch){
@@ -29,11 +27,12 @@ class AuthUserService {
 
         }
 
-        // Se funcionou sem imprevistos, geraremos o token para o usuário.
         const token = sign(
             {
+                id: user.id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: user.role
             },
             process.env.JWT_SECRET,
             {
