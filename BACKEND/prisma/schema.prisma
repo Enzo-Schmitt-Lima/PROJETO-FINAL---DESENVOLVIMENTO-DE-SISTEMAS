@@ -21,7 +21,7 @@ model User {
 model Category {
   id         String    @id @default(uuid())
   name       String
-  parentId String?
+  parentId String? @db.Uuid
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
   products   Product[]
