@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import 'express-async-errors';
 
 import { CreateUserController } from './controllers/user/CreateUserController';
 import { AuthUserController } from './controllers/user/AuthUserController';
