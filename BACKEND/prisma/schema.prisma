@@ -78,3 +78,11 @@ model Item {
   order_id String
   product_id String
 }
+
+model Roles {
+  id String @id @default(uuid())
+  name String
+  created_at DateTime? @default(now())
+  update_at DateTime? @default(now())
+
+}
