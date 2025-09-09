@@ -68,11 +68,3 @@ model Item {
 
   @@map("items")
 }
-
-model Roles {
-  id String @id @default(uuid())
-  name String
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
-
-}
