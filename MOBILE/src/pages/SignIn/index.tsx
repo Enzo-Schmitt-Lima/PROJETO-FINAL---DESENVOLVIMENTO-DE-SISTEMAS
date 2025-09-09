@@ -20,7 +20,7 @@ type RootStackParamList = {
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
-export default function SignIn({ navigation }: SignInScreenProps){
+export default function SignIn({ navigation }: any){
     const { signIn, loadingAuth } = useContext(AuthContext);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
