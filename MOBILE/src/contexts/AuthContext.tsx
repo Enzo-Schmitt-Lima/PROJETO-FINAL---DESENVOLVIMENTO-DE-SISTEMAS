@@ -1,6 +1,3 @@
-// // nesse codigo, tem loadingAuth; nao tenho certeza se tinha no codigo gabarito, mas devido à grande quantidade de erros, optei pela solução do ChatGPT
-// // também nao tenho certeza se "import asyncstorage" faz parte do gabarito, mas novamente optei pela solução da IA
-
 import React, { useState, createContext, ReactNode, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from '../services/api'
@@ -20,7 +17,6 @@ type UserProps = {
     name: string;
     email: string;
     token: string;
-    role: string;
 }
 
 type AuthProviderProps = {
@@ -66,9 +62,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setLoadingAuth(true);
         try {
             const response = await api.post('/session', { email, password });
-            const { id, name, token, role } = response.data;
+            const { id, name, email: userEmail, token } = response.data;
+            const data = { id, name, email: userEmail, token };
 
-            const data = { id, name, email, token, role };
             await AsyncStorage.setItem('@sujeitopizzaria', JSON.stringify(data));
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             setUser(data);
