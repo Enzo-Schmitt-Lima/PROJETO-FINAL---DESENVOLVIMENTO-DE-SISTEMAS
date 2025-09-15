@@ -67,6 +67,8 @@ router.get('/order/detail', isAuthenticated, new DetailOrderController().handle)
 
 router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
 
+// ROTAS COSTUMER 
+
 router.get('/tables', isAuthenticated, new ListTablesController().handle);
 
 export { router };
