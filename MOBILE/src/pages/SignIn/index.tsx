@@ -10,17 +10,18 @@ import {
 } from "react-native";
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
 import { AuthContext } from "../../contexts/AuthContext";
 
 type RootStackParamList = {
     SignIn: undefined;
-    SignUp: undefined; 
+    SignUp: undefined;
+    ChooseTable: undefined;
+    Dashboard: undefined;
 };
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
-export default function SignIn({ navigation }: any){
+export default function SignIn({ navigation }: SignInScreenProps){
     const { signIn, loadingAuth } = useContext(AuthContext);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -29,7 +30,12 @@ export default function SignIn({ navigation }: any){
         if(email === '' || password === ''){
             return;
         }
-        await signIn({email, password});
+
+        try {
+            await signIn({ email, password });
+        } catch (err) {
+            console.log('Erro ao logar:', err);
+        }
     }
 
     return(
@@ -63,7 +69,7 @@ export default function SignIn({ navigation }: any){
                     )}
                 </TouchableOpacity>
 
-                {/* BOTÃO IR PARA CADASTRO*/}
+                {/* BOTÃO IR PARA CADASTRO */}
                 <TouchableOpacity
                     style={styles.buttonRegister}
                     onPress={() => navigation.navigate('SignUp')}
