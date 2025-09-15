@@ -1,129 +1,133 @@
-import React, { useState, useContext } from "react";
+import React, { FC, useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ActivityIndicator
+    SafeAreaView,
+    View,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    Image
 } from "react-native";
-import { AuthContext } from "../../contexts/AuthContext";
 
+const SignUp: FC = () => {
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
+    const [telefone, setTelefone] = useState('');
+    const [senha, setSenha] = useState('');
 
-export default function SignUp({ navigation }: any){
-  const { signUp, loadingAuth } = useContext(AuthContext);
+    const handleSignUp = async () => {
+        if (!nome || !email || !telefone || !senha) {
+            Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
+            return;
+        }
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
+        try {
+            const response = await api.post('/users', {
+                name: nome,
+                email: email,
+                password: senha
+            });
+            
+            console.log('Dados para enviar:', { nome, email, telefone, senha });
+            Alert.alert('Sucesso!', 'Cadastro realizado!');
 
-  async function handleRegister() {
-    if (!name || !email || !password || !passwordConfirm) {
-      alert("Preencha todos os campos!");
-      return;
-    }
-
-    if (password !== passwordConfirm) {
-      alert("As senhas não coincidem!");
-      return;
-    }
-
-    await signUp({ name, email, password });
-    navigation.navigate("SignIn");
-    }
+        } catch (error) {
+            console.log('Erro ao cadastrar:', error);
+            Alert.alert('Erro', 'Não foi possível realizar o cadastro.');
+        }
+    };
 
     return (
-    <View style={styles.container}>
-      <Image source={require("../../../assets/logo.png")} style={styles.logo} />
+        <SafeAreaView style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <View style={styles.card}>
+                    <Text style={styles.title}>Cadastre-se</Text>
+                    <View style={styles.titleLine} />
 
+                    <TextInput
+                        placeholder="Nome completo"
+                        style={styles.input}
+                        placeholderTextColor="#fff"
+                        value={nome}
+                        onChangeText={setNome}
+                    />
+                    <TextInput
+                        placeholder="E-mail"
+                        style={styles.input}
+                        placeholderTextColor="#fff"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                    />
+                    <TextInput
+                        placeholder="(DD) Telefone"
+                        style={styles.input}
+                        placeholderTextColor="#fff"
+                        value={telefone}
+                        onChangeText={setTelefone}
+                        keyboardType="phone-pad"
+                    />
+                    <TextInput
+                        placeholder="Senha"
+                        style={styles.input}
+                        placeholderTextColor="#fff"
+                        secureTextEntry
+                        value={senha}
+                        onChangeText={setSenha}
+                    />
 
-      <TextInput
-        placeholder="Nome"
-        style={styles.input}
-        placeholderTextColor={"#FFF"}
-        value={name}
-        onChangeText={setName}
-      />
+                    <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+                        <Text style={styles.buttonText}>ACESSAR</Text>
+                    </TouchableOpacity>
 
-      <TextInput
-        placeholder="Email"
-        style={styles.input}
-        placeholderTextColor={"#FFF"}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
+                    <Text style={styles.loginText}>Já tem uma conta? Entre</Text>
 
-      <TextInput
-        placeholder="Senha"
-        style={styles.input}
-        placeholderTextColor={"#FFF"}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      <TextInput
-        placeholder="Confirme a senha"
-        style={styles.input}
-        placeholderTextColor={"#FFF"}
-        secureTextEntry
-        value={passwordConfirm}
-        onChangeText={setPasswordConfirm}
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        {loadingAuth ? <ActivityIndicator color="#FFF" /> : <Text style={styles.buttonText}>Cadastrar</Text>}
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
-        <Text style={styles.textLink}>Já tem conta? Faça login</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+                    <View style={styles.footer}>
+                        {<Image source={require("../SignIn/SAC.png")} style={styles.footerIcon} />}
+                        <Text style={styles.footerText}>SAC</Text>
+                    </View>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#1d1d2e'
-  },
-
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 20,
-    resizeMode: 'contain'
-  },
-
-  input: {
-    width: '100%',
-    height: 40,
-    backgroundColor: '#101026',
-    marginBottom: 12,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    color: '#FFF'
-  },
-
-  button: {
-    width: '100%',
-    height: 40,
-    backgroundColor: '#3FFFa3',
-    borderRadius: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10
-  },
-
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#101026'
-  },
-
-  textLink: {
-    color: '#FFF',
-    marginTop: 10
-  }
+    container: { flex: 1, backgroundColor: "#911F09" },
+    scrollContainer: { flexGrow: 1, justifyContent: "center", alignItems: 'center', padding: 16 },
+    card: {
+        width: '100%',
+        backgroundColor: "#D9D9D9",
+        borderRadius: 20,
+        padding: 24,
+        alignItems: "center",
+    },
+    title: { fontSize: 28, fontWeight: "bold", color: "#4F5476" },
+    titleLine: { width: 172, height: 2, backgroundColor: "#4F5476", marginVertical: 20, borderRadius: 10 },
+    input: {
+        width: "100%",
+        backgroundColor: "#B72F14",
+        color: "#fff",
+        padding: 12,
+        borderRadius: 10,
+        marginVertical: 8,
+    },
+    button: {
+        backgroundColor: "#F2CA85",
+        borderRadius: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 48,
+        marginVertical: 16,
+        alignItems: "center",
+        width: '100%',
+    },
+    buttonText: { color: "#4F5476", fontSize: 14, fontWeight: "bold" },
+    loginText: { color: "#B3AAAA", fontSize: 12, fontWeight: "bold", marginVertical: 8 },
+    footer: { flexDirection: "row", alignItems: "center", marginTop: 24 },
+    footerIcon: { width: 20, height: 30, marginRight: 8 },
+    footerText: { color: "#000", fontWeight: 'bold' }
 });
 
+export default SignUp;

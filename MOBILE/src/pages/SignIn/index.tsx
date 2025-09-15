@@ -17,10 +17,14 @@ type RootStackParamList = {
     SignUp: undefined;
     ChooseTable: undefined;
     Dashboard: undefined;
+    SignUp: undefined;
+    ChooseTable: undefined;
+    Dashboard: undefined;
 };
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
+export default function SignIn({ navigation }: SignInScreenProps){
 export default function SignIn({ navigation }: SignInScreenProps){
     const { signIn, loadingAuth } = useContext(AuthContext);
     const [email, setEmail] = useState('');
@@ -33,8 +37,6 @@ export default function SignIn({ navigation }: SignInScreenProps){
 
         try {
             await signIn({ email, password });
-            // ❌ NÃO chamamos navigation.navigate aqui
-            // Routes/index.tsx cuida do redirecionamento
         } catch (err) {
             console.log('Erro ao logar:', err);
         }
@@ -71,6 +73,7 @@ export default function SignIn({ navigation }: SignInScreenProps){
                     )}
                 </TouchableOpacity>
 
+                {/* BOTÃO IR PARA CADASTRO */}
                 {/* BOTÃO IR PARA CADASTRO */}
                 <TouchableOpacity
                     style={styles.buttonRegister}
