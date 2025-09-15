@@ -10,6 +10,7 @@ import {
     Alert,
     Image
 } from "react-native";
+import api from "../../services/api";
 
 const SignUp: FC = () => {
     const [nome, setNome] = useState('');
