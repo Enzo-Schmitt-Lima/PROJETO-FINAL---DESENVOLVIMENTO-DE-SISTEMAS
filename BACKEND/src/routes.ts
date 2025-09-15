@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import 'express-async-errors';
 
 import { CreateUserController } from './controllers/user/CreateUserController';
 import { AuthUserController } from './controllers/user/AuthUserController';
@@ -21,7 +22,13 @@ import { SendOrderController } from './controllers/order/SendOrderController';
 import { ListOrdersController } from './controllers/order/ListOrdersController';
 import { DetailOrderController } from './controllers/order/DetailOrderController';
 import { FinishOrderController } from './controllers/order/FinishOrderController';
-import { ListTablesController } from './controllers/order/ListTablesController';
+
+import { CreateTablesController } from './controllers/tables/CreateTablesController';
+import { ListTablesController } from './controllers/tables/ListTablesController';
+
+import { CreateRoleController } from './controllers/roles/CreateRoleController';
+
+import { CreateIngredienteController } from './controllers/ingrediente/CreateIngredienteController';
 
 import { isAuthenticated } from './middlewares/isAuthenticated';
 
@@ -66,6 +73,18 @@ router.get('/order/detail', isAuthenticated, new DetailOrderController().handle)
 
 router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
 
+// ROTAS MESAS
+
 router.get('/tables', isAuthenticated, new ListTablesController().handle);
+router.post('/tables', isAuthenticated, new CreateTablesController().handle);
+
+
+// ROTAS ROLES
+router.post('/roles', new CreateRoleController().handle);
+
+// ROTAS INGREDIENTE
+
+router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle)
+
 
 export { router };

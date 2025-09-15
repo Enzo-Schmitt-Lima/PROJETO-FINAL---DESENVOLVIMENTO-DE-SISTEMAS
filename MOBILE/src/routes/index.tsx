@@ -1,34 +1,35 @@
-import React, { useContext } from "react";
-
+import React, { useContext, useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import AppRoutes from "./app.routes";
 import AuthRoutes from "./auth.routes";
 
 import { AuthContext } from "../contexts/AuthContext";
 
-function Routes(){
+function Routes() {
+  const { isAuthenticated, loadingAuth } = useContext(AuthContext);
+  const navigation = useNavigation<any>();
 
-    const { isAuthenticated, loadingAuth } = useContext(AuthContext);
-
-    if(loadingAuth){
-        return(
-            <View style={{
-                flex:1,
-                backgroundColor: '#1D1D2E',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}
-            >
-
-                <ActivityIndicator size={60} color="#FFF"/>
-            </View>
-        )
+  // Redireciona automaticamente para ChooseTable depois do login
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'ChooseTable' }],
+      });
     }
+  }, [isAuthenticated]);
 
-    return(
-        isAuthenticated ? <AppRoutes/> : <AuthRoutes/>
+  if (loadingAuth) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#1D1D2E', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size={60} color="#FFF" />
+      </View>
     )
+  }
+
+  return isAuthenticated ? <AppRoutes /> : <AuthRoutes />;
 }
 
 export default Routes;
