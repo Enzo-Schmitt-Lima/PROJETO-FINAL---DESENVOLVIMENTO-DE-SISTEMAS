@@ -13,10 +13,9 @@ model User {
   email      String
   password   String
   roles_id String
-  role     Role     @relation(fields: [roles_id], references: [id])
+  roles     Role     @relation(fields: [roles_id], references: [id])
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
-  roles Roles  @relation(fields: [roles_id], references: [id])
 
   @@map("users")
 }
@@ -33,15 +32,6 @@ model Costumer {
   @@map("costumers")
 }
 
-model Roles {
-  id         String    @id @default(uuid())
-  name       String
-  created_at DateTime? @default(now())
-  update_at  DateTime? @default(now())
-  users      User[]
-
-  @@map("roles")
-}
 
 model Category {
   id         String    @id @default(uuid())
@@ -63,6 +53,7 @@ model Product {
   update_at   DateTime? @default(now())
   category_id String
   items       Item[]
+  adicional adicionais[]
   category    Category  @relation(fields: [category_id], references: [id])
 
   @@map("products")
@@ -109,4 +100,22 @@ model Role {
   users User[]
 
   @@map("roles")
+}
+
+model ingredientes {
+  id String @id @default(uuid())
+  name String @unique
+  adicional adicionais[]
+}
+
+model adicionais {
+  id String @id @default(uuid())
+  name String
+  presente Boolean @default(true)
+  product_id String
+  ingredientes_id String
+  created_at DateTime? @default(now())
+  update_at DateTime? @default(now())
+  product    Product   @relation(fields: [product_id], references: [id])
+  ingredientes    ingredientes   @relation(fields: [ingredientes_id], references: [id])
 }

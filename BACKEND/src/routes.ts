@@ -26,6 +26,8 @@ import { ListTablesController } from './controllers/tables/ListTablesController'
 
 import { CreateRoleController } from './controllers/roles/CreateRoleController';
 
+import { CreateIngredienteController } from './controllers/ingrediente/CreateIngredienteController';
+
 import { isAuthenticated } from './middlewares/isAuthenticated';
 
 import uploadConfig from './config/multer';
@@ -75,6 +77,10 @@ router.get('/tables', isAuthenticated, new ListTablesController().handle);
 
 // ROTAS ROLES
 router.post('/roles', new CreateRoleController().handle);
+
+// ROTAS INGREDIENTE
+
+router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle)
 
 
 export { router };
