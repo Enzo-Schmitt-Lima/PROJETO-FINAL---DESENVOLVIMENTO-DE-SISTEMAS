@@ -1,51 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { api } from '../../services/api';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { api } from '../../services/api';
+import { AuthContext } from '../../contexts/AuthContext';
 
-type RootStackParamList = {
-  ChooseTable: undefined;
-  Order: { tableId: number, orderId: string };
+type StackParamsList = {
+  Order: { number: number | string; order_id: string };
 };
 
-type ChooseTableScreenProps = NativeStackScreenProps<RootStackParamList, 'ChooseTable'>;
-
 export default function ChooseTable() {
-  const navigation = useNavigation<ChooseTableScreenProps['navigation']>();
-  const [tables, setTables] = useState([]);
+  const { user } = useContext(AuthContext);
+  const token = user?.token;
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+
+  const [tables, setTables] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingTable, setLoadingTable] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<number | null>(null);
 
   useEffect(() => {
     async function getTables() {
       try {
-        const response = await api.get('/tables');
-        setTables(response.data);
+        const response = await api.get('/tables', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTables(response.data); // array de numbers
       } catch (err) {
-        console.log('Erro ao buscar as mesas: ', err);
+        console.log('Erro ao buscar mesas:', err);
+        Alert.alert('Erro', 'Não foi possível carregar as mesas.');
       } finally {
         setLoading(false);
       }
     }
-    getTables();
-  }, []);
+
+    if (token) getTables();
+  }, [token]);
 
   async function handleSelectTable(tableNumber: number) {
+    setSelectedTable(tableNumber);
     setLoadingTable(true);
+
     try {
-      const response = await api.post('/order', {
-        table: tableNumber,
-      });
+      const response = await api.post(
+        '/order',
+        { table: tableNumber },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       const { id: orderId } = response.data;
-      
-      console.log(`Pedido criado com sucesso! ID: ${orderId}`);
-      
-      navigation.navigate('Order', { tableId: tableNumber, orderId });
-
+      navigation.navigate('Order', { number: tableNumber, order_id: orderId });
     } catch (err) {
-      console.log('Erro ao criar pedido: ', err);
+      console.log('Erro ao criar pedido:', err);
+      Alert.alert('Erro', 'Não foi possível criar o pedido.');
     } finally {
       setLoadingTable(false);
     }
@@ -61,61 +68,32 @@ export default function ChooseTable() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Escolha a Mesa</Text>
-      <FlatList
-        data={tables}
-        keyExtractor={(item) => String(item)}
-        renderItem={({ item }) => (
-          <TouchableOpacity 
-            style={styles.tableButton}
-            onPress={() => handleSelectTable(item)}
-          >
-            {loadingTable ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.tableNumber}>{item}</Text>
-            )}
-          </TouchableOpacity>
-        )}
-      />
-    </View>
+    <ScrollView style={styles.container}>
+      {tables.map((tableNumber) => (
+        <TouchableOpacity
+          key={tableNumber}
+          style={[
+            styles.tableButton,
+            selectedTable === tableNumber && styles.selectedTable
+          ]}
+          onPress={() => handleSelectTable(tableNumber)}
+        >
+          {loadingTable && selectedTable === tableNumber ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.tableButtonText}>Mesa {tableNumber}</Text>
+          )}
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 40,
-    backgroundColor: '#101026',
-    alignItems: 'center',
-  },
-  center: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 20,
-  },
-  loadingText: {
-    color: '#fff',
-    fontSize: 18,
-    marginTop: 10,
-  },
-  tableButton: {
-    backgroundColor: '#383840',
-    padding: 20,
-    borderRadius: 8,
-    marginVertical: 10,
-    width: 150,
-    alignItems: 'center',
-  },
-  tableNumber: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
+  container: { flex: 1, backgroundColor: '#363636', padding: 20 },
+  tableButton: { backgroundColor: '#b33d3d', padding: 15, borderRadius: 8, marginBottom: 10 },
+  selectedTable: { backgroundColor: '#4CAF50', borderWidth: 2, borderColor: '#fff' },
+  tableButtonText: { color: '#fff', fontWeight: 'bold' },
+  center: { justifyContent: 'center', alignItems: 'center' },
+  loadingText: { color: '#fff', fontSize: 18, marginTop: 10 },
 });

@@ -4,14 +4,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Dashboard from "../pages/Dashboard";
 import Order from "../pages/Order";
 import FinishOrder from "../pages/FinishOrder";
-    
-export type StackParamsList={
+import ChooseTable from "../pages/ChooseTable"; // Importação da tela de escolha de mesa
+
+export type StackParamsList = {
     Dashboard: undefined;
+    ChooseTable: undefined; // Adicionando ChooseTable à lista de parâmetros
     Order: {
         number: number | string;
         order_id: string;
     };
-    FinishOrder:{
+    FinishOrder: {
         number: number | string;
         order_id: string;
     };
@@ -19,30 +21,35 @@ export type StackParamsList={
 
 const Stack = createNativeStackNavigator<StackParamsList>();
 
-function AppRoutes(){
-    return(
+function AppRoutes() {
+    return (
         <Stack.Navigator>
-            <Stack.Screen name="Dashboard" 
-            component={Dashboard}
-            options={{headerShown: false}}
+            <Stack.Screen name="Dashboard"
+                component={Dashboard}
+                options={{ headerShown: false }}
             />
 
             <Stack.Screen
-            name="Order"
-            component={Order}
-            options={{ headerShown: false}}
+                name="ChooseTable"
+                component={ChooseTable}
+                options={{ headerShown: false }}
             />
 
             <Stack.Screen
-            name="FinishOrder"
-            component={FinishOrder}
-            options={{
-                title: 'Finalizando',
-                headerStyle:{
-                    backgroundColor: '#1d1d2e'
-                },
-                headerTintColor: '#FFF'
-            }}
+                name="Order"
+                component={Order}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="FinishOrder"
+                component={FinishOrder}
+                options={{
+                    title: 'Finalizando',
+                    headerStyle: {
+                        backgroundColor: '#1d1d2e'
+                    },
+                    headerTintColor: '#FFF'
+                }}
             />
         </Stack.Navigator>
     )
