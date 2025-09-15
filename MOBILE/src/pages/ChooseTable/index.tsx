@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { api } from '../../services/api';
 import { AuthContext } from '../../contexts/AuthContext';
+import { LogoutButton } from '../../components/botõesHeader'; // <- import do botão
 
 type StackParamsList = {
   Order: { number: number | string; order_id: string };
@@ -14,7 +15,7 @@ export default function ChooseTable() {
   const token = user?.token;
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
-  const [tables, setTables] = useState<number[]>([]);
+  const [tables, setTables] = useState<{ id: number; number: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingTable, setLoadingTable] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
@@ -25,7 +26,7 @@ export default function ChooseTable() {
         const response = await api.get('/tables', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setTables(response.data); // array de numbers
+        setTables(response.data); // array de objects {id, number}
       } catch (err) {
         console.log('Erro ao buscar mesas:', err);
         Alert.alert('Erro', 'Não foi possível carregar as mesas.');
@@ -68,24 +69,31 @@ export default function ChooseTable() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {tables.map((tableNumber) => (
-        <TouchableOpacity
-          key={tableNumber}
-          style={[
-            styles.tableButton,
-            selectedTable === tableNumber && styles.selectedTable
-          ]}
-          onPress={() => handleSelectTable(tableNumber)}
-        >
-          {loadingTable && selectedTable === tableNumber ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.tableButtonText}>Mesa {tableNumber}</Text>
-          )}
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    <View style={styles.container}>
+      {/* BOTÃO DE LOGOUT NO TOPO */}
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10 }}>
+        <LogoutButton />
+      </View>
+
+      <ScrollView>
+        {tables.map((table) => (
+          <TouchableOpacity
+            key={table.id}
+            style={[
+              styles.tableButton,
+              selectedTable === table.number && styles.selectedTable
+            ]}
+            onPress={() => handleSelectTable(table.number)}
+          >
+            {loadingTable && selectedTable === table.number ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.tableButtonText}>Mesa {table.number}</Text>
+            )}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 

@@ -22,6 +22,8 @@ import { SendOrderController } from './controllers/order/SendOrderController';
 import { ListOrdersController } from './controllers/order/ListOrdersController';
 import { DetailOrderController } from './controllers/order/DetailOrderController';
 import { FinishOrderController } from './controllers/order/FinishOrderController';
+
+import { CreateTablesController } from './controllers/tables/CreateTablesController';
 import { ListTablesController } from './controllers/tables/ListTablesController';
 
 import { CreateRoleController } from './controllers/roles/CreateRoleController';
@@ -74,6 +76,8 @@ router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
 // ROTAS MESAS
 
 router.get('/tables', isAuthenticated, new ListTablesController().handle);
+router.post('/tables', isAuthenticated, new CreateTablesController().handle);
+
 
 // ROTAS ROLES
 router.post('/roles', new CreateRoleController().handle);
