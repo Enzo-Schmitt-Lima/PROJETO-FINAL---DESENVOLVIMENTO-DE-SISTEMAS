@@ -16,8 +16,31 @@ model User {
   role     Role     @relation(fields: [roles_id], references: [id])
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
+  roles Roles  @relation(fields: [roles_id], references: [id])
 
   @@map("users")
+}
+
+model Costumer {
+  id String @id @default(uuid())
+  name String
+  email String
+  password String
+  birth_date DateTime
+  created_at DateTime? @default(now())
+  update_at DateTime? @default(now())
+
+  @@map("costumers")
+}
+
+model Roles {
+  id         String    @id @default(uuid())
+  name       String
+  created_at DateTime? @default(now())
+  update_at  DateTime? @default(now())
+  users      User[]
+
+  @@map("roles")
 }
 
 model Category {
