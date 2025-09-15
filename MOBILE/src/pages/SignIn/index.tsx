@@ -14,17 +14,13 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 type RootStackParamList = {
     SignIn: undefined;
-    SignUp: undefined;
     ChooseTable: undefined;
     Dashboard: undefined;
     SignUp: undefined;
-    ChooseTable: undefined;
-    Dashboard: undefined;
 };
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
-export default function SignIn({ navigation }: SignInScreenProps){
 export default function SignIn({ navigation }: SignInScreenProps){
     const { signIn, loadingAuth } = useContext(AuthContext);
     const [email, setEmail] = useState('');
@@ -92,7 +88,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor:'#1d1d2e'
+        backgroundColor:'#911F09' // fundo igual ao SignUp
     },
     logo:{
         marginBottom:18
@@ -107,30 +103,31 @@ const styles = StyleSheet.create({
     input:{
         width: '95%',
         height: 40,
-        backgroundColor: '#101026',
+        backgroundColor: '#B72F14', // cor igual ao input do SignUp
         marginBottom: 12,
-        borderRadius: 4,
+        borderRadius: 10,
         paddingHorizontal: 8,
-        color: '#FFF'
+        color: '#fff' // texto branco
     },
     button:{
         width:'95%',
         height: 40,
-        backgroundColor: '#3FFFa3',
-        borderRadius: 4,
+        backgroundColor: '#F2CA85', // botão igual ao SignUp
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center'
     },
     buttonText:{
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
-        color:'#101026'
+        color:'#4F5476' // texto do botão igual ao SignUp
     },
     
     buttonRegister: {
         marginTop: 10,
     },
     registerText: {
-        color: '#FFF',
+        color: '#B3AAAA', // igualzinho ao SignUp
+        fontWeight: 'bold',
     }
 });
