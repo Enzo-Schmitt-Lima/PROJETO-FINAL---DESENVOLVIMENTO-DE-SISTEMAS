@@ -9,36 +9,24 @@ export function isAuthenticated(
     req: Request,
     res: Response,
     next: NextFunction
-){
-
-    // receber o token
-
+): void { // <-- middleware retorna void
     const authToken = req.headers.authorization;
 
     if(!authToken){
         res.status(401).end();
+        return; // <-- só para o fluxo
     }
 
-    const [, token] = authToken.split(" ")
+    const [, token] = authToken.split(" ");
 
+    try {
+        const { sub } = verify(token, process.env.JWT_SECRET!) as Payload;
 
-    try{
-        // Validar o token
-        const { sub } = verify(
-            token,
-            process.env.JWT_SECRET
-        ) as Payload;
-
-        // recuperar o id do token e colocar dentro de uma variável user_id dentro do Request
         req.user_id = sub;
 
         next();
-
-        // console.log(sub);
     } catch (err) {
         res.status(401).end();
-    };
-
+        return; // <-- só para o fluxo
+    }
 }
-
-    

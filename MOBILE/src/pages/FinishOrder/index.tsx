@@ -7,7 +7,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 
-import { api } from "../../services/api";
+import api from "../../services/api";
 
 type RouteDetailParams = {
     FinishOrder: {
