@@ -32,6 +32,10 @@ import { ListIngredienteController } from './controllers/ingrediente/ListCategor
 
 import { UpdateStatusPedidoController } from './controllers/order/UpdateStatusPedidoController';
 
+import { UpdatePagamentoStatusController } from './controllers/Pagamento/StatusPedidoController';
+import { MetodoPagamentoController } from './controllers/Pagamento/MetodoPagamentoController';
+
+
 import { isAuthenticated } from './middlewares/isAuthenticated';
 import uploadConfig from './config/multer';
 
@@ -66,6 +70,10 @@ router.get('/order/detail', isAuthenticated, new DetailOrderController().handle)
 router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
 
 router.put("/order/status", isAuthenticated, new UpdateStatusPedidoController().handle)
+
+router.put("/pagamento/status", isAuthenticated, new UpdatePagamentoStatusController().handle)
+router.put("/pagamento/metodo", isAuthenticated, new MetodoPagamentoController().handle)
+
 
 
 // ROTAS MESAS
