@@ -28,6 +28,9 @@ import { ListTablesController } from './controllers/tables/ListTablesController'
 
 import { CreateRoleController } from './controllers/roles/CreateRoleController';
 import { CreateIngredienteController } from './controllers/ingrediente/CreateIngredienteController';
+import { ListIngredienteController } from './controllers/ingrediente/ListCategoryController';
+
+import { UpdateStatusPedidoController } from './controllers/order/UpdateStatusPedidoController';
 
 import { isAuthenticated } from './middlewares/isAuthenticated';
 import uploadConfig from './config/multer';
@@ -49,14 +52,21 @@ router.post('/product', isAuthenticated, upload.single('file'), new CreateProduc
 router.get('/category/product', isAuthenticated, new ListByCategoryController().handle);
 
 // ROTAS ORDER
-router.post('/order', isAuthenticated, new CreateOrderController().handle);
-router.delete('/order', isAuthenticated, new RemoveOrderController().handle);
-router.post('/order/add', isAuthenticated, new AddItemController().handle);
-router.delete('/order/remove', isAuthenticated, new RemoveItemController().handle);
-router.put('/order/send', isAuthenticated, new SendOrderController().handle);
-router.get('/orders', isAuthenticated, new ListOrdersController().handle);
-router.get('/order/detail', isAuthenticated, new DetailOrderController().handle);
-router.put('/order/finish', isAuthenticated, new FinishOrderController().handle);
+
+router.post('/order', isAuthenticated, new CreateOrderController().handle)
+router.delete('/order', isAuthenticated, new RemoveOrderController().handle)
+
+router.post('/order/add', isAuthenticated, new AddItemController().handle)
+router.delete('/order/remove', isAuthenticated, new RemoveItemController().handle)
+router.put('/order/send', isAuthenticated, new SendOrderController().handle)
+
+router.get('/orders', isAuthenticated, new ListOrdersController().handle)
+router.get('/order/detail', isAuthenticated, new DetailOrderController().handle)
+
+router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
+
+router.put("/order/status", isAuthenticated, new UpdateStatusPedidoController().handle)
+
 
 // ROTAS MESAS
 router.get('/tables', isAuthenticated, new ListTablesController().handle);
@@ -66,6 +76,9 @@ router.post('/tables', isAuthenticated, new CreateTablesController().handle);
 router.post('/roles', new CreateRoleController().handle);
 
 // ROTAS INGREDIENTE
-router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle);
+
+router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle)
+router.get('/ingrediente', isAuthenticated, new ListIngredienteController().handle)
+
 
 export { router };
