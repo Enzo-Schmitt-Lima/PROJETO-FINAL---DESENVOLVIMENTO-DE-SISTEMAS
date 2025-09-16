@@ -1,109 +1,114 @@
-import React, { useState, createContext, ReactNode, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import api  from '../services/api';
+import React, { createContext, ReactNode, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
+import  api  from '../services/api';
 
-type AuthContextData = {
-    user: UserProps | null;
-    isAuthenticated: boolean;
-    signIn: (credentials: SignInProps) => Promise<UserProps | void>;
-    signUp: (credentials: SignUpProps) => Promise<void>;
-    loadingAuth: boolean;
-    loading: boolean;
-    signOut: () => Promise<void>;
+interface UserProps {
+  id: string;
+  name: string;
+  email: string;
+  token: string;
 }
 
-type UserProps = {
-    id: string;
-    name: string;
-    email: string;
-    token: string;
+interface SignInProps {
+  email: string;
+  password: string;
 }
 
-type AuthProviderProps = {
-    children: ReactNode;
+interface SignUpProps {
+  name: string;
+  email: string;
+  password: string;
 }
 
-type SignInProps = {
-    email: string;
-    password: string;
+interface AuthContextData {
+  user: UserProps | null;
+  isAuthenticated: boolean;
+  loadingAuth: boolean;
+  signIn: (credentials: SignInProps) => Promise<UserProps | null>;
+  signUp: (credentials: SignUpProps) => Promise<UserProps | null>;
+  signOut: () => Promise<void>;
 }
 
-type SignUpProps = {
-    name: string;
-    email: string;
-    password: string;
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [user, setUser] = useState<UserProps | null>(null);
-    const [loadingAuth, setLoadingAuth] = useState(false);
-    const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserProps | null>(null);
+  const [loadingAuth, setLoadingAuth] = useState(false);
 
-    const isAuthenticated = !!user;
+  const isAuthenticated = !!user;
 
-    useEffect(() => {
-        async function getUser() {
-            const userInfo = await AsyncStorage.getItem('@sujeitopizzaria');
-            const hasUser: UserProps = JSON.parse(userInfo || '{}');
+  useEffect(() => {
+    async function loadStorageData() {
+      const storageUser = await AsyncStorage.getItem('@App:user');
+      const storageToken = await AsyncStorage.getItem('@App:token');
 
-            if (Object.keys(hasUser).length > 0) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${hasUser.token}`;
-                setUser(hasUser);
-            }
-
-            setLoading(false);
-        }
-        getUser();
-    }, []);
-
-    async function signIn({ email, password }: SignInProps): Promise<UserProps | void> {
-        setLoadingAuth(true);
-        try {
-            const response = await api.post('/session', { email, password });
-            const { id, name, email: userEmail, token } = response.data;
-            const data = { id, name, email: userEmail, token };
-
-            await AsyncStorage.setItem('@sujeitopizzaria', JSON.stringify(data));
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            setUser(data);
-            
-            return data;
-        } catch (err) {
-            console.log('Erro ao acessar', err);
-        } finally {
-            setLoadingAuth(false);
-        }
+      if (storageUser && storageToken) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${storageToken}`;
+        setUser(JSON.parse(storageUser));
+      }
     }
 
-    async function signOut() {
-        await AsyncStorage.clear();
-        setUser(null);
-    }
+    loadStorageData();
+  }, []);
 
-    async function signUp({ name, email, password }: SignUpProps) {
-        setLoadingAuth(true);
-        try {
-            await api.post('/users', { name, email, password });
-        } catch (err) {
-            console.log("Erro ao cadastrar:", err);
-        } finally {
-            setLoadingAuth(false);
-        }
-    }
+  async function signIn({ email, password }: SignInProps) {
+    try {
+      setLoadingAuth(true);
+      const response = await api.post('/session', { email, password });
 
-    return (
-        <AuthContext.Provider value={{
-            user,
-            isAuthenticated,
-            signIn,
-            signUp,
-            loading,
-            loadingAuth,
-            signOut
-        }}>
-            {children}
-        </AuthContext.Provider>
-    );
+      const { id, name, token } = response.data;
+
+      const userData = { id, name, email, token };
+      setUser(userData);
+
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      await AsyncStorage.setItem('@App:user', JSON.stringify(userData));
+      await AsyncStorage.setItem('@App:token', token);
+
+      setLoadingAuth(false);
+      return userData;
+    } catch (err: any) {
+      setLoadingAuth(false);
+      Alert.alert('Erro', err.response?.data?.error || 'Não foi possível entrar');
+      return null;
+    }
+  }
+
+  async function signUp({ name, email, password }: SignUpProps) {
+    try {
+      setLoadingAuth(true);
+      const response = await api.post('/users', { name, email, password });
+
+      if (response.data) {
+        // Após cadastrar, já realiza login automático
+        const userData = await signIn({ email, password });
+        setLoadingAuth(false);
+        return userData;
+      }
+
+      setLoadingAuth(false);
+      return null;
+    } catch (err: any) {
+      setLoadingAuth(false);
+      Alert.alert('Erro', err.response?.data?.error || 'Não foi possível cadastrar');
+      return null;
+    }
+  }
+
+  async function signOut() {
+    await AsyncStorage.clear();
+    setUser(null);
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated, loadingAuth, signIn, signUp, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

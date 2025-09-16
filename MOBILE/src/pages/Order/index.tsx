@@ -12,7 +12,7 @@
   import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 
   import { Feather } from "@expo/vector-icons"
-  import { api } from "../../services/api"
+  import  api  from "../../services/api"
   import { ModalPicker } from "../../components/ModalPicker";
   import { ListItem } from "../../components/listItem";
 

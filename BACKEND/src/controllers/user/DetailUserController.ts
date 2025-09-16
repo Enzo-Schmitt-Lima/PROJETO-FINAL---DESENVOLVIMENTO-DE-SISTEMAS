@@ -14,4 +14,4 @@ class DetailUserController {
     }
 }
 
-export { DetailUserController }
+export { DetailUserController };

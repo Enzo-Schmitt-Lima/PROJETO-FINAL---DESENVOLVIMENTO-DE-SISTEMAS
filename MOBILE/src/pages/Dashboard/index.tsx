@@ -1,12 +1,8 @@
-import React, { useContext, useState} from "react";
-import { View, Text, SafeAreaView, TouchableOpacity, TextInput, StyleSheet} from 'react-native'
-
+import React from "react";
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
-
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
-
-import { api } from "../../services/api"
 
 export default function Dashboard(){
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
@@ -39,16 +35,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#FFF',
         marginBottom: 24
-    },
-    input:{
-        width: '90%',
-        height: 60,
-        backgroundColor: '#101026',
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        textAlign: 'center',
-        fontSize: 22,
-        color: '#FFF'
     },
     button: {
         width: '90%',

@@ -27,7 +27,6 @@ import { CreateTablesController } from './controllers/tables/CreateTablesControl
 import { ListTablesController } from './controllers/tables/ListTablesController';
 
 import { CreateRoleController } from './controllers/roles/CreateRoleController';
-
 import { CreateIngredienteController } from './controllers/ingrediente/CreateIngredienteController';
 import { ListIngredienteController } from './controllers/ingrediente/ListCategoryController';
 
@@ -38,33 +37,23 @@ import { MetodoPagamentoController } from './controllers/Pagamento/MetodoPagamen
 
 
 import { isAuthenticated } from './middlewares/isAuthenticated';
-
 import uploadConfig from './config/multer';
 
-// import { isTypedSql } from '@prisma/client/runtime/library';
-
 const router = Router();
-
-const upload = multer(uploadConfig.upload("./tmp"))
+const upload = multer(uploadConfig.upload('./tmp'));
 
 // ROTAS USER
-router.post('/users', new CreateUserController().handle)
-
-router.post('/session', new AuthUserController().handle)
-
-router.get('/me', isAuthenticated, new DetailUserController().handle)
+router.post('/users', new CreateUserController().handle);
+router.post('/session', new AuthUserController().handle);
+router.get('/me', isAuthenticated, new DetailUserController().handle);
 
 // ROTAS CATEGORY
-
-router.post('/category', isAuthenticated, new CreateCategoryController().handle)
-
-router.get('/category', isAuthenticated, new ListCategoryController().handle)
-
+router.post('/category', isAuthenticated, new CreateCategoryController().handle);
+router.get('/category', isAuthenticated, new ListCategoryController().handle);
 
 // ROTAS PRODUCT
-router.post('/product', isAuthenticated, upload.single('file'), new CreateProductController().handle)
-
-router.get('/category/product', isAuthenticated, new ListByCategoryController().handle)
+router.post('/product', isAuthenticated, upload.single('file'), new CreateProductController().handle);
+router.get('/category/product', isAuthenticated, new ListByCategoryController().handle);
 
 // ROTAS ORDER
 
@@ -88,10 +77,8 @@ router.put("/pagamento/metodo", isAuthenticated, new MetodoPagamentoController()
 
 
 // ROTAS MESAS
-
 router.get('/tables', isAuthenticated, new ListTablesController().handle);
 router.post('/tables', isAuthenticated, new CreateTablesController().handle);
-
 
 // ROTAS ROLES
 router.post('/roles', new CreateRoleController().handle);

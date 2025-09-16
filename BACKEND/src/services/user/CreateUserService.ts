@@ -16,13 +16,13 @@ class CreateUserService {
     const userAlreadyExists = await prismaClient.user.findFirst({
       where: { email },
     });
+
     if (userAlreadyExists) {
       throw new Error("User already exists");
     }
 
     const passwordHash = await hash(password, 8);
 
-    // Busca o role padrão "cliente"
     const defaultRole = await prismaClient.role.findFirst({
       where: { name: "cliente" },
     });
@@ -36,7 +36,7 @@ class CreateUserService {
         name,
         email,
         password: passwordHash,
-        roles_id: defaultRole.id, // associando o role
+        roles_id: defaultRole.id,
       },
       select: {
         id: true,
