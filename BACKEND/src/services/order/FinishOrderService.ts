@@ -12,7 +12,7 @@ class FinishOrderService{
                 id: order_id
             },
             data:{
-                status: true,
+                status: 3,
             }
         })
 

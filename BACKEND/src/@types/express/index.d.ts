@@ -1,5 +1,10 @@
-declare namespace Express {
-    export interface Request{
-        user_id: string;
+// @types/express/index.d.ts
+import 'express';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user_id?: string; // opcional antes do middleware rodar
     }
+  }
 }

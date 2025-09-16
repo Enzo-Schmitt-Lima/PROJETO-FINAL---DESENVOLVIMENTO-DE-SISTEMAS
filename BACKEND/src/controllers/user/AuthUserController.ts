@@ -10,10 +10,10 @@ class AuthUserController {
         const auth = await authUserService.execute({
             email,
             password
-        })
+        });
         
         res.json(auth);
     }
 }
 
-export { AuthUserController }
+export { AuthUserController };
