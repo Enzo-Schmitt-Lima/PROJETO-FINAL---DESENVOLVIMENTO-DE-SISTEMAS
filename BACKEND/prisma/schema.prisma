@@ -106,6 +106,8 @@ model ingredientes {
   id String @id @default(uuid())
   name String @unique
   adicional adicionais[]
+
+  @@map("ingredientes")
 }
 
 model adicionais {
@@ -118,10 +120,14 @@ model adicionais {
   update_at DateTime? @default(now())
   product    Product   @relation(fields: [product_id], references: [id])
   ingredientes    ingredientes   @relation(fields: [ingredientes_id], references: [id])
+
+  @@map("adicionais")
 }
 
 model Pagamento {
   id String @id @default(uuid())
   name String
   status  Int    @default(0) // 0 = Indo para preparo | 1 = Preparando | 2 = Pronto
+
+  @@map("Pagamento")
 }
