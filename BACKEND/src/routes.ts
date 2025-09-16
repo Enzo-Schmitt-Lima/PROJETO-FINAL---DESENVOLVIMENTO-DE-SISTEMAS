@@ -29,6 +29,9 @@ import { ListTablesController } from './controllers/tables/ListTablesController'
 import { CreateRoleController } from './controllers/roles/CreateRoleController';
 
 import { CreateIngredienteController } from './controllers/ingrediente/CreateIngredienteController';
+import { ListIngredienteController } from './controllers/ingrediente/ListCategoryController';
+
+import { UpdateStatusPedidoController } from './controllers/order/UpdateStatusPedidoController';
 
 import { isAuthenticated } from './middlewares/isAuthenticated';
 
@@ -73,6 +76,9 @@ router.get('/order/detail', isAuthenticated, new DetailOrderController().handle)
 
 router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
 
+router.put("/order/status", isAuthenticated, new UpdateStatusPedidoController().handle)
+
+
 // ROTAS MESAS
 
 router.get('/tables', isAuthenticated, new ListTablesController().handle);
@@ -85,6 +91,7 @@ router.post('/roles', new CreateRoleController().handle);
 // ROTAS INGREDIENTE
 
 router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle)
+router.get('/ingrediente', isAuthenticated, new ListIngredienteController().handle)
 
 
 export { router };
