@@ -40,7 +40,7 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
     try {
       await signUp({ name: nome, email, password: senha });
       Alert.alert('Sucesso!', 'Cadastro realizado!');
-      navigation.navigate('SignIn'); // vai pra tela de login automaticamente
+      navigation.navigate('SignIn');
     } catch (err) {
       console.log('Erro ao cadastrar:', err);
       Alert.alert('Erro', 'Não foi possível realizar o cadastro.');
@@ -52,7 +52,7 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.card}>
           <Text style={styles.title}>Cadastre-se</Text>
-          <View style={styles.titleLine} />
+          {/* <View style={styles.titleLine} /> */}
 
           <TextInput
             placeholder="Nome completo"
@@ -99,8 +99,7 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
           </TouchableOpacity>
 
           <View style={styles.footer}>
-            <Image source={require("../SignIn/SAC.png")} style={styles.footerIcon} />
-            <Text style={styles.footerText}>SAC</Text>
+            <Image source={require("../SignUp/SAC.png")} style={styles.footerIcon} />
           </View>
         </View>
       </ScrollView>
@@ -109,22 +108,35 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#911F09" },
-  scrollContainer: { flexGrow: 1, justifyContent: "center", alignItems: 'center', padding: 16 },
-  card: {
-    width: '100%',
-    backgroundColor: "#D9D9D9",
-    borderRadius: 20,
-    padding: 24,
+  container: { 
+    flex: 1, 
+    backgroundColor: "#911F09", 
+    padding: 16,
+  },
+  scrollContainer: { 
+    flexGrow: 1, 
+    justifyContent: "center", 
     alignItems: "center",
   },
-  title: { fontSize: 28, fontWeight: "bold", color: "#4F5476" },
-  titleLine: { width: 172, height: 2, backgroundColor: "#4F5476", marginVertical: 20, borderRadius: 10 },
+  card: {
+    width: "100%",
+    backgroundColor: "#D9D9D9",
+    borderRadius: 44,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
+  title: { 
+    fontSize: 28, 
+    fontWeight: "bold", 
+    color: "#4F5476", 
+    marginBottom: 20,
+  },
   input: {
     width: "100%",
     backgroundColor: "#B72F14",
     color: "#fff",
-    padding: 12,
+    padding: 15,
     borderRadius: 10,
     marginVertical: 8,
   },
@@ -132,14 +144,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2CA85",
     borderRadius: 20,
     paddingVertical: 12,
-    paddingHorizontal: 48,
-    marginVertical: 16,
+    marginTop: 20,
     alignItems: "center",
-    width: '100%',
+    width: "100%",
   },
-  buttonText: { color: "#4F5476", fontSize: 14, fontWeight: "bold" },
-  loginText: { color: "#B3AAAA", fontSize: 12, fontWeight: "bold", marginVertical: 8 },
-  footer: { flexDirection: "row", alignItems: "center", marginTop: 24 },
-  footerIcon: { width: 20, height: 30, marginRight: 8 },
-  footerText: { color: "#000", fontWeight: 'bold' }
+  buttonText: { 
+    color: "#4F5476", 
+    fontSize: 14, 
+    fontWeight: "bold" 
+  },
+  loginText: { 
+    color: "#B3AAAA", 
+    fontSize: 12, 
+    fontWeight: "bold", 
+    marginTop: 12,
+  },
+  footer: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    marginTop: 24,
+  },
+  footerIcon: { 
+    width: 50, 
+    height: 20, 
+    marginRight: 8,
+    marginLeft: 260
+  },
 });

@@ -70,7 +70,6 @@ export default function SignIn({ navigation }: SignInScreenProps){
                 </TouchableOpacity>
 
                 {/* BOTÃO IR PARA CADASTRO */}
-                {/* BOTÃO IR PARA CADASTRO */}
                 <TouchableOpacity
                     style={styles.buttonRegister}
                     onPress={() => navigation.navigate('SignUp')}
@@ -88,7 +87,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor:'#911F09' // fundo igual ao SignUp
+        backgroundColor:'#911F09'
     },
     logo:{
         marginBottom:18
@@ -103,16 +102,16 @@ const styles = StyleSheet.create({
     input:{
         width: '95%',
         height: 40,
-        backgroundColor: '#B72F14', // cor igual ao input do SignUp
+        backgroundColor: '#B72F14',
         marginBottom: 12,
         borderRadius: 10,
         paddingHorizontal: 8,
-        color: '#fff' // texto branco
+        color: '#fff' 
     },
     button:{
         width:'95%',
         height: 40,
-        backgroundColor: '#F2CA85', // botão igual ao SignUp
+        backgroundColor: '#F2CA85', 
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center'
@@ -120,14 +119,14 @@ const styles = StyleSheet.create({
     buttonText:{
         fontSize: 16,
         fontWeight: 'bold',
-        color:'#4F5476' // texto do botão igual ao SignUp
+        color:'#4F5476'
     },
     
     buttonRegister: {
         marginTop: 10,
     },
     registerText: {
-        color: '#B3AAAA', // igualzinho ao SignUp
+        color: '#B3AAAA', 
         fontWeight: 'bold',
     }
 });
