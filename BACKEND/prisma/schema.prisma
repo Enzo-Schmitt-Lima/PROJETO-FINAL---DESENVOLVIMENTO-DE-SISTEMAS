@@ -90,6 +90,7 @@ model Order {
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
   items      Item[]
+  pagamento Pagamento[]
 
   @@map("orders")
 }
@@ -125,9 +126,14 @@ model adicionais {
 }
 
 model Pagamento {
-  id String @id @default(uuid())
-  name String
-  status  Int    @default(0) // 0 = Indo para preparo | 1 = Preparando | 2 = Pronto
+  id        String   @id @default(uuid())
+  order_id  String
+  order     Order    @relation(fields: [order_id], references: [id])
+  amount    Float
+  metodo     Int
+  status    Int      
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
 
-  @@map("Pagamento")
+  @@map("pagamento")
 }
