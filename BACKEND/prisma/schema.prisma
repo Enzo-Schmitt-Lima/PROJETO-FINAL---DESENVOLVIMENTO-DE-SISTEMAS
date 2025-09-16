@@ -76,7 +76,8 @@ model Order {
   tableId    Int
   status     Int         @default(0)
   items      Item[]
-  pagamento Pagamento[]
+  table      Table       @relation(fields: [tableId], references: [id])
+  pagamento  Pagamento[]
 
   @@map("orders")
 }
@@ -101,16 +102,6 @@ model adicionais {
   products        Product      @relation(fields: [product_id], references: [id])
 }
 
-model costumers {
-  id         String    @id
-  name       String
-  email      String
-  password   String
-  birth_date DateTime
-  created_at DateTime? @default(now())
-  update_at  DateTime? @default(now())
-}
-
 model ingredientes {
   id         String       @id
   name       String       @unique
@@ -118,14 +109,14 @@ model ingredientes {
 }
 
 model Pagamento {
-  id        String   @id @default(uuid())
-  order_id  String
-  order     Order    @relation(fields: [order_id], references: [id])
-  amount    Float
-  metodo     Int
-  status    Int      
-  created_at DateTime @default(now())
+  id         String    @id @default(uuid())
+  order_id   String
+  amount     Float
+  status     Int
+  created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
+  metodo     Int
+  order      Order     @relation(fields: [order_id], references: [id])
 
   @@map("pagamento")
 }

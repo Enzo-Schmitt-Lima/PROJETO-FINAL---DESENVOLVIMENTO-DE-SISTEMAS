@@ -1,26 +1,32 @@
 import prismaClient from "../../../prisma";
 
 interface OrderRequest {
-  table: number; // número da mesa
+  tableId: number; // ID da mesa
   name?: string;
 }
 
 class CreateOrderService {
-  async execute({ table, name }: OrderRequest) {
-    // Busca a mesa pelo número
+  async execute({ tableId, name }: OrderRequest) {
+    // Verifica se a mesa existe
     const tableFound = await prismaClient.table.findUnique({
-      where: { number: table }
+      where: { id: tableId }
     });
 
     if (!tableFound) {
-      throw new Error('Mesa não encontrada');
+      throw new Error("Mesa não encontrada");
     }
 
-    // Cria o pedido vinculado à mesa
+    // Cria o pedido usando a relação
     const order = await prismaClient.order.create({
       data: {
-        tableId: tableFound.id,
-        name: name || null
+        draft: true,
+        status: 0,
+        name: name || null,
+        table: {
+          connect: {
+            id: tableId
+          }
+        }
       }
     });
 

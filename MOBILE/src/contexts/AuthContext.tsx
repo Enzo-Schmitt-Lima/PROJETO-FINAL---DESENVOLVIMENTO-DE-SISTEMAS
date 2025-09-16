@@ -1,7 +1,9 @@
 import React, { createContext, ReactNode, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import  api  from '../services/api';
+import api from '../services/api';
+import { useNavigation, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackParamsList } from '../routes/app.routes';
 
 interface UserProps {
   id: string;
@@ -39,6 +41,7 @@ export const AuthContext = createContext({} as AuthContextData);
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserProps | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(false);
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
   const isAuthenticated = !!user;
 
@@ -62,7 +65,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await api.post('/session', { email, password });
 
       const { id, name, token } = response.data;
-
       const userData = { id, name, email, token };
       setUser(userData);
 
@@ -86,7 +88,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await api.post('/users', { name, email, password });
 
       if (response.data) {
-        // Após cadastrar, já realiza login automático
         const userData = await signIn({ email, password });
         setLoadingAuth(false);
         return userData;
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function signOut() {
     await AsyncStorage.clear();
     setUser(null);
+    navigation.navigate('SignIn');
   }
 
   return (
