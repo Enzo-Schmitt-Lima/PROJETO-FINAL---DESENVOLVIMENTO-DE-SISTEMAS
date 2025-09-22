@@ -5,8 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   FlatList,
+  Alert,
 } from "react-native";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -18,190 +18,179 @@ type OrderRouteProp = RouteProp<StackParamsList, "Order">;
 export default function Order() {
   const route = useRoute<OrderRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-  const scrollRef = useRef<ScrollView>(null);
 
   const [categories, setCategories] = useState<any[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+  const [showProducts, setShowProducts] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
+  const [hasOrderItems, setHasOrderItems] = useState(false);
+  const [orderSummary, setOrderSummary] = useState<any[]>([]);
 
-  const CATEGORY_COLOR = "#3FFFA3";
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     async function loadCategories() {
       try {
-        const response = await api.get("/category"); // backend retorna categorias com produtos
+        const response = await api.get("/category");
         const formatted = response.data.map((cat: any) => ({
           ...cat,
-          products: cat.products
-            ? cat.products.map((p: any) => ({ ...p, amount: 0 }))
-            : [],
+          products: cat.products.map((p: any) => ({ ...p, amount: 0 })),
         }));
         setCategories(formatted);
       } catch (err) {
         console.log("Erro ao buscar categorias:", err);
       }
     }
-
     loadCategories();
   }, []);
 
-  function increment(categoryId: string, productId: string, price: string) {
-    const updatedCategories = categories.map((cat) => {
-      if (cat.id === categoryId) {
+  const handleCategoryPress = (id: string) => {
+    setShowProducts(showProducts === id ? null : id);
+    setTimeout(() => {
+      const y = document.getElementById(id)?.offsetTop;
+      if (y !== undefined) scrollRef.current?.scrollTo({ y, animated: true });
+    }, 50);
+  };
+
+  const updateOrderSummary = (updatedCategories: any[]) => {
+    const summary: any[] = [];
+    updatedCategories.forEach((cat) =>
+      cat.products.forEach((p: any) => {
+        if (p.amount > 0) summary.push({ ...p, category: cat.name });
+      })
+    );
+    setOrderSummary(summary);
+  };
+
+  const increment = (catId: string, prodId: string, price: string) => {
+    const updated = categories.map((cat) => {
+      if (cat.id === catId) {
         return {
           ...cat,
-          products: cat.products.map((p: any) => {
-            if (p.id === productId) {
-              const updated = { ...p, amount: p.amount + 1 };
-              updateSelectedProducts(updated, "add", parseFloat(price));
-              return updated;
-            }
-            return p;
-          }),
+          products: cat.products.map((p: any) =>
+            p.id === prodId ? { ...p, amount: p.amount + 1 } : p
+          ),
         };
       }
       return cat;
     });
-    setCategories(updatedCategories);
-  }
+    setCategories(updated);
+    setTotal((prev) => prev + parseFloat(price));
+    setHasOrderItems(true);
+    updateOrderSummary(updated);
+  };
 
-  function decrement(categoryId: string, productId: string, price: string) {
-    const updatedCategories = categories.map((cat) => {
-      if (cat.id === categoryId) {
+  const decrement = (catId: string, prodId: string, price: string) => {
+    const updated = categories.map((cat) => {
+      if (cat.id === catId) {
         return {
           ...cat,
-          products: cat.products.map((p: any) => {
-            if (p.id === productId && p.amount > 0) {
-              const newAmount = p.amount - 1;
-              const updated = { ...p, amount: newAmount };
-              updateSelectedProducts(updated, "remove", parseFloat(price));
-              return updated;
-            }
-            return p;
-          }),
+          products: cat.products.map((p: any) =>
+            p.id === prodId
+              ? { ...p, amount: Math.max(0, p.amount - 1) }
+              : p
+          ),
         };
       }
       return cat;
     });
-    setCategories(updatedCategories);
-  }
+    setCategories(updated);
 
-  function updateSelectedProducts(product: any, action: "add" | "remove", price: number) {
-    if (action === "add") {
-      const exists = selectedProducts.find((item) => item.id === product.id);
-      if (exists) {
-        setSelectedProducts(
-          selectedProducts.map((item) =>
-            item.id === product.id ? product : item
-          )
-        );
-      } else {
-        setSelectedProducts([...selectedProducts, product]);
-      }
-      setTotal((prev) => parseFloat((prev + price).toFixed(2)));
-    } else {
-      const exists = selectedProducts.find((item) => item.id === product.id);
-      if (exists) {
-        if (product.amount === 0) {
-          setSelectedProducts(selectedProducts.filter((item) => item.id !== product.id));
-        } else {
-          setSelectedProducts(
-            selectedProducts.map((item) =>
-              item.id === product.id ? product : item
-            )
-          );
-        }
-      }
-      setTotal((prev) => parseFloat((prev - price).toFixed(2)));
-    }
-  }
+    setTotal((prev) => Math.max(0, prev - parseFloat(price)));
 
-  function handleCallWaiter() {
-    Alert.alert("Garçom", "O garçom está vindo!");
-  }
+    const anyItem = updated.some((c) =>
+      c.products.some((p: any) => p.amount > 0)
+    );
+    setHasOrderItems(anyItem);
+    updateOrderSummary(updated);
+  };
 
-  function handleFinalizeOrder() {
-    Alert.alert("Finalizar pedido", `Total: R$ ${total.toFixed(2)}`);
-    setSelectedProducts([]);
-    setTotal(0);
-    setCategories(categories.map(cat => ({
-      ...cat,
-      products: cat.products.map((p: any) => ({ ...p, amount: 0 }))
-    })));
-  }
+  const handleCancelOrder = () => {
+    navigation.goBack();
+  };
 
-  function scrollToCategory(index: number) {
-    scrollRef.current?.scrollTo({
-      y: index * 100, // ajuste conforme altura de cada categoria
-      animated: true,
-    });
-  }
+  const handleFinishOrder = () => {
+    Alert.alert("Pedido finalizado!", `Total: R$ ${total.toFixed(2)}`);
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>⬅ Voltar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleCallWaiter}>
-          <Text style={styles.waiter}>🧑‍🍳</Text>
-        </TouchableOpacity>
-      </View>
-
       <Text style={styles.title}>Mesa {route.params.number}</Text>
 
-      <ScrollView ref={scrollRef} style={{ flex: 1, marginBottom: 150 }}>
-        {categories.map((cat, index) => (
-          <View key={cat.id} style={[styles.category, { backgroundColor: CATEGORY_COLOR }]}>
-            <TouchableOpacity onPress={() => scrollToCategory(index)}>
+      <ScrollView ref={scrollRef} style={{ flex: 1 }}>
+        {categories.map((cat) => (
+          <View key={cat.id} style={styles.categoryContainer}>
+            <TouchableOpacity
+              onPress={() => handleCategoryPress(cat.id)}
+              style={styles.categoryButton}
+            >
               <Text style={styles.categoryTitle}>{cat.name}</Text>
             </TouchableOpacity>
-            {cat.products.map((prod: any) => (
-              <View key={prod.id} style={styles.product}>
-                <Text style={styles.productName}>
-                  {prod.name} - R$ {prod.price}
-                </Text>
-                <View style={styles.counter}>
-                  <TouchableOpacity
-                    style={styles.counterButton}
-                    onPress={() => decrement(cat.id, prod.id, prod.price)}
-                  >
-                    <Text style={styles.counterText}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.amount}>{prod.amount}</Text>
-                  <TouchableOpacity
-                    style={styles.counterButton}
-                    onPress={() => increment(cat.id, prod.id, prod.price)}
-                  >
-                    <Text style={styles.counterText}>+</Text>
-                  </TouchableOpacity>
+
+            {showProducts === cat.id &&
+              cat.products.map((prod: any) => (
+                <View key={prod.id} style={styles.productContainer}>
+                  <Text style={styles.productName}>
+                    {prod.name} - R$ {prod.price}
+                  </Text>
+                  <View style={styles.counter}>
+                    <TouchableOpacity
+                      style={styles.counterButton}
+                      onPress={() => decrement(cat.id, prod.id, prod.price)}
+                    >
+                      <Text style={styles.counterText}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.amount}>{prod.amount}</Text>
+                    <TouchableOpacity
+                      style={styles.counterButton}
+                      onPress={() => increment(cat.id, prod.id, prod.price)}
+                    >
+                      <Text style={styles.counterText}>+</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))}
           </View>
         ))}
       </ScrollView>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        {selectedProducts.length > 0 && (
+      {/* Resumo horizontal acima do total */}
+      {hasOrderItems && (
+        <View style={styles.summaryContainer}>
           <FlatList
-            data={selectedProducts}
+            data={orderSummary}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <Text style={styles.selectedItem}>
-                {item.name} - {item.amount}x
-              </Text>
-            )}
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={{ maxHeight: 50, marginBottom: 10 }}
+            renderItem={({ item }) => (
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryText}>
+                  {item.name} x {item.amount} - R$ {(item.amount * parseFloat(item.price)).toFixed(2)}
+                </Text>
+              </View>
+            )}
           />
-        )}
-        <Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
-        <TouchableOpacity style={styles.finalizeButton} onPress={handleFinalizeOrder}>
-          <Text style={styles.finalizeText}>Finalizar Pedido</Text>
+        </View>
+      )}
+
+      {/* Total */}
+      {hasOrderItems && (
+        <View style={styles.orderSummary}>
+          <Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
+        </View>
+      )}
+
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[styles.footerButton, { backgroundColor: "#FF3F4B" }]}
+          onPress={handleCancelOrder}
+        >
+          <Text style={styles.footerText}>Cancelar Pedido</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.footerButton, { backgroundColor: "#3FFFA3" }]}
+          onPress={handleFinishOrder}
+        >
+          <Text style={styles.footerText}>Finalizar Pedido</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -209,20 +198,22 @@ export default function Order() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#1d1d2e", padding: 16 },
-  header: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
-  backButton: { color: "#FFF", fontSize: 18 },
-  waiter: { fontSize: 24 },
-  title: { fontSize: 24, fontWeight: "bold", color: "#FFF", marginBottom: 16 },
-  category: { padding: 10, borderRadius: 8, marginBottom: 12 },
-  categoryTitle: { fontSize: 20, fontWeight: "bold", color: "#101026", marginBottom: 6 },
-  product: {
+  container: { flex: 1, backgroundColor: "#1d1d2e", paddingTop: 16 },
+  title: { fontSize: 24, fontWeight: "bold", color: "#FFF", textAlign: "center" },
+  categoryContainer: { marginBottom: 12 },
+  categoryButton: {
+    backgroundColor: "#29295c",
+    padding: 12,
+    borderRadius: 8,
+  },
+  categoryTitle: { fontSize: 18, color: "#FFF", fontWeight: "bold" },
+  productContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: "#29295c",
+    backgroundColor: "#3b3b6b",
+    marginVertical: 4,
     padding: 10,
     borderRadius: 6,
-    marginBottom: 6,
     alignItems: "center",
   },
   productName: { color: "#FFF", flex: 1 },
@@ -235,23 +226,38 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 6,
   },
-  counterText: { fontSize: 18, fontWeight: "bold", color: "#101026" },
-  amount: { color: "#FFF", fontSize: 16, marginHorizontal: 8 },
-  footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#101026",
-    padding: 10,
+  counterText: { fontWeight: "bold", color: "#101026", fontSize: 18 },
+  amount: { color: "#FFF", marginHorizontal: 8, fontSize: 16 },
+  summaryContainer: {
+    backgroundColor: "#29295c",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
   },
-  finalizeButton: {
-    backgroundColor: "#FF3F4B",
+  summaryItem: {
+    backgroundColor: "#3FFFA3",
+    padding: 6,
+    marginHorizontal: 4,
+    borderRadius: 6,
+  },
+  summaryText: { color: "#101026", fontWeight: "bold" },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 12,
+    backgroundColor: "#101026",
+  },
+  footerButton: {
+    flex: 1,
+    marginHorizontal: 4,
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: "center",
   },
-  finalizeText: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
-  selectedItem: { color: "#FFF", marginRight: 10, fontSize: 16 },
-  totalText: { color: "#FFF", fontSize: 18, fontWeight: "bold", marginBottom: 8 },
+  footerText: { fontWeight: "bold", color: "#FFF", fontSize: 16 },
+  orderSummary: {
+    backgroundColor: "#29295c",
+    padding: 10,
+    alignItems: "center",
+  },
+  totalText: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
 });

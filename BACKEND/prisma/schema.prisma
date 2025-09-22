@@ -79,7 +79,6 @@ model Order {
   items      Item[]
   table      Table       @relation(fields: [tableId], references: [id])
   pagamento  Pagamento[]
-  comanda Comanda[]
  
   @@map("orders")
 }
