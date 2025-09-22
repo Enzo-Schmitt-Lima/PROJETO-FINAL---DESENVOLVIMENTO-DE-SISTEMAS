@@ -1,12 +1,12 @@
 generator client {
   provider = "prisma-client-js"
 }
-
+ 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+ 
 model User {
   id         String    @id @default(uuid())
   name       String
@@ -16,20 +16,20 @@ model User {
   update_at  DateTime? @default(now())
   roles_id   String
   roles      Role      @relation(fields: [roles_id], references: [id])
-
+ 
   @@map("users")
 }
-
+ 
 model Category {
   id         String    @id @default(uuid())
   name       String
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
   products   Product[]
-
+ 
   @@map("categories")
 }
-
+ 
 model Product {
   id          String       @id @default(uuid())
   name        String
@@ -42,10 +42,10 @@ model Product {
   adicionais  adicionais[]
   items       Item[]
   category    Category     @relation(fields: [category_id], references: [id])
-
+ 
   @@map("products")
 }
-
+ 
 model Item {
   id         String    @id @default(uuid())
   amount     Int
@@ -55,18 +55,18 @@ model Item {
   product_id String
   order      Order     @relation(fields: [order_id], references: [id])
   product    Product   @relation(fields: [product_id], references: [id])
-
+ 
   @@map("items")
 }
-
+ 
 model Table {
   id     Int     @id @default(autoincrement())
   number Int     @unique
   orders Order[]
-
+ 
   @@map("tables")
 }
-
+ 
 model Order {
   id         String      @id @default(uuid())
   draft      Boolean     @default(true)
@@ -76,20 +76,21 @@ model Order {
   tableId    Int
   status     Int         @default(0)
   items      Item[]
-  pagamento Pagamento[]
+  table      Table       @relation(fields: [tableId], references: [id])
+  pagamento  Pagamento[]
   comanda Comanda[]
-
+ 
   @@map("orders")
 }
-
+ 
 model Role {
   id    String @id @default(uuid())
   name  String @unique
   users User[]
-
+ 
   @@map("roles")
 }
-
+ 
 model adicionais {
   id              String       @id
   name            String
@@ -101,22 +102,24 @@ model adicionais {
   ingredientes    ingredientes @relation(fields: [ingredientes_id], references: [id])
   products        Product      @relation(fields: [product_id], references: [id])
 }
-
+ 
 model ingredientes {
   id         String       @id
   name       String       @unique
   adicionais adicionais[]
 }
-
+ 
 model Pagamento {
   id         String    @id @default(uuid())
   order_id   String
   amount     Float
-  status     Int
+  status     Int @default(0)
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
+  metodo     Int
+  order      Order     @relation(fields: [order_id], references: [id])
   comanda Comanda[]
-
+ 
   @@map("pagamento")
 }
 
