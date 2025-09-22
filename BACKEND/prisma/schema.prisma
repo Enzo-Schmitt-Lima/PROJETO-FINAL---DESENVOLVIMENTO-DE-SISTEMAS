@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   name       String
   email      String
   password   String
-  roles_id   String
-  roles      Role     @relation(fields: [roles_id], references: [id])
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
+  roles_id   String
+  roles      Role      @relation(fields: [roles_id], references: [id])
+
   @@map("users")
 }
 
@@ -25,6 +26,7 @@ model Category {
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
   products   Product[]
+
   @@map("categories")
 }
 
@@ -37,40 +39,42 @@ model Product {
   created_at  DateTime?    @default(now())
   update_at   DateTime?    @default(now())
   category_id String
+  adicionais  adicionais[]
   items       Item[]
-  adicional   adicionais[]
   category    Category     @relation(fields: [category_id], references: [id])
+
   @@map("products")
 }
 
 model Item {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   amount     Int
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
   order_id   String
   product_id String
-  order      Order    @relation(fields: [order_id], references: [id])
-  product    Product  @relation(fields: [product_id], references: [id])
+  order      Order     @relation(fields: [order_id], references: [id])
+  product    Product   @relation(fields: [product_id], references: [id])
+
   @@map("items")
 }
 
 model Table {
-  id      Int     @id @default(autoincrement())
-  number  Int     @unique
-  orders  Order[]
+  id     Int     @id @default(autoincrement())
+  number Int     @unique
+  orders Order[]
+
   @@map("tables")
 }
 
 model Order {
-  id         String   @id @default(uuid())
-  tableId    Int
-  table      Table     @relation(fields: [tableId], references: [id])
-  status     Int   @default(0)
-  draft      Boolean   @default(true)
+  id         String      @id @default(uuid())
+  draft      Boolean     @default(true)
   name       String?
-  created_at DateTime? @default(now())
-  update_at  DateTime? @default(now())
+  created_at DateTime?   @default(now())
+  update_at  DateTime?   @default(now())
+  tableId    Int
+  status     Int         @default(0)
   items      Item[]
   pagamento Pagamento[]
   comanda Comanda[]
@@ -79,42 +83,37 @@ model Order {
 }
 
 model Role {
-  id    String  @id @default(uuid())
-  name  String  @unique
+  id    String @id @default(uuid())
+  name  String @unique
   users User[]
+
   @@map("roles")
 }
 
-model ingredientes {
-  id String @id @default(uuid())
-  name String @unique
-  adicional adicionais[]
-
-  @@map("ingredientes")
+model adicionais {
+  id              String       @id
+  name            String
+  presente        Boolean      @default(true)
+  product_id      String
+  ingredientes_id String
+  created_at      DateTime?    @default(now())
+  update_at       DateTime?    @default(now())
+  ingredientes    ingredientes @relation(fields: [ingredientes_id], references: [id])
+  products        Product      @relation(fields: [product_id], references: [id])
 }
 
-model adicionais {
-  id String @id @default(uuid())
-  name String
-  presente Boolean @default(true)
-  product_id String
-  ingredientes_id String
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
-  product    Product   @relation(fields: [product_id], references: [id])
-  ingredientes    ingredientes   @relation(fields: [ingredientes_id], references: [id])
-
-  @@map("adicionais")
+model ingredientes {
+  id         String       @id
+  name       String       @unique
+  adicionais adicionais[]
 }
 
 model Pagamento {
-  id        String   @id @default(uuid())
-  order_id  String
-  order     Order    @relation(fields: [order_id], references: [id])
-  amount    Float
-  metodo     Int
-  status    Int      
-  created_at DateTime @default(now())
+  id         String    @id @default(uuid())
+  order_id   String
+  amount     Float
+  status     Int
+  created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
   comanda Comanda[]
 

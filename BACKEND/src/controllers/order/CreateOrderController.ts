@@ -3,14 +3,17 @@ import { CreateOrderService } from "../../services/order/CreateOrderService";
 
 class CreateOrderController {
   async handle(req: Request, res: Response) {
-    const { table } = req.body; 
+    try {
+      const { table } = req.body; // table = ID da mesa
 
-    const createOrderService = new CreateOrderService();
+      const createOrderService = new CreateOrderService();
+      const order = await createOrderService.execute({ tableId: table });
 
-    const order = await createOrderService.execute({ table });
-
-
-    res.json(order);
+      res.json(order);
+    } catch (err: any) {
+      console.log("Erro ao criar pedido:", err.message);
+      res.status(400).json({ error: err.message || "Erro ao criar pedido" });
+    }
   }
 }
 
