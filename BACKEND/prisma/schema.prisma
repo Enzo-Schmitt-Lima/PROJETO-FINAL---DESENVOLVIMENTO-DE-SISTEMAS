@@ -75,9 +75,10 @@ model Order {
   update_at  DateTime?   @default(now())
   tableId    Int
   status     Int         @default(0)
+  comanda    Comanda[]
   items      Item[]
-  pagamento Pagamento[]
-  comanda Comanda[]
+  table      Table       @relation(fields: [tableId], references: [id])
+  pagamento  Pagamento[]
 
   @@map("orders")
 }
@@ -112,23 +113,25 @@ model Pagamento {
   id         String    @id @default(uuid())
   order_id   String
   amount     Float
-  status     Int
+  status     Int       @default(0)
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
-  comanda Comanda[]
+  metodo     Int
+  comanda    Comanda[]
+  order      Order     @relation(fields: [order_id], references: [id])
 
   @@map("pagamento")
 }
 
 model Comanda {
-  id    String @id @default(uuid())
-  order_id String
-  order     Order    @relation(fields: [order_id], references: [id])
-  amount Float
+  id           String    @id @default(uuid())
+  order_id     String
+  amount       Float
   pagamento_id String
-  pagamento  Pagamento @relation(fields: [pagamento_id], references: [id])
-  created_at DateTime? @default(now())
-  update_at DateTime? @default(now())
+  created_at   DateTime? @default(now())
+  update_at    DateTime? @default(now())
+  order        Order     @relation(fields: [order_id], references: [id])
+  pagamento    Pagamento @relation(fields: [pagamento_id], references: [id])
 
   @@map("comanda")
 }

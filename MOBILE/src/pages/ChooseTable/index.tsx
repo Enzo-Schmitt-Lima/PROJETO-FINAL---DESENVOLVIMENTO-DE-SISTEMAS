@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import { useNavigation } from '@react-navigation/native';
@@ -43,10 +43,9 @@ export default function ChooseTable() {
     }
   }
 
-  // largura dinâmica da mesa
   const screenWidth = Dimensions.get('window').width;
   const numColumns = 3;
-  const buttonWidth = (screenWidth - 40 - (numColumns - 1) * 10) / numColumns; // padding e margin
+  const buttonWidth = (screenWidth - 40 - (numColumns - 1) * 10) / numColumns;
 
   return (
     <View style={styles.container}>
@@ -90,22 +89,13 @@ const styles = StyleSheet.create({
   },
   tableText: { color: '#101026', fontWeight: 'bold' },
   logoutButton: {
-  position: 'absolute',
-  bottom: 10,
-  left: 10,
-  padding: 10,
-  backgroundColor: '#FF3F4B',
-  borderRadius: 6,
-  zIndex: 10,
-},
-  // logoutButton: {
-  //   position: 'absolute',
-  //   top: 10,
-  //   right: 10,
-  //   padding: 10,
-  //   backgroundColor: '#FF3F4B',
-  //   borderRadius: 6,
-  //   zIndex: 10,
-  // },
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    padding: 10,
+    backgroundColor: '#FF3F4B',
+    borderRadius: 6,
+    zIndex: 10,
+  },
   logoutText: { color: '#FFF', fontWeight: 'bold' },
 });

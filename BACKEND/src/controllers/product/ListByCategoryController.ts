@@ -7,12 +7,15 @@ class ListByCategoryController {
 
         const listByCategory = new ListByCategoryService();
 
-        const products = await listByCategory.execute({
-            category_id
-        });
+        const products = await listByCategory.execute({ category_id });
 
-        res.json(products)
+        const formattedProducts = products.map((product) => ({
+            ...product,
+            price: Number(product.price).toFixed(2)
+        }));
+
+        res.json(formattedProducts);
     }
 }
 
-export { ListByCategoryController }
+export { ListByCategoryController };
