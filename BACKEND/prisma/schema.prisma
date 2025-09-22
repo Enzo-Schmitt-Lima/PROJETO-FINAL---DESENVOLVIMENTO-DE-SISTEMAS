@@ -19,17 +19,6 @@ model User {
   @@map("users")
 }
 
-model Costumer {
-  id         String   @id @default(uuid())
-  name       String
-  email      String
-  password   String
-  birth_date DateTime
-  created_at DateTime? @default(now())
-  update_at  DateTime? @default(now())
-  @@map("costumers")
-}
-
 model Category {
   id         String    @id @default(uuid())
   name       String
@@ -84,6 +73,7 @@ model Order {
   update_at  DateTime? @default(now())
   items      Item[]
   pagamento Pagamento[]
+  comanda Comanda[]
 
   @@map("orders")
 }
@@ -126,6 +116,20 @@ model Pagamento {
   status    Int      
   created_at DateTime @default(now())
   updated_at DateTime? @updatedAt
+  comanda Comanda[]
 
   @@map("pagamento")
+}
+
+model Comanda {
+  id    String @id @default(uuid())
+  order_id String
+  order     Order    @relation(fields: [order_id], references: [id])
+  amount Float
+  pagamento_id String
+  pagamento  Pagamento @relation(fields: [pagamento_id], references: [id])
+  created_at DateTime? @default(now())
+  update_at DateTime? @default(now())
+
+  @@map("comanda")
 }

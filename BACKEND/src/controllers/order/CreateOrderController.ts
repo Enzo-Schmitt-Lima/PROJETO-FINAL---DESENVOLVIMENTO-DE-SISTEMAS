@@ -9,6 +9,7 @@ class CreateOrderController {
 
     const order = await createOrderService.execute({ table });
 
+
     res.json(order);
   }
 }
