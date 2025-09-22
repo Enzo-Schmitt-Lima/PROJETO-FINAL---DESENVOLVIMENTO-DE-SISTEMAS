@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import { useNavigation } from '@react-navigation/native';
@@ -21,19 +21,15 @@ export default function ChooseTable() {
     async function loadTables() {
       try {
         const response = await api.get('/tables');
-
-        // Apenas mesas 5, 7 e 12 como ocupadas
         const updatedTables = response.data.map((table: TableProps) => ({
           ...table,
-          occupied: [5, 7, 12].includes(table.number)
+          occupied: [5, 7, 12].includes(table.number),
         }));
-
         setTables(updatedTables);
       } catch (err) {
         console.log('Erro ao carregar mesas:', err);
       }
     }
-
     loadTables();
   }, []);
 
@@ -41,12 +37,16 @@ export default function ChooseTable() {
     try {
       const response = await api.post('/order', { table: tableId });
       const order_id = response.data.id;
-
       navigation.navigate('Order', { number: tableNumber, order_id });
     } catch (err) {
       console.log('Erro ao criar o pedido:', err);
     }
   }
+
+  // largura dinâmica da mesa
+  const screenWidth = Dimensions.get('window').width;
+  const numColumns = 3;
+  const buttonWidth = (screenWidth - 40 - (numColumns - 1) * 10) / numColumns; // padding e margin
 
   return (
     <View style={styles.container}>
@@ -59,12 +59,14 @@ export default function ChooseTable() {
       <FlatList
         data={tables}
         keyExtractor={(item) => String(item.id)}
-        numColumns={5}
+        numColumns={numColumns}
+        columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10 }}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[
               styles.tableButton,
-              item.occupied ? { backgroundColor: 'gray' } : {}
+              { width: buttonWidth },
+              item.occupied ? { backgroundColor: 'gray' } : {},
             ]}
             onPress={() => !item.occupied && handleSelectTable(item.id, item.number)}
             disabled={item.occupied}
@@ -81,22 +83,29 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#1d1d2e' },
   title: { fontSize: 20, color: '#FFF', marginBottom: 20 },
   tableButton: {
-    padding: 15,
+    paddingVertical: 25,
     backgroundColor: '#3FFFA3',
-    margin: 5,
     borderRadius: 10,
     alignItems: 'center',
-    flex: 1,
   },
   tableText: { color: '#101026', fontWeight: 'bold' },
   logoutButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    padding: 10,
-    backgroundColor: '#FF3F4B',
-    borderRadius: 6,
-    zIndex: 10,
-  },
+  position: 'absolute',
+  bottom: 10,
+  left: 10,
+  padding: 10,
+  backgroundColor: '#FF3F4B',
+  borderRadius: 6,
+  zIndex: 10,
+},
+  // logoutButton: {
+  //   position: 'absolute',
+  //   top: 10,
+  //   right: 10,
+  //   padding: 10,
+  //   backgroundColor: '#FF3F4B',
+  //   borderRadius: 6,
+  //   zIndex: 10,
+  // },
   logoutText: { color: '#FFF', fontWeight: 'bold' },
 });

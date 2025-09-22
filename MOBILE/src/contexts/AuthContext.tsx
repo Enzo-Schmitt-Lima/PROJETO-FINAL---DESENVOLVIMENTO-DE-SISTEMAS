@@ -2,8 +2,6 @@ import React, { createContext, ReactNode, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import api from '../services/api';
-import { useNavigation, NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackParamsList } from '../routes/app.routes';
 
 interface UserProps {
   id: string;
@@ -41,7 +39,6 @@ export const AuthContext = createContext({} as AuthContextData);
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserProps | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(false);
-  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
   const isAuthenticated = !!user;
 
@@ -62,14 +59,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function signIn({ email, password }: SignInProps) {
     try {
       setLoadingAuth(true);
+      console.log("Iniciando login...");
+
       const response = await api.post('/session', { email, password });
+      console.log("Resposta do servidor:", response.data);
 
       const { id, name, token } = response.data;
-      const userData = { id, name, email, token };
+      const userData: UserProps = { id, name, email, token };
       setUser(userData);
 
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
       await AsyncStorage.setItem('@App:user', JSON.stringify(userData));
       await AsyncStorage.setItem('@App:token', token);
 
@@ -77,6 +76,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return userData;
     } catch (err: any) {
       setLoadingAuth(false);
+      console.log(err.response?.data || err);
       Alert.alert('Erro', err.response?.data?.error || 'Não foi possível entrar');
       return null;
     }
@@ -85,16 +85,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function signUp({ name, email, password }: SignUpProps) {
     try {
       setLoadingAuth(true);
-      const response = await api.post('/users', { name, email, password });
-
-      if (response.data) {
-        const userData = await signIn({ email, password });
-        setLoadingAuth(false);
-        return userData;
-      }
-
+      await api.post('/users', { name, email, password });
+      const userData = await signIn({ email, password });
       setLoadingAuth(false);
-      return null;
+      return userData;
     } catch (err: any) {
       setLoadingAuth(false);
       Alert.alert('Erro', err.response?.data?.error || 'Não foi possível cadastrar');
@@ -105,7 +99,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function signOut() {
     await AsyncStorage.clear();
     setUser(null);
-    navigation.navigate('SignIn');
   }
 
   return (
