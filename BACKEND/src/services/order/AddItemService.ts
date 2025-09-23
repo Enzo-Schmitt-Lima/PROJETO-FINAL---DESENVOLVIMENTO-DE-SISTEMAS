@@ -23,7 +23,7 @@ class AddItemService {
       },
     });
 
-    // 3️⃣ Calcula o total do pedido
+    // Calcula o total do pedido
     const items = await prismaClient.item.findMany({
       where: { order_id },
       include: { product: true },
@@ -34,15 +34,27 @@ class AddItemService {
       0
     );
 
-    // Cria o pagamento vinculado
-    const pagamento = await prismaClient.pagamento.create({
-      data: {
-        order_id,
-        amount: total,
-        status: 0, 
-        metodo: 0, 
-      },
-    });
+    // semelhante a função da comanda, atualiza se já existir
+let pagamento = await prismaClient.pagamento.findFirst({
+  where: { order_id },
+});
+
+if (pagamento) {
+  pagamento = await prismaClient.pagamento.update({
+    where: { id: pagamento.id },
+    data: { amount: total },
+  });
+} else {
+  pagamento = await prismaClient.pagamento.create({
+    data: {
+      order_id,
+      amount: total,
+      status: 0,
+      metodo: 0,
+    },
+  });
+}
+
 
     // Cria ou atualiza a comanda vinculando o pagamento
     const existingComanda = await prismaClient.comanda.findFirst({
