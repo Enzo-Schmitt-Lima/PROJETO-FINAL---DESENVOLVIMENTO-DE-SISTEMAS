@@ -7,55 +7,84 @@ import {
   ScrollView,
   FlatList,
   Alert,
+  Image,
 } from "react-native";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import api from "../../services/api";
 
+// A correção foi feita aqui. Adicionando o 'order' ao tipo de parâmetro.
 type OrderRouteProp = RouteProp<StackParamsList, "Order">;
 
 export default function Order() {
   const route = useRoute<OrderRouteProp>();
-  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
   const [categories, setCategories] = useState<any[]>([]);
   const [showProducts, setShowProducts] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [hasOrderItems, setHasOrderItems] = useState(false);
   const [orderSummary, setOrderSummary] = useState<any[]>([]);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const scrollRef = useRef<ScrollView>(null);
+  const categoryRefs = useRef<{ [key: string]: number }>({});
 
   useEffect(() => {
     async function loadCategories() {
       try {
         const response = await api.get("/category");
+
         const formatted = response.data.map((cat: any) => ({
           ...cat,
-          products: cat.products.map((p: any) => ({ ...p, amount: 0 })),
+          products: cat.products.map((p: any) => ({
+            ...p,
+            amount: 0,
+            bannerUri: p.banner
+              ? `http://10.0.2.2:3333/files/${p.banner}`
+              : null,
+          })),
         }));
+
         setCategories(formatted);
       } catch (err) {
         console.log("Erro ao buscar categorias:", err);
       }
     }
+
     loadCategories();
   }, []);
 
+  useEffect(() => {
+    async function checkImageURLs() {
+      if (categories.length > 0) {
+        for (const category of categories) {
+          for (const product of category.products) {
+            console.log('Verificando URL da imagem:', product.bannerUri);
+            console.log('ID do produto:', product.id);
+          }
+        }
+      }
+    }
+    checkImageURLs();
+  }, [categories]);
+
   const handleCategoryPress = (id: string) => {
     setShowProducts(showProducts === id ? null : id);
-    setTimeout(() => {
-      const y = document.getElementById(id)?.offsetTop;
-      if (y !== undefined) scrollRef.current?.scrollTo({ y, animated: true });
-    }, 50);
+    const y = categoryRefs.current[id];
+    if (y !== undefined) {
+      scrollRef.current?.scrollTo({ y, animated: true });
+    }
   };
 
   const updateOrderSummary = (updatedCategories: any[]) => {
     const summary: any[] = [];
     updatedCategories.forEach((cat) =>
       cat.products.forEach((p: any) => {
-        if (p.amount > 0) summary.push({ ...p, category: cat.name });
+        if (p.amount > 0)
+          summary.push({ ...p, category: cat.title || cat.name });
       })
     );
     setOrderSummary(summary);
@@ -85,9 +114,7 @@ export default function Order() {
         return {
           ...cat,
           products: cat.products.map((p: any) =>
-            p.id === prodId
-              ? { ...p, amount: Math.max(0, p.amount - 1) }
-              : p
+            p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p
           ),
         };
       }
@@ -108,30 +135,69 @@ export default function Order() {
     navigation.goBack();
   };
 
-  const handleFinishOrder = () => {
-    Alert.alert("Pedido finalizado!", `Total: R$ ${total.toFixed(2)}`);
+  // Funcao para navegar para a tela de pagamento
+  const handleNavigateToPayment = () => {
+    // Verifica se há itens no pedido
+    if (total === 0) {
+      Alert.alert('Pedido Vazio', 'Não é possível finalizar um pedido sem itens.');
+      return;
+    }
+
+    // Navega para a tela de pagamento, passando os dados necessários
+    navigation.navigate('Payment', {
+      number: route.params.number,
+      order: route.params.order,
+      total: total,
+    });
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mesa {route.params.number}</Text>
+      {imageError && (
+        <Text style={styles.errorText}>
+          Erro ao carregar imagem: {imageError}
+        </Text>
+      )}
 
       <ScrollView ref={scrollRef} style={{ flex: 1 }}>
         {categories.map((cat) => (
-          <View key={cat.id} style={styles.categoryContainer}>
+          <View
+            key={cat.id}
+            onLayout={(event) => {
+              const layout = event.nativeEvent.layout;
+              categoryRefs.current[cat.id] = layout.y;
+            }}
+            style={styles.categoryContainer}
+          >
             <TouchableOpacity
               onPress={() => handleCategoryPress(cat.id)}
               style={styles.categoryButton}
             >
-              <Text style={styles.categoryTitle}>{cat.name}</Text>
+              <Text style={styles.categoryTitle}>{cat.title || cat.name}</Text>
             </TouchableOpacity>
 
             {showProducts === cat.id &&
               cat.products.map((prod: any) => (
                 <View key={prod.id} style={styles.productContainer}>
-                  <Text style={styles.productName}>
-                    {prod.name} - R$ {prod.price}
-                  </Text>
+                  {prod.bannerUri ? (
+                    <Image
+                      source={{ uri: prod.bannerUri }}
+                      style={styles.productImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View
+                      style={[styles.productImage, { backgroundColor: "#555" }]}
+                    />
+                  )}
+
+                  <View style={styles.productInfo}>
+                    <Text style={styles.productName}>{prod.name}</Text>
+                    <Text style={styles.productDesc}>{prod.description}</Text>
+                    <Text style={styles.productPrice}>R$ {prod.price}</Text>
+                  </View>
+
                   <View style={styles.counter}>
                     <TouchableOpacity
                       style={styles.counterButton}
@@ -153,7 +219,6 @@ export default function Order() {
         ))}
       </ScrollView>
 
-      {/* Resumo horizontal acima do total */}
       {hasOrderItems && (
         <View style={styles.summaryContainer}>
           <FlatList
@@ -164,7 +229,8 @@ export default function Order() {
             renderItem={({ item }) => (
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryText}>
-                  {item.name} x {item.amount} - R$ {(item.amount * parseFloat(item.price)).toFixed(2)}
+                  {item.name} x {item.amount} - R${" "}
+                  {(item.amount * parseFloat(item.price)).toFixed(2)}
                 </Text>
               </View>
             )}
@@ -172,7 +238,6 @@ export default function Order() {
         </View>
       )}
 
-      {/* Total */}
       {hasOrderItems && (
         <View style={styles.orderSummary}>
           <Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
@@ -188,9 +253,9 @@ export default function Order() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.footerButton, { backgroundColor: "#3FFFA3" }]}
-          onPress={handleFinishOrder}
+          onPress={handleNavigateToPayment} // Chamando a nova função de navegação
         >
-          <Text style={styles.footerText}>Finalizar Pedido</Text>
+          <Text style={styles.footerText}>Finalizar Pagamento</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -216,7 +281,11 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: "center",
   },
-  productName: { color: "#FFF", flex: 1 },
+  productImage: { width: 60, height: 60, borderRadius: 6, marginRight: 10 },
+  productInfo: { flex: 1, justifyContent: "center" },
+  productName: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
+  productDesc: { color: "#DDD", fontSize: 12 },
+  productPrice: { color: "#FFF", fontWeight: "bold", marginTop: 4 },
   counter: { flexDirection: "row", alignItems: "center" },
   counterButton: {
     width: 30,
@@ -260,4 +329,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalText: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
+  errorText: { color: "red", textAlign: "center", marginVertical: 10 },
 });

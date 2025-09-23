@@ -5,12 +5,15 @@ import Dashboard from "../pages/Dashboard";
 import ChooseTable from "../pages/ChooseTable";
 import Order from "../pages/Order";
 import FinishOrder from "../pages/FinishOrder";
+import Payment from "../pages/Pagamento";
 
 export type StackParamsList = {
   Dashboard: undefined;
   ChooseTable: undefined;
-  Order: { number: number; order_id: string };
+  // A correção foi feita aqui. Adicionando o 'order' à definição da rota.
+  Order: { number: number; order_id: string; order: any };
   FinishOrder: { number: number; order_id: string };
+  Payment: { number: number; order: any; total: number };
 };
 
 const Stack = createNativeStackNavigator<StackParamsList>();
@@ -42,6 +45,17 @@ export default function AppRoutes() {
         component={FinishOrder}
         options={{
           title: "Finalizando",
+          headerStyle: { backgroundColor: "#1d1d2e" },
+          headerTintColor: "#FFF",
+        }}
+      />
+      
+      {/* Nova tela de pagamento */}
+      <Stack.Screen
+        name="Payment"
+        component={Payment}
+        options={{
+          title: "Pagamento",
           headerStyle: { backgroundColor: "#1d1d2e" },
           headerTintColor: "#FFF",
         }}
