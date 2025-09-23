@@ -28,23 +28,17 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
   const [password, setPassword] = useState("");
 
   async function handleLogin() {
-    if (email === "" || password === "") {
+    if (!email || !password) {
       Alert.alert("Atenção", "Preencha todos os campos!");
       return;
     }
 
-    try {
-      const userData = await signIn({ email, password });
-
-      if (userData) {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "ChooseTable" }],
-        });
-      }
-    } catch (err) {
-      console.log("Erro ao logar:", err);
-      Alert.alert("Erro", "Não foi possível realizar o login.");
+    const userData = await signIn({ email, password });
+    if (userData) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "ChooseTable" }],
+      });
     }
   }
 
@@ -69,7 +63,6 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-
             <TextInput
               placeholder="Senha"
               style={styles.input}
@@ -108,7 +101,7 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
                 source={{
                   uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/J6j03k7Kyp/h62poljs_expires_30_days.png",
                 }}
-                resizeMode={"stretch"}
+                resizeMode="stretch"
                 style={styles.sacIcon}
               />
               <Text style={styles.sacText}>SAC</Text>

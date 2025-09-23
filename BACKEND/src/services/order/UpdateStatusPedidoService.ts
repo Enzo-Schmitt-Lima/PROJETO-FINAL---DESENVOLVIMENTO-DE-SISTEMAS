@@ -13,7 +13,7 @@ class UpdateStatusPedidoService {
       data: { status },
     });
 
-    // trasnforma o número do status no texto escrito no enum
+    // transforma o número do status no texto escrito no enum
     return {
       ...pedido,
       statusText: StatusPedido[status], 
