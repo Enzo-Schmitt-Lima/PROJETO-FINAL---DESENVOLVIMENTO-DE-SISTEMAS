@@ -8,7 +8,6 @@ import {
   FlatList,
   Alert,
   Image,
-  Image,
 } from "react-native";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -16,13 +15,10 @@ import { StackParamsList } from "../../routes/app.routes";
 import api from "../../services/api";
 
 // A correção foi feita aqui. Adicionando o 'order' ao tipo de parâmetro.
-// A correção foi feita aqui. Adicionando o 'order' ao tipo de parâmetro.
 type OrderRouteProp = RouteProp<StackParamsList, "Order">;
 
 export default function Order() {
   const route = useRoute<OrderRouteProp>();
-  const navigation =
-    useNavigation<NativeStackNavigationProp<StackParamsList>>();
   const navigation =
     useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
@@ -32,17 +28,14 @@ export default function Order() {
   const [hasOrderItems, setHasOrderItems] = useState(false);
   const [orderSummary, setOrderSummary] = useState<any[]>([]);
   const [imageError, setImageError] = useState<string | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null);
 
   const scrollRef = useRef<ScrollView>(null);
-  const categoryRefs = useRef<{ [key: string]: number }>({});
   const categoryRefs = useRef<{ [key: string]: number }>({});
 
   useEffect(() => {
     async function loadCategories() {
       try {
         const response = await api.get("/category");
-
 
         const formatted = response.data.map((cat: any) => ({
           ...cat,
@@ -53,15 +46,7 @@ export default function Order() {
               ? `http://10.0.2.2:3333/files/${p.banner}`
               : null,
           })),
-          products: cat.products.map((p: any) => ({
-            ...p,
-            amount: 0,
-            bannerUri: p.banner
-              ? `http://10.0.2.2:3333/files/${p.banner}`
-              : null,
-          })),
         }));
-
 
         setCategories(formatted);
       } catch (err) {
@@ -69,23 +54,8 @@ export default function Order() {
       }
     }
 
-
     loadCategories();
   }, []);
-
-  useEffect(() => {
-    async function checkImageURLs() {
-      if (categories.length > 0) {
-        for (const category of categories) {
-          for (const product of category.products) {
-            console.log('Verificando URL da imagem:', product.bannerUri);
-            console.log('ID do produto:', product.id);
-          }
-        }
-      }
-    }
-    checkImageURLs();
-  }, [categories]);
 
   useEffect(() => {
     async function checkImageURLs() {
@@ -107,18 +77,12 @@ export default function Order() {
     if (y !== undefined) {
       scrollRef.current?.scrollTo({ y, animated: true });
     }
-    const y = categoryRefs.current[id];
-    if (y !== undefined) {
-      scrollRef.current?.scrollTo({ y, animated: true });
-    }
   };
 
   const updateOrderSummary = (updatedCategories: any[]) => {
     const summary: any[] = [];
     updatedCategories.forEach((cat) =>
       cat.products.forEach((p: any) => {
-        if (p.amount > 0)
-          summary.push({ ...p, category: cat.title || cat.name });
         if (p.amount > 0)
           summary.push({ ...p, category: cat.title || cat.name });
       })
@@ -150,7 +114,6 @@ export default function Order() {
         return {
           ...cat,
           products: cat.products.map((p: any) =>
-            p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p
             p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p
           ),
         };
@@ -186,30 +149,11 @@ export default function Order() {
       order: route.params.order,
       total: total,
     });
-  // Funcao para navegar para a tela de pagamento
-  const handleNavigateToPayment = () => {
-    // Verifica se há itens no pedido
-    if (total === 0) {
-      Alert.alert('Pedido Vazio', 'Não é possível finalizar um pedido sem itens.');
-      return;
-    }
-
-    // Navega para a tela de pagamento, passando os dados necessários
-    navigation.navigate('Payment', {
-      number: route.params.number,
-      order: route.params.order,
-      total: total,
-    });
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mesa {route.params.number}</Text>
-      {imageError && (
-        <Text style={styles.errorText}>
-          Erro ao carregar imagem: {imageError}
-        </Text>
-      )}
       {imageError && (
         <Text style={styles.errorText}>
           Erro ao carregar imagem: {imageError}
@@ -226,43 +170,16 @@ export default function Order() {
             }}
             style={styles.categoryContainer}
           >
-          <View
-            key={cat.id}
-            onLayout={(event) => {
-              const layout = event.nativeEvent.layout;
-              categoryRefs.current[cat.id] = layout.y;
-            }}
-            style={styles.categoryContainer}
-          >
             <TouchableOpacity
               onPress={() => handleCategoryPress(cat.id)}
               style={styles.categoryButton}
             >
-              <Text style={styles.categoryTitle}>{cat.title || cat.name}</Text>
               <Text style={styles.categoryTitle}>{cat.title || cat.name}</Text>
             </TouchableOpacity>
 
             {showProducts === cat.id &&
               cat.products.map((prod: any) => (
                 <View key={prod.id} style={styles.productContainer}>
-                  {prod.bannerUri ? (
-                    <Image
-                      source={{ uri: prod.bannerUri }}
-                      style={styles.productImage}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View
-                      style={[styles.productImage, { backgroundColor: "#555" }]}
-                    />
-                  )}
-
-                  <View style={styles.productInfo}>
-                    <Text style={styles.productName}>{prod.name}</Text>
-                    <Text style={styles.productDesc}>{prod.description}</Text>
-                    <Text style={styles.productPrice}>R$ {prod.price}</Text>
-                  </View>
-
                   {prod.bannerUri ? (
                     <Image
                       source={{ uri: prod.bannerUri }}
@@ -314,8 +231,6 @@ export default function Order() {
                 <Text style={styles.summaryText}>
                   {item.name} x {item.amount} - R${" "}
                   {(item.amount * parseFloat(item.price)).toFixed(2)}
-                  {item.name} x {item.amount} - R${" "}
-                  {(item.amount * parseFloat(item.price)).toFixed(2)}
                 </Text>
               </View>
             )}
@@ -339,9 +254,7 @@ export default function Order() {
         <TouchableOpacity
           style={[styles.footerButton, { backgroundColor: "#3FFFA3" }]}
           onPress={handleNavigateToPayment} // Chamando a nova função de navegação
-          onPress={handleNavigateToPayment} // Chamando a nova função de navegação
         >
-          <Text style={styles.footerText}>Finalizar Pagamento</Text>
           <Text style={styles.footerText}>Finalizar Pagamento</Text>
         </TouchableOpacity>
       </View>
@@ -368,11 +281,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: "center",
   },
-  productImage: { width: 60, height: 60, borderRadius: 6, marginRight: 10 },
-  productInfo: { flex: 1, justifyContent: "center" },
-  productName: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
-  productDesc: { color: "#DDD", fontSize: 12 },
-  productPrice: { color: "#FFF", fontWeight: "bold", marginTop: 4 },
   productImage: { width: 60, height: 60, borderRadius: 6, marginRight: 10 },
   productInfo: { flex: 1, justifyContent: "center" },
   productName: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
@@ -421,6 +329,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalText: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
-  errorText: { color: "red", textAlign: "center", marginVertical: 10 },
   errorText: { color: "red", textAlign: "center", marginVertical: 10 },
 });

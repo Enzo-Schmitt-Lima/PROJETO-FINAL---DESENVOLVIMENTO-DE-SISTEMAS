@@ -5,7 +5,6 @@ import Dashboard from "../pages/Dashboard";
 import ChooseTable from "../pages/ChooseTable";
 import Order from "../pages/Order";
 import FinishOrder from "../pages/FinishOrder";
-import Menu from "../pages/Dashboard/menu";
 import Payment from "../pages/Pagamento";
 
 export type StackParamsList = {
@@ -13,7 +12,6 @@ export type StackParamsList = {
   ChooseTable: undefined;
   Order: { number: number; order_id: string; order: any };
   FinishOrder: { number: number; order_id: string };
-   Menu: { number: number; order_id: string };
   Payment: { number: number; order: any; total: number };
   OrderStatus: { number: number; order: any; total: number };
 };
@@ -34,12 +32,6 @@ export default function AppRoutes() {
         name="Dashboard" 
         component={Dashboard} 
         options={{ headerShown: false }} 
-      />
-
-      <Stack.Screen
-        name="Menu"
-        component={Menu}
-        options={{ headerShown: false }}
       />
 
       <Stack.Screen 
