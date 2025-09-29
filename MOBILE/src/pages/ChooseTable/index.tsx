@@ -1,102 +1,232 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert } from 'react-native';
-import { AuthContext } from '../../contexts/AuthContext';
-import api from '../../services/api';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackParamsList } from '../../routes/app.routes';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Image,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-interface TableProps {
-  id: number;
-  number: number;
-  occupied?: boolean;
-}
+type RootStackParamList = {
+  ChooseTable: undefined;
+  Order: { mesa: string | null };
+};
+type Props = NativeStackScreenProps<RootStackParamList, 'ChooseTable'>;
 
-export default function ChooseTable() {
-  const { user, signOut } = useContext(AuthContext);
-  const [tables, setTables] = useState<TableProps[]>([]);
-  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+export default function EscolherMesa({ navigation }: Props) {
+  const mesasAndar1 = ["Mesa 1", "Mesa 2", "Mesa 3", "Mesa 4", "Mesa 5", "Mesa 6"];
+  const mesasAndar2 = ["Mesa 7", "Mesa 8", "Mesa 9", "Mesa 10", "Mesa 11"];
+  const mesasOcupadas = ["Mesa 5", "Mesa 9", "Mesa 10"];
+  const [mesaSelecionada, setMesaSelecionada] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadTables() {
-      try {
-        const response = await api.get('/tables');
-        const updatedTables = response.data.map((table: TableProps) => ({
-          ...table,
-          occupied: [5, 7, 12].includes(table.number),
-        }));
-        setTables(updatedTables);
-      } catch (err) {
-        console.log('Erro ao carregar mesas:', err);
-      }
+  const handleSelecionarMesa = (mesa: string) => {
+    if (mesaSelecionada === mesa) {
+      setMesaSelecionada(null);
+    } else {
+      setMesaSelecionada(mesa);
     }
-    loadTables();
-  }, []);
+  };
 
-  async function handleSelectTable(tableId: number, tableNumber: number) {
-    try {
-      const response = await api.post('/order', { table: tableId });
-      const order_id = response.data.id;
-      // Passa um objeto vazio para 'order' se não houver dados
-      navigation.navigate('Order', { number: tableNumber, order_id, order: {} });
-    } catch (err) {
-      console.log('Erro ao criar o pedido:', err);
-    }
-  }
-
-  const screenWidth = Dimensions.get('window').width;
-  const numColumns = 3;
-  const buttonWidth = (screenWidth - 40 - (numColumns - 1) * 10) / numColumns;
+  const handleProsseguir = () => {
+    navigation.navigate('Order', { mesa: mesaSelecionada });
+  };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
-        <Text style={styles.logoutText}>Sair</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.title}>Olá, {user?.name}</Text>
-
-      <FlatList
-        data={tables}
-        keyExtractor={(item) => String(item.id)}
-        numColumns={numColumns}
-        columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10 }}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.tableButton,
-              { width: buttonWidth },
-              item.occupied ? { backgroundColor: 'gray' } : {},
-            ]}
-            onPress={() => !item.occupied && handleSelectTable(item.id, item.number)}
-            disabled={item.occupied}
-          >
-            <Text style={styles.tableText}>Mesa {item.number}</Text>
+    <SafeAreaView style={styles.container}>
+      {/* NOVO CONTAINER PRINCIPAL */}
+      <View style={styles.mainContent}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <TouchableOpacity>
+            <Ionicons name="menu" size={28} color="#333" />
           </TouchableOpacity>
-        )}
-      />
-    </View>
+          <Image
+            source={require("../ChooseTable/logo.png")}
+            style={styles.logoImage}
+          />
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={{ marginRight: 15 }}>
+              <Ionicons name="cart-outline" size={24} color="#333" />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Ionicons name="person-circle-outline" size={28} color="#333" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* CONTEÚDO */}
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Escolher mesa</Text>
+
+            <Text style={styles.subTitle}>Mesas Disponíveis (1º Andar):</Text>
+            {mesasAndar1.map((mesa) => {
+              const isOcupada = mesasOcupadas.includes(mesa);
+              const isSelecionada = mesaSelecionada === mesa;
+              return (
+                <TouchableOpacity
+                  key={mesa}
+                  disabled={isOcupada}
+                  onPress={() => handleSelecionarMesa(mesa)}
+                  style={[
+                    styles.mesaBtn,
+                    isOcupada && styles.mesaOcupadaBtn,
+                    isSelecionada && styles.mesaSelecionadaBtn,
+                  ]}
+                >
+                  <Text style={[styles.mesaText, isOcupada && styles.mesaOcupadaText]}>
+                    {mesa}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+
+            <Text style={styles.subTitle}>Mesas Disponíveis (2º Andar):</Text>
+            {mesasAndar2.map((mesa) => {
+              const isOcupada = mesasOcupadas.includes(mesa);
+              const isSelecionada = mesaSelecionada === mesa;
+              return (
+                <TouchableOpacity
+                  key={mesa}
+                  disabled={isOcupada}
+                  onPress={() => handleSelecionarMesa(mesa)}
+                  style={[
+                    styles.mesaBtn,
+                    isOcupada && styles.mesaOcupadaBtn,
+                    isSelecionada && styles.mesaSelecionadaBtn,
+                  ]}
+                >
+                  <Text style={[styles.mesaText, isOcupada && styles.mesaOcupadaText]}>
+                    {mesa}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+
+            <TouchableOpacity
+              style={[styles.prosseguirBtn, !mesaSelecionada && styles.prosseguirBtnDisabled]}
+              disabled={!mesaSelecionada}
+              onPress={handleProsseguir}
+            >
+              <Text style={styles.prosseguirText}>PROSSEGUIR</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
+// --- ESTILOS ---
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#1d1d2e' },
-  title: { fontSize: 20, color: '#FFF', marginBottom: 20 },
-  tableButton: {
-    paddingVertical: 25,
-    backgroundColor: '#3FFFA3',
-    borderRadius: 10,
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    backgroundColor: "#911F09",
   },
-  tableText: { color: '#101026', fontWeight: 'bold' },
-  logoutButton: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    padding: 10,
-    backgroundColor: '#FF3F4B',
-    borderRadius: 6,
+
+mainContent: {
+  flex: 1,
+  backgroundColor: '#d9d9d9',
+  borderRadius: 34,
+  marginHorizontal: 10,
+  marginBottom: 10,
+},
+
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 25,
+    paddingTop: 20,
+    paddingBottom: 10,
+    backgroundColor: '#d9d9d9',
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
     zIndex: 10,
   },
-  logoutText: { color: '#FFF', fontWeight: 'bold' },
+  logoImage: {
+    width: 120,
+    height: 40,
+    resizeMode: 'contain',
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "flex-start",
+  },
+
+  card: {
+    width: "100%",
+    padding: 20,
+  },
+
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+    color: "#2c3e50",
+  },
+  subTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#34495e",
+    marginVertical: 8,
+    textDecorationLine: "underline",
+    paddingHorizontal: 10,
+  },
+  mesaBtn: {
+    backgroundColor: "#D32F2F",
+    borderRadius: 25,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    width: "60%",
+    alignItems: "center",
+    alignSelf: 'center',
+  },
+  mesaOcupadaBtn: {
+    backgroundColor: "#BDBDBD",
+  },
+  mesaSelecionadaBtn: {
+    backgroundColor: "#911F09",
+    borderColor: '#D32F2F',
+    borderWidth: 2,
+  },
+  mesaText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  mesaOcupadaText: {
+    color: "#757575",
+  },
+  prosseguirBtn: {
+    backgroundColor: "#F2CA85",
+    borderRadius: 25,
+    paddingVertical: 12,
+    alignSelf: "center",
+    paddingHorizontal: 40,
+    marginTop: 20,
+  },
+  prosseguirBtnDisabled: {
+    backgroundColor: '#BDBDBD',
+  },
+  prosseguirText: {
+    color: "#4F5476",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 });
