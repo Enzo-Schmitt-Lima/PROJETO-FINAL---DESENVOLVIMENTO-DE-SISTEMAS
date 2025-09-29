@@ -1,47 +1,33 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Alert } from 'react-native';
-import { AuthContext } from '../../contexts/AuthContext';
-import api from '../../services/api';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackParamsList } from '../../routes/app.routes';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Image,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-interface TableProps {
-  id: number;
-  number: number;
-  occupied?: boolean;
-}
+type RootStackParamList = {
+  ChooseTable: undefined;
+  Order: { mesa: string | null };
+};
+type Props = NativeStackScreenProps<RootStackParamList, 'ChooseTable'>;
 
-export default function ChooseTable() {
-  const { user, signOut } = useContext(AuthContext);
-  const [tables, setTables] = useState<TableProps[]>([]);
-  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+export default function EscolherMesa({ navigation }: Props) {
+  const mesasAndar1 = ["Mesa 1", "Mesa 2", "Mesa 3", "Mesa 4", "Mesa 5", "Mesa 6"];
+  const mesasAndar2 = ["Mesa 7", "Mesa 8", "Mesa 9", "Mesa 10", "Mesa 11"];
+  const mesasOcupadas = ["Mesa 5", "Mesa 9", "Mesa 10"];
+  const [mesaSelecionada, setMesaSelecionada] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadTables() {
-      try {
-        const response = await api.get('/tables');
-        const updatedTables = response.data.map((table: TableProps) => ({
-          ...table,
-          occupied: [5, 7, 12].includes(table.number),
-        }));
-        setTables(updatedTables);
-      } catch (err) {
-        console.log('Erro ao carregar mesas:', err);
-      }
-    }
-    loadTables();
-  }, []);
-
-  async function handleSelectTable(tableId: number, tableNumber: number) {
-    try {
-      const response = await api.post('/order', { table: tableId });
-      const order = response.data;
-      const order_id = order.id;
-      // Passa o objeto completo do pedido para 'order'
-      navigation.navigate('Order', { number: tableNumber, order_id, order });
-    } catch (err) {
-      console.log('Erro ao criar o pedido:', err);
+  const handleSelecionarMesa = (mesa: string) => {
+    if (mesaSelecionada === mesa) {
+      setMesaSelecionada(null);
+    } else {
+      setMesaSelecionada(mesa);
     }
   };
 
