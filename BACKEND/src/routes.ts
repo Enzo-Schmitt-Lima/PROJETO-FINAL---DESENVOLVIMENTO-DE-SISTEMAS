@@ -65,7 +65,7 @@ router.patch('/product/:id',  isAuthenticated, upload.single('banner'),new Updat
 router.post('/order', isAuthenticated, new CreateOrderController().handle)
 router.delete('/order', isAuthenticated, new RemoveOrderController().handle)
 
-router.post('/order/add', isAuthenticated, new AddItemController().handle)
+router.post('/order/add', new AddItemController().handle)
 router.delete('/order/remove', isAuthenticated, new RemoveItemController().handle)
 router.put('/order/send', isAuthenticated, new SendOrderController().handle)
 
@@ -73,6 +73,7 @@ router.get('/orders', isAuthenticated, new ListOrdersController().handle)
 router.get('/order/detail', isAuthenticated, new DetailOrderController().handle)
 
 router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
+router.put('/order/payment/:orderId', isAuthenticated, new FinishOrderController().handle)
 
 router.put("/order/status", isAuthenticated, new UpdateStatusPedidoController().handle)
 

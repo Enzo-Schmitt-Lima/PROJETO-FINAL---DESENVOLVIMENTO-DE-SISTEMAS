@@ -36,9 +36,10 @@ export default function ChooseTable() {
   async function handleSelectTable(tableId: number, tableNumber: number) {
     try {
       const response = await api.post('/order', { table: tableId });
-      const order_id = response.data.id;
-      // Passa um objeto vazio para 'order' se não houver dados
-      navigation.navigate('Order', { number: tableNumber, order_id, order: {} });
+      const order = response.data;
+      const order_id = order.id;
+      // Passa o objeto completo do pedido para 'order'
+      navigation.navigate('Order', { number: tableNumber, order_id, order });
     } catch (err) {
       console.log('Erro ao criar o pedido:', err);
     }
