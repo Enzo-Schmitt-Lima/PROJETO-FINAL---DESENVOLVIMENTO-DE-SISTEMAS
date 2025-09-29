@@ -10,10 +10,10 @@ import Payment from "../pages/Pagamento";
 export type StackParamsList = {
   Dashboard: undefined;
   ChooseTable: undefined;
-  // A correção foi feita aqui. Adicionando o 'order' à definição da rota.
   Order: { number: number; order_id: string; order: any };
   FinishOrder: { number: number; order_id: string };
   Payment: { number: number; order: any; total: number };
+  OrderStatus: { number: number; order: any; total: number };
 };
 
 const Stack = createNativeStackNavigator<StackParamsList>();
