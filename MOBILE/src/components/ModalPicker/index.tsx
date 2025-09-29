@@ -8,7 +8,12 @@ import {
     ScrollView
 } from 'react-native'
 
-import { CategoryProps } from "../../pages/Order";
+
+// Definindo o tipo localmente para evitar erro de importação
+export interface CategoryProps {
+    id: string;
+    name: string;
+}
 
 interface ModalPickerProps{
     options: CategoryProps[];
