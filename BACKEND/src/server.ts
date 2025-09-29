@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction, ErrorRequestHandler } from 'e
 import 'express-async-errors';
 import cors from 'cors';
 import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import { router } from './routes';
 

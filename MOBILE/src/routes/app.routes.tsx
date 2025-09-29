@@ -5,12 +5,14 @@ import Dashboard from "../pages/Dashboard";
 import ChooseTable from "../pages/ChooseTable";
 import Order from "../pages/Order";
 import FinishOrder from "../pages/FinishOrder";
+import Menu from "../pages/Dashboard/menu";
 
 export type StackParamsList = {
   Dashboard: undefined;
   ChooseTable: undefined;
   Order: { number: number; order_id: string };
   FinishOrder: { number: number; order_id: string };
+   Menu: { number: number; order_id: string };
 };
 
 const Stack = createNativeStackNavigator<StackParamsList>();
@@ -29,6 +31,12 @@ export default function AppRoutes() {
         name="Dashboard" 
         component={Dashboard} 
         options={{ headerShown: false }} 
+      />
+
+      <Stack.Screen
+        name="Menu"
+        component={Menu}
+        options={{ headerShown: false }}
       />
 
       <Stack.Screen 

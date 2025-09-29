@@ -25,9 +25,12 @@ model Category {
   name       String
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
-  products   Product[]
+  parentId   String?    
+  parent     Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children   Category[] @relation("CategoryHierarchy")
  
   @@map("categories")
+  products Product[]
 }
  
 model Product {
