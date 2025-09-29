@@ -34,6 +34,7 @@ import { UpdateStatusPedidoController } from './controllers/order/UpdateStatusPe
 
 import { UpdatePagamentoStatusController } from './controllers/Pagamento/StatusPedidoController';
 import { MetodoPagamentoController } from './controllers/Pagamento/MetodoPagamentoController';
+import { UpdateProductController } from './controllers/product/UpdateProductController';
 
 
 import { isAuthenticated } from './middlewares/isAuthenticated';
@@ -41,6 +42,7 @@ import uploadConfig from './config/multer';
 
 const router = Router();
 const upload = multer(uploadConfig.upload('./tmp'));
+
 
 // ROTAS USER
 router.post('/users', new CreateUserController().handle);
@@ -52,8 +54,11 @@ router.post('/category', isAuthenticated, new CreateCategoryController().handle)
 router.get('/category', isAuthenticated, new ListCategoryController().handle);
 
 // ROTAS PRODUCT
-router.post('/product', isAuthenticated, upload.single('file'), new CreateProductController().handle);
-router.get('/category/product', isAuthenticated, new ListByCategoryController().handle);
+
+router.post('/product',isAuthenticated,upload.single('banner'),new CreateProductController().handle);
+router.get('/category/product',isAuthenticated,new ListByCategoryController().handle);
+router.patch('/product/:id',  isAuthenticated, upload.single('banner'),new UpdateProductController().handle);
+
 
 // ROTAS ORDER
 

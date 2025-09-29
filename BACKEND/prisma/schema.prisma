@@ -16,10 +16,9 @@ model User {
   update_at  DateTime? @default(now())
   roles_id   String
   roles      Role      @relation(fields: [roles_id], references: [id])
- 
   @@map("users")
 }
- 
+
 model Category {
   id         String    @id @default(uuid())
   name       String
@@ -45,7 +44,6 @@ model Product {
   adicionais  adicionais[]
   items       Item[]
   category    Category     @relation(fields: [category_id], references: [id])
- 
   @@map("products")
 }
  
@@ -58,7 +56,6 @@ model Item {
   product_id String
   order      Order     @relation(fields: [order_id], references: [id])
   product    Product   @relation(fields: [product_id], references: [id])
- 
   @@map("items")
 }
  
@@ -66,7 +63,6 @@ model Table {
   id     Int     @id @default(autoincrement())
   number Int     @unique
   orders Order[]
- 
   @@map("tables")
 }
  
@@ -82,18 +78,16 @@ model Order {
   items      Item[]
   table      Table       @relation(fields: [tableId], references: [id])
   pagamento  Pagamento[]
- 
-  @@map("orders")
+
 }
  
 model Role {
   id    String @id @default(uuid())
   name  String @unique
   users User[]
- 
   @@map("roles")
 }
- 
+
 model adicionais {
   id              String       @id
   name            String
@@ -105,7 +99,17 @@ model adicionais {
   ingredientes    ingredientes @relation(fields: [ingredientes_id], references: [id])
   products        Product      @relation(fields: [product_id], references: [id])
 }
- 
+
+model costumers {
+  id         String    @id
+  name       String
+  email      String
+  password   String
+  birth_date DateTime
+  created_at DateTime? @default(now())
+  update_at  DateTime? @default(now())
+}
+
 model ingredientes {
   id         String       @id
   name       String       @unique
@@ -138,3 +142,4 @@ model Comanda {
 
   @@map("comanda")
 }
+
