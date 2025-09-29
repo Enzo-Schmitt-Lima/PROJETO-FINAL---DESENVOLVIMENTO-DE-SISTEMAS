@@ -37,8 +37,15 @@ import { MetodoPagamentoController } from './controllers/Pagamento/MetodoPagamen
 import { UpdateProductController } from './controllers/product/UpdateProductController';
 
 
+import { CreateProdutoIngredienteController } from './controllers/ProdutoIngrediente/CreateProductIngredienteController';
+
+import { CreateAdicionalController } from './controllers/Adicionais/CreateAdicionalController';
+
+
 import { isAuthenticated } from './middlewares/isAuthenticated';
 import uploadConfig from './config/multer';
+import { UpdatePresenteAdicionalController } from './controllers/Adicionais/UpdatePresenteAdicional';
+
 
 const router = Router();
 const upload = multer(uploadConfig.upload('./tmp'));
@@ -91,8 +98,15 @@ router.post('/roles', new CreateRoleController().handle);
 
 // ROTAS INGREDIENTE
 
-router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle)
-router.get('/ingrediente', isAuthenticated, new ListIngredienteController().handle)
+router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle);
+router.get('/ingrediente', isAuthenticated, new ListIngredienteController().handle);
 
+// ROTAS PRODUTO_INGREDIENTE (tabela de relação)
+
+router.post('/productIngrediente', new CreateProdutoIngredienteController().handle.bind(new CreateProdutoIngredienteController));
+
+// ROTAS ADICIONAIS 
+router.post('/adicional', isAuthenticated, new CreateAdicionalController().handle);
+router.put('/adicional/update', isAuthenticated, new UpdatePresenteAdicionalController().handle)
 
 export { router };

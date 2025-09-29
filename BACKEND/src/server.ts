@@ -1,5 +1,9 @@
 const express = require('express');
 import cors from 'cors';
+import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { router } from './routes';
 import { PrismaClient } from '@prisma/client';
 
