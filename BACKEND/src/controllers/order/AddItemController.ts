@@ -3,17 +3,22 @@ import { AddItemService } from "../../services/order/AddItemService";
 
 class AddItemController {
     async handle(req: Request, res: Response){
-        const { order_id, product_id, amount} = req.body;
+        console.log('AddItemController chamado com:', req.body);
+        const { order_id, items } = req.body;
 
         const addItem = new AddItemService();
+        const results = [];
 
-        const order = await addItem.execute({
-            order_id,
-            product_id,
-            amount
-        });
+        for (const item of items) {
+            const result = await addItem.execute({
+                order_id,
+                product_id: item.product_id,
+                amount: item.amount
+            });
+            results.push(result);
+        }
 
-        res.json(order);
+        res.json({ success: true, results });
     }
 }
 

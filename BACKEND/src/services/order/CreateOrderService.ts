@@ -30,6 +30,25 @@ class CreateOrderService {
       }
     });
 
+    // Cria o pagamento inicial
+    const pagamento = await prismaClient.pagamento.create({
+      data: {
+        order_id: order.id,
+        amount: 0,
+        status: 0,
+        metodo: 0
+      }
+    });
+
+    // Cria a comanda vinculada ao pedido e ao pagamento
+    await prismaClient.comanda.create({
+      data: {
+        order_id: order.id,
+        amount: 0,
+        pagamento_id: pagamento.id
+      }
+    });
+
     return order;
   }
 }

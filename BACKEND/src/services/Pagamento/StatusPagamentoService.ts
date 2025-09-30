@@ -23,6 +23,13 @@ class UpdatePagamentoStatusService {
     });
 
     if (status === PagamentoStatus.PAID) {
+      // Verifica se o pedido existe antes de atualizar
+      const orderExists = await prismaClient.order.findUnique({
+        where: { id: pagamento.order_id },
+      });
+      if (!orderExists) {
+        throw new Error('Pedido não encontrado para atualização de status.');
+      }
       await prismaClient.order.update({
         where: { id: pagamento.order_id },
         data: { status: 3 }, // FINALIZADO
