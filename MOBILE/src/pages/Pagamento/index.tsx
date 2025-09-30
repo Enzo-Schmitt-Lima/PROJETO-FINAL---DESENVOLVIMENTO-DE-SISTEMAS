@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,6 +13,7 @@ export default function Payment() {
   const { number, order, total } = route.params;
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handlePayment = async () => {
     if (!paymentMethod) {
@@ -20,25 +21,28 @@ export default function Payment() {
       return;
     }
 
+    setLoading(true);
+
     try {
-      // Faz a chamada para a nova rota do backend para finalizar o pedido
+      // Converte o método em número: dinheiro=0, cartão=1, pix=2
+      const metodoNum = paymentMethod === 'dinheiro' ? 0 : paymentMethod === 'cartao' ? 1 : 2;
+
       const response = await api.put(`/order/payment/${order.id}`, {
-        paymentMethod,
-        total,
+        paymentMethod: metodoNum,
+        total, // total calculado no frontend
       });
 
       if (response.status === 200) {
         Alert.alert('Pagamento Concluído!', `O pedido na mesa ${number} foi pago com sucesso.`);
-        
-        // Navega de volta para a tela inicial (Dashboard ou ChooseTable)
-        navigation.popToTop();
+        navigation.popToTop(); // volta para a tela inicial
       } else {
         throw new Error('Erro ao finalizar o pedido');
       }
-
     } catch (err) {
       console.error('Erro ao processar pagamento:', err);
       Alert.alert('Erro', 'Ocorreu um erro ao processar o pagamento. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,40 +76,22 @@ export default function Payment() {
       <TouchableOpacity
         style={styles.payButton}
         onPress={handlePayment}
+        disabled={loading}
       >
-        <Text style={styles.payButtonText}>Finalizar Pagamento</Text>
+        <Text style={styles.payButtonText}>
+          {loading ? 'Processando...' : 'Finalizar Pagamento'}
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1d1d2e',
-    padding: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 10,
-  },
-  subTitle: {
-    fontSize: 20,
-    color: '#FFF',
-    marginBottom: 30,
-  },
-  paymentMethods: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  paymentTitle: {
-    fontSize: 18,
-    color: '#FFF',
-    marginBottom: 15,
-  },
+  container: { flex: 1, backgroundColor: '#1d1d2e', padding: 20, alignItems: 'center' },
+  title: { fontSize: 28, fontWeight: 'bold', color: '#FFF', marginBottom: 10 },
+  subTitle: { fontSize: 20, color: '#FFF', marginBottom: 30 },
+  paymentMethods: { width: '100%', alignItems: 'center' },
+  paymentTitle: { fontSize: 18, color: '#FFF', marginBottom: 15 },
   paymentButton: {
     backgroundColor: '#29295c',
     width: '90%',
@@ -114,14 +100,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  selectedButton: {
-    backgroundColor: '#3fffa3',
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
+  selectedButton: { backgroundColor: '#3fffa3' },
+  buttonText: { fontSize: 16, color: '#FFF', fontWeight: 'bold' },
   payButton: {
     backgroundColor: '#3fffa3',
     width: '90%',
@@ -130,9 +110,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 30,
   },
-  payButtonText: {
-    fontSize: 20,
-    color: '#101026',
-    fontWeight: 'bold',
-  },
-}); 
+  payButtonText: { fontSize: 20, color: '#101026', fontWeight: 'bold' },
+});
