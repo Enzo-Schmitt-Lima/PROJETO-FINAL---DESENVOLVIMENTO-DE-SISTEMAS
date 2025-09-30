@@ -18,7 +18,8 @@ class CreateAdicionalService {
     const adicional = await prismaClient.adicionais.create({
       data: {
         produtoIngrediente: { connect: { id: produtoIngredienteId } },
-        presente: false, 
+        presente: true,
+        adicionando: false 
       },
     });
 

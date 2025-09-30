@@ -3,16 +3,16 @@ import { UpdatePresenteAdicionalService } from "../../services/Adicionais/Update
 
 class UpdatePresenteAdicionalController {
   async handle(req: Request, res: Response): Promise<void> {
-    const { adicionalId, presente } = req.body;
+    const { adicionalId, presente, adicionando } = req.body;
 
-    if (!adicionalId || typeof presente !== "boolean") {
-      res.status(400).json({ error: "adicionalId e presente (boolean) são obrigatórios" });
+    if (!adicionalId || typeof presente !== "boolean" || typeof adicionando !== "boolean") {
+      res.status(400).json({ error: "adicionalId, presente (boolean) e adicionando (boolean) são obrigatórios" });
       return;
     }
 
     const service = new UpdatePresenteAdicionalService();
     try {
-      const atualizado = await service.execute({ adicionalId, presente });
+      const atualizado = await service.execute({ adicionalId, presente, adicionando });
       res.status(200).json(atualizado);
     } catch (err: any) {
       res.status(400).json({ error: err.message });

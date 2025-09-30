@@ -91,6 +91,7 @@ model adicionais {
   id              String      @id @default(uuid())
   presente        Boolean      @default(true)
   produtoIngredienteId      String
+  adicionando     Boolean
   created_at      DateTime?    @default(now())
   update_at       DateTime?    @default(now())
   produtoIngrediente ProdutoIngrediente @relation(fields: [produtoIngredienteId], references: [id])
