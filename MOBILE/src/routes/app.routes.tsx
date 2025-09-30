@@ -58,6 +58,7 @@ export default function AppRoutes() {
           title: "Pagamento",
           headerStyle: { backgroundColor: "#1d1d2e" },
           headerTintColor: "#FFF",
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
