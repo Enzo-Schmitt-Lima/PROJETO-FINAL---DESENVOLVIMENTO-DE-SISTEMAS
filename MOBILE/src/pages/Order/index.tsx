@@ -286,17 +286,44 @@ export default function Order() {
     navigation.goBack();
   };
 
-  const handleNavigateToPayment = () => {
+  // Funcao para navegar para a tela de pagamento
+  const handleNavigateToPayment = async () => {
+    // Verifica se há itens no pedido
     if (total === 0) {
       Alert.alert('Pedido Vazio', 'Não é possível finalizar um pedido sem itens.');
       return;
     }
 
-    navigation.navigate('Payment', {
-      number: route.params.number,
-      order: route.params.order,
-      total: total,
-    });
+    // Coleta os itens do pedido
+    const items: { product_id: string; amount: number }[] = [];
+    categories.forEach((cat) =>
+      cat.products.forEach((p: any) => {
+        if (p.amount > 0) {
+          items.push({ product_id: p.id, amount: p.amount });
+        }
+      })
+    );
+
+    console.log('order_id:', route.params.order.id);
+    console.log('Enviando itens:', items);
+    try {
+      // Envia os itens para o backend
+      const response = await api.post('/order/add', {
+        order_id: route.params.order.id,
+        items,
+      });
+      console.log('Resposta do backend:', response.data);
+
+      // Navega para a tela de pagamento, passando os dados necessários
+      navigation.navigate('Payment', {
+        number: route.params.number,
+        order: route.params.order,
+        total: total,
+      });
+    } catch (err) {
+      console.error('Erro ao adicionar itens:', err);
+      Alert.alert('Erro', 'Ocorreu um erro ao salvar o pedido. Tente novamente.');
+    }
   };
 
   return (

@@ -37,8 +37,15 @@ import { MetodoPagamentoController } from './controllers/Pagamento/MetodoPagamen
 import { UpdateProductController } from './controllers/product/UpdateProductController';
 
 
+import { CreateProdutoIngredienteController } from './controllers/ProdutoIngrediente/CreateProductIngredienteController';
+
+import { CreateAdicionalController } from './controllers/Adicionais/CreateAdicionalController';
+
+
 import { isAuthenticated } from './middlewares/isAuthenticated';
 import uploadConfig from './config/multer';
+import { UpdatePresenteAdicionalController } from './controllers/Adicionais/UpdatePresenteAdicional';
+
 
 const router = Router();
 const upload = multer(uploadConfig.upload('./tmp'));
@@ -65,7 +72,7 @@ router.patch('/product/:id',  isAuthenticated, upload.single('banner'),new Updat
 router.post('/order', isAuthenticated, new CreateOrderController().handle)
 router.delete('/order', isAuthenticated, new RemoveOrderController().handle)
 
-router.post('/order/add', isAuthenticated, new AddItemController().handle)
+router.post('/order/add', new AddItemController().handle)
 router.delete('/order/remove', isAuthenticated, new RemoveItemController().handle)
 router.put('/order/send', isAuthenticated, new SendOrderController().handle)
 
@@ -73,6 +80,7 @@ router.get('/orders', isAuthenticated, new ListOrdersController().handle)
 router.get('/order/detail', isAuthenticated, new DetailOrderController().handle)
 
 router.put('/order/finish', isAuthenticated, new FinishOrderController().handle)
+router.put('/order/payment/:orderId', isAuthenticated, new FinishOrderController().handle)
 
 router.put("/order/status", isAuthenticated, new UpdateStatusPedidoController().handle)
 
@@ -90,8 +98,15 @@ router.post('/roles', new CreateRoleController().handle);
 
 // ROTAS INGREDIENTE
 
-router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle)
-router.get('/ingrediente', isAuthenticated, new ListIngredienteController().handle)
+router.post('/ingrediente', isAuthenticated, new CreateIngredienteController().handle);
+router.get('/ingrediente', isAuthenticated, new ListIngredienteController().handle);
 
+// ROTAS PRODUTO_INGREDIENTE (tabela de relação)
+
+router.post('/productIngrediente', new CreateProdutoIngredienteController().handle.bind(new CreateProdutoIngredienteController));
+
+// ROTAS ADICIONAIS 
+router.post('/adicional', isAuthenticated, new CreateAdicionalController().handle);
+router.put('/adicional/update', isAuthenticated, new UpdatePresenteAdicionalController().handle)
 
 export { router };

@@ -4,10 +4,10 @@ import { CreateCategoryService } from "../../services/category/CreateCategorySer
 class CreateCategoryController {
     async handle(req: Request, res: Response) {
         try {
-            const { name, parentId } = req.body;
+            const { name } = req.body;
 
             const createCategoryService = new CreateCategoryService();
-            const category = await createCategoryService.execute({ name, parentId });
+            const category = await createCategoryService.execute({ name });
 
              res.json(category);
         } catch (err) {

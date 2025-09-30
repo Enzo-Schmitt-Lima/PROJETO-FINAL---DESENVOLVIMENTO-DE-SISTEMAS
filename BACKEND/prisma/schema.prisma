@@ -24,14 +24,11 @@ model Category {
   name       String
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
-  parentId   String?    
-  parent     Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children   Category[] @relation("CategoryHierarchy")
+  products   Product[]
  
   @@map("categories")
-  products Product[]
 }
- 
+
 model Product {
   id          String       @id @default(uuid())
   name        String
@@ -41,9 +38,10 @@ model Product {
   created_at  DateTime?    @default(now())
   update_at   DateTime?    @default(now())
   category_id String
-  adicionais  adicionais[]
   items       Item[]
   category    Category     @relation(fields: [category_id], references: [id])
+  productIngrediente ProdutoIngrediente[]
+ 
   @@map("products")
 }
  
@@ -79,6 +77,7 @@ model Order {
   table      Table       @relation(fields: [tableId], references: [id])
   pagamento  Pagamento[]
 
+  @@map("orders")
 }
  
 model Role {
@@ -89,31 +88,21 @@ model Role {
 }
 
 model adicionais {
-  id              String       @id
-  name            String
+  id              String      @id @default(uuid())
   presente        Boolean      @default(true)
-  product_id      String
-  ingredientes_id String
+  produtoIngredienteId      String
+  adicionando     Boolean
   created_at      DateTime?    @default(now())
   update_at       DateTime?    @default(now())
-  ingredientes    ingredientes @relation(fields: [ingredientes_id], references: [id])
-  products        Product      @relation(fields: [product_id], references: [id])
+  produtoIngrediente ProdutoIngrediente @relation(fields: [produtoIngredienteId], references: [id])
 }
-
-model costumers {
-  id         String    @id
-  name       String
-  email      String
-  password   String
-  birth_date DateTime
-  created_at DateTime? @default(now())
-  update_at  DateTime? @default(now())
-}
-
+ 
 model ingredientes {
-  id         String       @id
+  id         String       @id @default(uuid())
   name       String       @unique
-  adicionais adicionais[]
+  productIngrediente ProdutoIngrediente[]
+
+  @@map("ingredientes")
 }
  
 model Pagamento {
@@ -141,5 +130,16 @@ model Comanda {
   pagamento    Pagamento @relation(fields: [pagamento_id], references: [id])
 
   @@map("comanda")
+}
+
+model ProdutoIngrediente {
+  id            String      @id @default(uuid())
+  product     Product  @relation(fields: [produtoId], references: [id])
+  produtoId     String
+  ingredientes  ingredientes @relation(fields: [ingredienteId], references: [id])
+  ingredienteId String
+  adicionais adicionais []
+
+  @@unique([produtoId, ingredienteId]) 
 }
 

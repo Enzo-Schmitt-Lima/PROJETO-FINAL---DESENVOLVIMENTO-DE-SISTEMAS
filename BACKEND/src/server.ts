@@ -80,16 +80,12 @@ app.post('/order/add', async function (req, res) {
 // Rota para finalizar um pedido e liberar a mesa
 app.put('/order/payment/:order_id', async function (req, res) {
   const { order_id } = req.params;
-
   try {
-    // 1. Atualiza o status do pedido para 2 (finalizado)
-    const updatedOrder = await prisma.order.update({
-      where: { id: order_id },
-      data: { status: 2 },
-    });
-
-    // 2. (Opcional) Poderia adicionar lógica para liberar a mesa, se necessário
-    return res.status(200).json({ message: 'Pedido finalizado com sucesso.' });
+    // Chama o FinishOrderService para finalizar pedido e atualizar pagamento
+    const { FinishOrderService } = require('./services/order/FinishOrderService');
+    const finishOrderService = new FinishOrderService();
+    const order = await finishOrderService.execute({ order_id });
+    return res.status(200).json({ message: 'Pedido finalizado com sucesso.', order });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Erro ao finalizar o pagamento.' });
