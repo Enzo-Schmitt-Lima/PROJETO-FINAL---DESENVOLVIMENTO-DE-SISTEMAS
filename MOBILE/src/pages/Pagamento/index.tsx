@@ -297,4 +297,9 @@ const styles = StyleSheet.create({
     },
 });
  
+<<<<<<< HEAD
 export default Pagamento
+=======
+export default Pagamento
+ 
+>>>>>>> cf2546a33b8d9d9f5f277f092dcaf4d904d426c3

@@ -11,6 +11,7 @@ class UpdatePagamentoStatusController {
   async handle(req: Request, res: Response): Promise<void> {
     try {
       const { pagamento_id, status } = req.body;
+      console.log('Recebido para pagamento:', { pagamento_id, status });
 
       // converte para enum
       const statusEnum = Number(status) as PagamentoStatus;
@@ -24,6 +25,7 @@ class UpdatePagamentoStatusController {
 
       res.json(payment);
     } catch (err: any) {
+      console.error('Erro ao atualizar pagamento:', err);
       res.status(400).json({ error: err.message });
     }
   }
