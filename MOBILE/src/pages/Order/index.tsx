@@ -348,21 +348,22 @@ export default function Order() {
  
   // Funcao para navegar para a tela de pagamento
   const handleNavigateToPayment = async () => {
-    // Verifica se há itens no pedido
     if (total === 0) {
       Alert.alert('Pedido Vazio', 'Não é possível finalizar um pedido sem itens.');
       return;
     }
  
     // Coleta os itens do pedido
-    const items: { product_id: string; amount: number }[] = [];
-    categories.forEach((cat) =>
-      cat.products.forEach((p: any) => {
+  const items: { product_id: string; amount: number }[] = [];
+  categories.forEach((cat) =>
+    cat.subcategories.forEach((sub) =>
+      sub.products.forEach((p) => {
         if (p.amount > 0) {
           items.push({ product_id: p.id, amount: p.amount });
         }
       })
-    );
+    )
+  );
  
     console.log('order_id:', route.params.order.id);
     console.log('Enviando itens:', items);
@@ -373,7 +374,7 @@ export default function Order() {
         items,
       });
       console.log('Resposta do backend:', response.data);
- 
+
       // Navega para a tela de pagamento, passando os dados necessários
       navigation.navigate('Payment', {
         number: route.params.number,
@@ -971,4 +972,3 @@ const styles = StyleSheet.create<MergedStyle>({
     fontWeight: "bold"
   },
 });
- 

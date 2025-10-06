@@ -11,18 +11,14 @@ import {
 } from "react-native";
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackParamsList } from '../../routes/app.routes'; // Ajuste o caminho se necessário
-import api from '../../services/api'; // Ajuste o caminho se necessário
- 
-// Tipagem para os parâmetros recebidos da rota
+import { StackParamsList } from '../../routes/app.routes'; 
+import api from '../../services/api';
+
 type PaymentScreenRouteProp = RouteProp<StackParamsList, 'Payment'>;
  
-const Pagamento: React.FC = () => {
-    // --- Início da Lógica e Hooks ---
+const Payment: React.FC = () => {
     const route = useRoute<PaymentScreenRouteProp>();
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-   
-    // Recebe os dados da tela anterior. Garanta que 'order' e 'total' sejam enviados.
     const { number, order, total } = route.params;
  
     const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
@@ -32,17 +28,13 @@ const Pagamento: React.FC = () => {
             Alert.alert('Atenção', 'Por favor, selecione uma forma de pagamento.');
             return;
         }
- 
         try {
-            // Chama a rota do backend para finalizar o pedido
             await api.put(`/order/payment/${order.id}`, {
                 paymentMethod,
                 total,
             });
  
             Alert.alert('Sucesso!', `O pedido da mesa ${number} foi pago.`);
-           
-            // Navega de volta para a tela inicial da pilha de navegação
             navigation.popToTop();
  
         } catch (err) {
@@ -50,7 +42,6 @@ const Pagamento: React.FC = () => {
             Alert.alert('Erro', 'Não foi possível processar o pagamento. Tente novamente.');
         }
     };
-    // --- Fim da Lógica ---
  
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -297,9 +288,5 @@ const styles = StyleSheet.create({
     },
 });
  
-<<<<<<< HEAD
-export default Pagamento
-=======
-export default Pagamento
+export default Payment
  
->>>>>>> cf2546a33b8d9d9f5f277f092dcaf4d904d426c3

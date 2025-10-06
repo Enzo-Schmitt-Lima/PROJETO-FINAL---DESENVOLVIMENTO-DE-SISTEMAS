@@ -5,7 +5,7 @@ import Dashboard from "../pages/Dashboard";
 import ChooseTable from "../pages/ChooseTable";
 import Order from "../pages/Order";
 import FinishOrder from "../pages/FinishOrder";
-import Payment from "../pages/Pagamento";
+import Payment from "../pages/Payment";
 
 export type StackParamsList = {
   Dashboard: undefined;
