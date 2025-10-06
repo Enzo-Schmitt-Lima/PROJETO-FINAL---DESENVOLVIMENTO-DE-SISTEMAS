@@ -27,10 +27,26 @@ class CreateOrderService {
             id: tableId
           }
         }
+      },
+      include: {
+        pagamento: true
       }
     });
 
-    return order;
+    // Criar um pagamento associado ao pedido
+    const pagamento = await prismaClient.pagamento.create({
+      data: {
+        order_id: order.id,
+        amount: 0, // será atualizado depois
+        status: 0, // PENDING
+        metodo: 0, // será atualizado depois
+      }
+    });
+
+    return {
+      ...order,
+      pagamento: [pagamento]
+    };
   }
 }
 

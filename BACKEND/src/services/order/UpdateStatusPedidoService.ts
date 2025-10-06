@@ -1,5 +1,5 @@
 import prismaClient from "../../../prisma";
-import { StatusPedido } from "../../controllers/order/UpdateStatusPedidoController";
+import { StatusPedido } from "./FinishOrderService";
 
 interface UpdateStatusPedidoRequest {
   id: string;
@@ -8,15 +8,20 @@ interface UpdateStatusPedidoRequest {
 
 class UpdateStatusPedidoService {
   async execute({ id, status }: UpdateStatusPedidoRequest) {
+    // Primeiro verifica se existe
+    const orderExist = await prismaClient.order.findUnique({ where: { id } });
+    if (!orderExist) {
+      throw new Error("Pedido não encontrado");
+    }
+
     const pedido = await prismaClient.order.update({
       where: { id },
       data: { status },
     });
 
-    // transforma o número do status no texto escrito no enum
     return {
       ...pedido,
-      statusText: StatusPedido[status], 
+      statusText: StatusPedido[status],
     };
   }
 }

@@ -90,45 +90,78 @@ export default function Order() {
     setOrderSummary(summary);
   };
 
-  const increment = (catId: string, prodId: string, price: string) => {
-    const updated = categories.map((cat) => {
-      if (cat.id === catId) {
-        return {
-          ...cat,
-          products: cat.products.map((p: any) =>
-            p.id === prodId ? { ...p, amount: p.amount + 1 } : p
-          ),
-        };
-      }
-      return cat;
-    });
-    setCategories(updated);
-    setTotal((prev) => prev + parseFloat(price));
-    setHasOrderItems(true);
-    updateOrderSummary(updated);
+  const increment = async (catId: string, prodId: string, price: string) => {
+    try {
+      // Chama a API para adicionar o item
+      await api.post('/order/add', {
+        order_id: route.params.order_id,
+        product_id: prodId,
+        amount: 1,
+      });
+
+      // Atualiza o estado local
+      const updated = categories.map((cat) => {
+        if (cat.id === catId) {
+          return {
+            ...cat,
+            products: cat.products.map((p: any) =>
+              p.id === prodId ? { ...p, amount: p.amount + 1 } : p
+            ),
+          };
+        }
+        return cat;
+      });
+      setCategories(updated);
+      setTotal((prev) => prev + parseFloat(price));
+      setHasOrderItems(true);
+      updateOrderSummary(updated);
+    } catch (err) {
+      console.log('Erro ao adicionar item:', err);
+      Alert.alert('Erro', 'Não foi possível adicionar o item ao pedido.');
+    }
   };
 
-  const decrement = (catId: string, prodId: string, price: string) => {
-    const updated = categories.map((cat) => {
-      if (cat.id === catId) {
-        return {
-          ...cat,
-          products: cat.products.map((p: any) =>
-            p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p
-          ),
-        };
+  const decrement = async (catId: string, prodId: string, price: string) => {
+    try {
+      // Primeiro, buscar os itens do pedido para encontrar o item_id
+      const orderDetailResponse = await api.get(`/order/detail?order_id=${route.params.order_id}`);
+      const orderItems = orderDetailResponse.data.items || [];
+
+      // Encontrar um item que corresponda ao produto
+      const itemToRemove = orderItems.find((item: any) => item.product_id === prodId);
+
+      if (itemToRemove) {
+        // Chama a API para remover o item
+        await api.delete('/order/remove', {
+          params: { item_id: itemToRemove.id }
+        });
       }
-      return cat;
-    });
-    setCategories(updated);
 
-    setTotal((prev) => Math.max(0, prev - parseFloat(price)));
+      // Atualiza o estado local
+      const updated = categories.map((cat) => {
+        if (cat.id === catId) {
+          return {
+            ...cat,
+            products: cat.products.map((p: any) =>
+              p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p
+            ),
+          };
+        }
+        return cat;
+      });
+      setCategories(updated);
 
-    const anyItem = updated.some((c) =>
-      c.products.some((p: any) => p.amount > 0)
-    );
-    setHasOrderItems(anyItem);
-    updateOrderSummary(updated);
+      setTotal((prev) => Math.max(0, prev - parseFloat(price)));
+
+      const anyItem = updated.some((c) =>
+        c.products.some((p: any) => p.amount > 0)
+      );
+      setHasOrderItems(anyItem);
+      updateOrderSummary(updated);
+    } catch (err) {
+      console.log('Erro ao remover item:', err);
+      Alert.alert('Erro', 'Não foi possível remover o item do pedido.');
+    }
   };
 
   const handleCancelOrder = () => {

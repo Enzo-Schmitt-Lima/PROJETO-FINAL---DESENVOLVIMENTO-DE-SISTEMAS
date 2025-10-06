@@ -21,11 +21,8 @@ export default function ChooseTable() {
     async function loadTables() {
       try {
         const response = await api.get('/tables');
-        const updatedTables = response.data.map((table: TableProps) => ({
-          ...table,
-          occupied: [5, 7, 12].includes(table.number),
-        }));
-        setTables(updatedTables);
+        // Usar o campo occupied retornado pelo backend, sem sobrescrever
+        setTables(response.data);
       } catch (err) {
         console.log('Erro ao carregar mesas:', err);
       }
@@ -36,9 +33,9 @@ export default function ChooseTable() {
   async function handleSelectTable(tableId: number, tableNumber: number) {
     try {
       const response = await api.post('/order', { table: tableId });
-      const order_id = response.data.id;
-      // Passa um objeto vazio para 'order' se não houver dados
-      navigation.navigate('Order', { number: tableNumber, order_id, order: {} });
+      const order = response.data;
+      // Passa o objeto completo do pedido
+      navigation.navigate('Order', { number: tableNumber, order_id: order.id, order });
     } catch (err) {
       console.log('Erro ao criar o pedido:', err);
     }
