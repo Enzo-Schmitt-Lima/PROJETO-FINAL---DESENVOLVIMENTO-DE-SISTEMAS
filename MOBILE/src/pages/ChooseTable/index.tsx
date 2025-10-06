@@ -15,6 +15,8 @@ type RootStackParamList = {
   ChooseTable: undefined;
   Order: { mesa: string | null };
 };
+
+
 type Props = NativeStackScreenProps<RootStackParamList, 'ChooseTable'>;
 
 export default function EscolherMesa({ navigation }: Props) {
