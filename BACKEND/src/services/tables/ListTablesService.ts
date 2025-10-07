@@ -2,10 +2,11 @@ import prismaClient from "../../../prisma";
 
 class ListTablesService {
   async execute() {
-    // Pega todas as mesas do banco
-    const mesas = await prismaClient.table.findMany({
-      orderBy: { number: "asc" }
-    });
+    try {
+      // Pega todas as mesas do banco
+      const mesas = await prismaClient.table.findMany({
+        orderBy: { number: "asc" }
+      });
 
     // Pega todas as mesas que estão ocupadas (pedidos não finalizados)
     const pedidosAtivos = await prismaClient.order.findMany({
@@ -25,7 +26,11 @@ class ListTablesService {
       occupied: mesasOcupadas.includes(mesa.id) || mesasFixasOcupadas.includes(mesa.number)
     }));
 
-    return mesasComStatus;
+      return mesasComStatus;
+    } catch (error) {
+      console.error('Erro no ListTablesService:', error);
+      throw error;
+    }
   }
 }
 

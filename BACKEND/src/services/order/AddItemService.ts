@@ -8,6 +8,7 @@ interface ItemRequest {
 
 class AddItemService {
   async execute({ order_id, product_id, amount }: ItemRequest) {
+    console.log('AddItemService chamado para order_id:', order_id, 'product_id:', product_id, 'amount:', amount);
     // Verifica se o produto existe
     const product = await prismaClient.product.findUnique({
       where: { id: product_id },
@@ -34,26 +35,18 @@ class AddItemService {
       0
     );
 
-    // semelhante a função da comanda, atualiza se já existir
-let pagamento = await prismaClient.pagamento.findFirst({
-  where: { order_id },
-});
-
-if (pagamento) {
-  pagamento = await prismaClient.pagamento.update({
-    where: { id: pagamento.id },
-    data: { amount: total },
-  });
-} else {
-  pagamento = await prismaClient.pagamento.create({
-    data: {
-      order_id,
-      amount: total,
-      status: 0,
-      metodo: 0,
-    },
-  });
-}
+    // Atualiza o valor do pagamento já existente
+    let pagamento = await prismaClient.pagamento.findFirst({
+      where: { order_id },
+    });
+    if (pagamento) {
+      console.log('Pagamento antes de atualizar:', pagamento);
+      pagamento = await prismaClient.pagamento.update({
+        where: { id: pagamento.id },
+        data: { amount: total },
+      });
+      console.log('Pagamento atualizado:', pagamento);
+    }
 
 
     // Cria ou atualiza a comanda vinculando o pagamento

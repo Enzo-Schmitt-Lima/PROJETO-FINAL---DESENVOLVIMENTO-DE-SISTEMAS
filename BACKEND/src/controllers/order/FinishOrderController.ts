@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { FinishOrderService } from "../../services/order/FinishOrderService";
 
-class FinishOrderController {
-  async handle(req: Request, res: Response): Promise<void> {
-    const { order_id } = req.body;
+class FinishOrderController{
+    async handle(req: Request, res: Response){
+        const order_id = req.body.order_id || req.params.orderId;
 
     if (!order_id) {
       res.status(400).json({ error: "order_id é obrigatório" });
@@ -12,18 +12,12 @@ class FinishOrderController {
 
     const service = new FinishOrderService();
 
-    try {
-      const order = await service.execute({ order_id });
-      res.status(200).json(order);
-    } catch (err: any) {
-      console.error("ERRO AO FINALIZAR PEDIDO:", err);
-      if (err.message === "Pedido não encontrado") {
-        res.status(404).json({ error: err.message });
-      } else {
-        res.status(500).json({ error: "Erro ao finalizar pedido" });
-      }
+        const order = await finishOrderService.execute({
+            order_id
+        });
+
+        res.json(order);
     }
-  }
 }
 
-export { FinishOrderController };
+export { FinishOrderController }

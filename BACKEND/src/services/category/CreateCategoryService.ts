@@ -1,6 +1,7 @@
 import prismaClient from "../../../prisma";
 interface CategoryRequest{
     name: string;
+    parentId?: string;
 }
 
 class CreateCategoryService {
@@ -12,7 +13,7 @@ class CreateCategoryService {
         
         const category = await prismaClient.category.create({
             data: {
-                name
+                name,
             },
             select:{
                 id: true,
