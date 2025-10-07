@@ -2,18 +2,26 @@ import prismaClient from "../../../prisma";
 
 class ClearDraftOrdersService {
   async execute() {
-    // Remove todos os pedidos em draft (não finalizados)
-    const deletedOrders = await prismaClient.order.deleteMany({
-      where: { draft: true }
-    });
+    try {
+      // Remove todos os pedidos em draft
+      const deletedOrders = await prismaClient.order.deleteMany({
+        where: { draft: true }
+      });
 
-    // Também remove os itens associados aos pedidos em draft
-    // (isso é feito automaticamente pelo Prisma devido às foreign keys)
+      // Define status FINALIZADO para todos os pedidos ativos (status = false)
+      const updatedOrders = await (prismaClient.order as any).updateMany({
+        where: { status: false },
+        data: { status: true }
+      });
 
-    return {
-      message: "Pedidos em rascunho removidos com sucesso",
-      deletedCount: deletedOrders.count
-    };
+      return {
+        message: "Pedidos em rascunho removidos e pedidos ativos finalizados com sucesso",
+        deletedCount: deletedOrders.count,
+        updatedCount: updatedOrders.count
+      };
+    } catch (error) {
+      throw new Error(`Erro ao limpar pedidos: ${error.message}`);
+    }
   }
 }
 
