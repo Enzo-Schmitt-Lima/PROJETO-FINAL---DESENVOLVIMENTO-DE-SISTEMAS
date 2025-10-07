@@ -97,8 +97,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   async function signOut() {
-    await AsyncStorage.clear();
-    setUser(null);
+    try {
+      // Chama a API para limpar pedidos em draft ao fazer logout
+      await api.delete('/order/clear-draft');
+
+      await AsyncStorage.clear();
+      setUser(null);
+    } catch (error) {
+      console.log('Erro ao limpar pedidos em draft:', error);
+      await AsyncStorage.clear();
+      setUser(null);
+    }
   }
 
   return (

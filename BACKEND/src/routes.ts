@@ -45,6 +45,7 @@ import { ListIngredienteController } from "./controllers/ingrediente/ListCategor
 import { UpdatePagamentoStatusController } from "./controllers/Pagamento/StatusPedidoController";
 import { MetodoPagamentoController } from "./controllers/Pagamento/MetodoPagamentoController";
 import { CreatePagamentoController } from "./controllers/Pagamento/CreatePagamentoController";
+import { ClearDraftOrdersController } from "./controllers/order/ClearDraftOrdersController";
 
 const router = Router();
 const upload = multer(uploadConfig.upload("./tmp"));
@@ -84,6 +85,7 @@ const listOrdersController = new ListOrdersController();
 const detailOrderController = new DetailOrderController();
 const finishOrderController = new FinishOrderController();
 const updateStatusPedidoController = new UpdateStatusPedidoController();
+const clearDraftOrdersController = new ClearDraftOrdersController();
 
 router.post("/order", isAuthenticated, (req, res) => createOrderController.handle(req, res));
 router.delete("/order", isAuthenticated, (req, res) => removeOrderController.handle(req, res));
@@ -97,6 +99,7 @@ router.get("/order/detail", isAuthenticated, (req, res) => detailOrderController
 
 router.put("/order/finish", isAuthenticated, (req, res) => finishOrderController.handle(req, res));
 router.put("/order/status", isAuthenticated, (req, res) => updateStatusPedidoController.handle(req, res));
+router.delete("/order/clear-draft", isAuthenticated, (req, res) => clearDraftOrdersController.handle(req, res));
 
 // -------------------- PAGAMENTO --------------------
 const updatePagamentoStatusController = new UpdatePagamentoStatusController();

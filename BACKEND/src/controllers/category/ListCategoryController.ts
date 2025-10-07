@@ -12,6 +12,9 @@ class ListCategoryController {
       products: cat.products.map((p: any) => ({
         ...p,
         price: Number(p.price).toFixed(2), // string "10.00"
+        bannerUri: p.banner
+          ? `${req.protocol}://${req.get('host')}/files/${p.banner}`
+          : null,
       })),
     }));
 

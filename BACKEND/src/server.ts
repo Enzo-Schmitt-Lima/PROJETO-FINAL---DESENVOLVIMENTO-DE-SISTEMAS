@@ -1,12 +1,16 @@
 import express from "express";
 import cors from "cors";
 import "express-async-errors";
+import path from "path";
 import { router } from "./routes";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Servir arquivos estáticos da pasta tmp
+app.use('/files', express.static(path.resolve(__dirname, '..', 'tmp')));
 app.use(router);
 
 // ====================== CONFIGURAÇÃO ======================

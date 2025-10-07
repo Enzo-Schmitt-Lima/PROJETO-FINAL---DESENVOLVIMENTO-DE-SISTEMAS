@@ -42,9 +42,6 @@ export default function Order() {
           products: cat.products.map((p: any) => ({
             ...p,
             amount: 0,
-            bannerUri: p.banner
-              ? `http://10.0.2.2:3333/files/${p.banner}`
-              : null,
           })),
         }));
 

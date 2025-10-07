@@ -11,6 +11,8 @@ class ListCategoryService {
             id: true,
             name: true,
             price: true, // continua string
+            banner: true,
+            description: true,
           },
         },
       },

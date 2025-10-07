@@ -23,10 +23,13 @@ class FinishOrderService {
       throw new Error("Pedido não encontrado");
     }
 
-    // Atualiza status para FINALIZADO
+    // Atualiza status para FINALIZADO e marca como não draft
     const updatedOrder = await prismaClient.order.update({
       where: { id: order_id },
-      data: { status: StatusPedido.FINALIZADO },
+      data: {
+        status: StatusPedido.FINALIZADO,
+        draft: false
+      },
     });
 
     return {

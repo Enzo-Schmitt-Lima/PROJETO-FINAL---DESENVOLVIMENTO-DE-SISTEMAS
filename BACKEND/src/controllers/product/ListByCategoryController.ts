@@ -11,7 +11,7 @@ class ListByCategoryController {
         const formattedProducts = products.map((product) => ({
             ...product,
             price: Number(product.price).toFixed(2),
-            bannerUrl: product.banner
+            bannerUri: product.banner
                 ? `${req.protocol}://${req.get('host')}/files/${product.banner}`
                 : null,
         }));
