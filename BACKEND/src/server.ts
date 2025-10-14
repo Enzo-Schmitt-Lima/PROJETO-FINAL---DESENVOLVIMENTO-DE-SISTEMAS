@@ -12,6 +12,7 @@ app.use(express.json());
 // Servir arquivos estáticos da pasta tmp
 app.use('/files', express.static(path.resolve(__dirname, '..', 'tmp')));
 app.use(router);
+console.log("URL do Banco de Dados Carregada:", process.env.DATABASE_URL);
 
 // ====================== CONFIGURAÇÃO ======================
 const PORT = process.env.PORT || 3333;

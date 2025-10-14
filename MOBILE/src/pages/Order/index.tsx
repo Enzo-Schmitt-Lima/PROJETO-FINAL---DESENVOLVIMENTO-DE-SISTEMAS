@@ -13,7 +13,6 @@ import {
   TextStyle,
   ImageStyle,
   TextInput,
-  // 💡 REMOÇÃO: Removi 'Platform' que não estava sendo usado
 } from "react-native";
  
 import { Ionicons } from "@expo/vector-icons";
@@ -24,8 +23,7 @@ import { StackParamsList } from "../../routes/app.routes";
 import api from "../../services/api";
  
 type OrderRouteProp = RouteProp<StackParamsList, "Order">;
- 
-// Tipagem mantida
+
 interface Product {
   id: string;
   name: string;
@@ -63,7 +61,7 @@ export default function Order() {
   const [total, setTotal] = useState(0);
   const [hasOrderItems, setHasOrderItems] = useState(false);
   const [orderSummary, setOrderSummary] = useState<any[]>([]);
-  const [imageError, setImageError] = useState<string | null>(null); // Variável não usada, mas mantida.
+  const [imageError, setImageError] = useState<string | null>(null); 
   const [searchText, setSearchText] = useState("");
  
   const scrollRef = useRef<ScrollView>(null);
@@ -71,7 +69,6 @@ export default function Order() {
  
   useEffect(() => {
     async function loadCategories() {
-      // (Mantido inalterado)
       try {
         const mockResponse = {
           data: [
@@ -408,35 +405,31 @@ export default function Order() {
   };
  
   return (
-    // O containerLayout deve ser o principal e envolver tudo
     <SafeAreaView style={styles.containerLayout}>
-     
-      {/* 💡 CORREÇÃO 4: Cabeçalho Fixo (header) fora do ScrollView */}
-      <View style={styles.header}>
-        {/* Ícone de Menu Hamburguer (Retirado do rowLayout e adaptado) */}
-        <View style={styles.viewLayout}>
-            <View style={styles.column2Layout}>
-              <View style={styles.boxLayout} />
-              <View style={styles.boxLayout} />
-              <View style={styles.box2Layout} />
-            </View>
-        </View>
- 
-        <Image
-            source={logo} // Usando a constante logo definida
-            style={styles.logoImage}
-        />
-       
-        {/* Adicionei o título que estava faltando no seu código anterior para manter a info da mesa */}
- 
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={{ marginRight: 15 }}>
-            <Ionicons name="cart-outline" size={24} color="#333" />
-          </TouchableOpacity>
+      
+        
+        {/* HEADER CORRETO (Este deve ficar) */}
+        <View style={styles.header}>
           <TouchableOpacity>
-            <Ionicons name="person-circle-outline" size={28} color="#333" />
+            <Ionicons name="menu" size={40} color="#333" />
           </TouchableOpacity>
-        </View>
+
+          <Image
+            source={require("../ChooseTable/logo.png")}
+            style={styles.logoImage}
+          />
+          
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={{ marginRight: 15 }}>
+              <Ionicons name="cart-outline" size={24} color="#333" />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Ionicons name="person-circle-outline" size={28} color="#333" />
+            </TouchableOpacity>
+          </View>
+
+        {/* O BLOCO DUPLICADO QUE ESTAVA AQUI FOI REMOVIDO */}
+        
       </View>
      
       {/* ScrollView preenche o restante do espaço e contém o conteúdo rolavel */}
@@ -629,7 +622,6 @@ interface MergedStyle {
   containerLayout: ViewStyle;
   scrollView: ViewStyle;
   boxLayout: ViewStyle;
-  box2Layout: ViewStyle;
   columnLayout: ViewStyle;
   column2Layout: ViewStyle;
   inputLayout: TextStyle;
@@ -680,6 +672,7 @@ const styles = StyleSheet.create<MergedStyle>({
     flex: 1,
     backgroundColor: "#911F09",
   },
+  
  
   // 💡 NOVO ESTILO: Cabeçalho Fixo (baseado no rowLayout, mas sem margin/padding inferior)
   header: {
@@ -696,7 +689,7 @@ const styles = StyleSheet.create<MergedStyle>({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 4,
     elevation: 4,
-    marginBottom: 1,
+    marginBottom: -1,
     marginTop: 55,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -715,20 +708,12 @@ const styles = StyleSheet.create<MergedStyle>({
     borderRadius: 10,
     marginBottom: 6,
   },
-  box2Layout: {
-    width: 35,
-    height: 5,
-    backgroundColor: "#5D3A2F",
-    borderRadius: 10,
-  },
   // 💡 AJUSTE: Ajustei marginTop para encostar no topo do ScrollView (vermelho)
   // e paddingBottom para não conflitar com o footer fixo.
   columnLayout: {
     backgroundColor: "#D9D9D9",
     borderRadius: 1,
     paddingBottom: 140,
-    marginTop: - 10,
-    marginBottom: 69,
     marginHorizontal: 10,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
@@ -773,7 +758,7 @@ const styles = StyleSheet.create<MergedStyle>({
     paddingRight: 32,
     marginBottom: 12,
     marginHorizontal: 29,
-    shadowColor: "#5D3A2FB8",
+    shadowColor: "#f34c19b8",
     shadowOpacity: 0.7,
     shadowOffset: {
       width: 7,
@@ -802,7 +787,7 @@ const styles = StyleSheet.create<MergedStyle>({
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f1f1f1ff',
     borderRadius: 50,
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -813,7 +798,7 @@ const styles = StyleSheet.create<MergedStyle>({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 4,
   },
   searchBarInput: {
     flex: 1,
@@ -858,8 +843,6 @@ const styles = StyleSheet.create<MergedStyle>({
   },
   subCategoryButtonActive: {
     backgroundColor: "#B72F14",
-    borderWidth: 2,
-    borderColor: '#d41e1eff',
   },
   subCategoryText: {
     color: "#D9D9D9",
@@ -869,7 +852,7 @@ const styles = StyleSheet.create<MergedStyle>({
   subCategoryTextActive: {
     color: "#FFFFFF",
     fontWeight: 'bold',
-    fontSize: 21,
+    fontSize: 20,
   },
  
  
@@ -982,7 +965,7 @@ const styles = StyleSheet.create<MergedStyle>({
     fontSize: 16
   },
   orderSummary: {
-    backgroundColor: "#5D3A2F",
+    backgroundColor: "#230f09ff",
     padding: 10,
     alignItems: "center",
   },

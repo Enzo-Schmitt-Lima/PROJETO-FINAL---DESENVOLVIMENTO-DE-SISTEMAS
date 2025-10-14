@@ -52,7 +52,7 @@ export default function ChooseTable() {
         {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity>
-            <Ionicons name="menu" size={28} color="#333" />
+            <Ionicons name="menu" size={40} color="#333" />
           </TouchableOpacity>
           <Image
             source={require("../ChooseTable/logo.png")}
@@ -167,6 +167,7 @@ mainContent: {
     width: 120,
     height: 40,
     resizeMode: 'contain',
+    marginLeft: 40,
   },
   headerRight: {
     flexDirection: "row",
@@ -213,8 +214,6 @@ mainContent: {
   },
   mesaSelecionadaBtn: {
     backgroundColor: "#911F09",
-    borderColor: '#D32F2F',
-    borderWidth: 2,
   },
   mesaText: {
     color: "#fff",
