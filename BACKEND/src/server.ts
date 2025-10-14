@@ -13,6 +13,7 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 app.use(router);
+console.log("URL do Banco de Dados Carregada:", process.env.DATABASE_URL);
 
 // Rota para criar um novo pedido e ocupar a mesa
 app.post('/order', async function (req, res) {
