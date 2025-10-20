@@ -7,7 +7,7 @@ import { Platform } from 'react-native';
 // 2. Se Android emulator padrão, usamos 10.0.2.2
 // 3. Senão, usa um fallback localhost/IP (você pode editar aqui se quiser)
 
-let baseURL = 'http://10.106.131.40:3333'; // fallback - altere se preferir
+let baseURL = 'http://10.135.67.151:3333'; // fallback - altere se preferir
 
 try {
   const manifest: any = Constants.manifest || (Constants as any).expoConfig;

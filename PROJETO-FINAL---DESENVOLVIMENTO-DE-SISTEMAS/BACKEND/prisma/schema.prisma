@@ -94,6 +94,7 @@ model adicionais {
   created_at      DateTime?    @default(now())
   update_at       DateTime?    @default(now())
   produtoIngrediente ProdutoIngrediente @relation(fields: [produtoIngredienteId], references: [id])
+  adicionando Boolean
 }
  
 model ingredientes {

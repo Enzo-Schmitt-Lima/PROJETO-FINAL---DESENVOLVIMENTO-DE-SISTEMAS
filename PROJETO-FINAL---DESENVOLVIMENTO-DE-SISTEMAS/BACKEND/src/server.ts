@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import "express-async-errors";
 import path from "path";
+import http from "http";
 import { router } from "./routes";
+import { initSocket } from "./libs/socket";
 
 const app = express();
 
@@ -21,6 +23,12 @@ app.use(router);
 
 // ====================== CONFIGURAÇÃO ======================
 const PORT = process.env.PORT || 3333;
-app.listen(PORT, () => {
+
+const server = http.createServer(app);
+
+// Inicializa o Socket.IO
+initSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Servidor ligado!!!!!!!!!!!!!!! na porta ${PORT}`);
 });

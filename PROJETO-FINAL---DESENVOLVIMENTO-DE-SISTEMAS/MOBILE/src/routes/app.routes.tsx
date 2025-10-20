@@ -6,6 +6,7 @@ import ChooseTable from "../pages/ChooseTable";
 import Order from "../pages/Order";
 import FinishOrder from "../pages/FinishOrder";
 import Payment from "../pages/Pagamento";
+import AcompanharPedido from "../pages/AcompanharPedido";
 
 export type StackParamsList = {
   Dashboard: undefined;
@@ -13,10 +14,11 @@ export type StackParamsList = {
   Order: { number: number; order_id: string; order: any };
   FinishOrder: { number: number; order_id: string };
   Payment: { number: number; order: any; total: number };
-  OrderStatus: { number: number; order: any; total: number };
+  OrderStatus: { number?: number; order?: any; order_id?: string; total?: number };
   Feedback: undefined;
   Account: undefined;
   Orders: undefined;
+  AcompanharPedido: { order_id?: string } | undefined;
   Payments: undefined;
   Logout: undefined;
 };
@@ -70,6 +72,15 @@ export default function AppRoutes() {
         component={require('../pages/OrderStatus').default}
         options={{
           title: "Status do Pedido",
+          headerStyle: { backgroundColor: "#1d1d2e" },
+          headerTintColor: "#FFF",
+        }}
+      />
+      <Stack.Screen
+        name="AcompanharPedido"
+        component={AcompanharPedido}
+        options={{
+          title: "Acompanhar Pedido",
           headerStyle: { backgroundColor: "#1d1d2e" },
           headerTintColor: "#FFF",
         }}

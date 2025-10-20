@@ -46,7 +46,7 @@ export default function ChooseTable() {
       try {
         const response = await api.get('/tables');
         // Adiciona 'floor' para o agrupamento visual. Ajuste esta lógica se a API retornar o andar.
-        const tablesWithFloor = response.data.map((table: TableProps) => ({
+  const tablesWithFloor = (response.data as TableProps[]).map((table: TableProps) => ({
           ...table,
           // Exemplo: Mesas 1 a 4 = 1º Andar; 5 em diante = 2º Andar
           floor: table.number <= 4 ? 1 : 2, 
@@ -84,7 +84,7 @@ export default function ChooseTable() {
 
     try {
       const response = await api.post('/order', { table: selectedTable.id });
-      const order = response.data;
+  const order = response.data as any;
 
       // Armazenar o ID da mesa atual
       await AsyncStorage.setItem('currentTableId', selectedTable.id.toString());

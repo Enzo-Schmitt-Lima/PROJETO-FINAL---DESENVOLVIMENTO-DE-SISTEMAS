@@ -14,6 +14,7 @@ import {
     ImageStyle,
     TextInput,
     StatusBar,
+    Platform,
     Modal,
 } from "react-native";
 
@@ -52,6 +53,8 @@ export default function Order() {
     const route = useRoute<OrderRouteProp>();
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
+    const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24;
+
     // --- SUA LÓGICA ORIGINAL (STATES) ---
     const [categories, setCategories] = useState<Category[]>([]);
     const [openCategory, setOpenCategory] = useState<string | null>(null); // Renomeado de 'showProducts' para compatibilidade
@@ -66,30 +69,32 @@ export default function Order() {
     const scrollRef = useRef<ScrollView>(null);
     const categoryRefs = useRef<{ [key: string]: number }>({});
 
-    // --- SUA LÓGICA ORIGINAL (FUNÇÕES) ---
-    useEffect(() => {
-        async function loadCategories() {
-            try {
-                const response = await api.get("/category");
-                const formatted = response.data.map((cat: any) => ({
-                    ...cat,
-                    name: cat.name || cat.title, // Garante compatibilidade
-                    products: cat.products.map((p: any) => ({
-                        ...p,
-                        amount: 0,
-                    })),
-                }));
-                setCategories(formatted);
-                // Define a primeira categoria como aberta por padrão
-                if (formatted.length > 0) {
-                    setOpenCategory(formatted[0].id);
-                }
-            } catch (err) {
-                console.log("Erro ao buscar categorias:", err);
+    // --- CATEGORY LOADER ---
+    const loadCategories = useCallback(async () => {
+        try {
+            const response = await api.get("/category");
+            const formatted = (response.data as any[]).map((cat: any) => ({
+                ...cat,
+                name: cat.name || cat.title, // Garante compatibilidade
+                products: cat.products.map((p: any) => ({
+                    ...p,
+                    amount: 0,
+                })),
+            }));
+            setCategories(formatted);
+            // Define a primeira categoria como aberta por padrão
+            if (formatted.length > 0) {
+                setOpenCategory(formatted[0].id);
             }
+        } catch (err) {
+            console.log("Erro ao buscar categorias:", err);
+            Alert.alert('Erro', 'Não foi possível carregar as categorias.');
         }
-        loadCategories();
     }, []);
+
+    useEffect(() => {
+        loadCategories();
+    }, [loadCategories]);
 
     const updateOrderSummaryAndTotal = (updatedCategories: Category[]) => {
         const summary: any[] = [];
@@ -137,7 +142,7 @@ export default function Order() {
     const decrement = async (catId: string, prodId: string) => {
         try {
             const orderDetailResponse = await api.get(`/order/detail?order_id=${route.params.order_id}`);
-            const orderItems = orderDetailResponse.data.items || [];
+            const orderItems = (orderDetailResponse.data as any).items || [];
             const itemToRemove = orderItems.find((item: any) => item.product_id === prodId);
 
             if (itemToRemove) {
@@ -205,6 +210,9 @@ export default function Order() {
         <SafeAreaView style={styles.containerLayout}>
             <StatusBar backgroundColor="#911F09" barStyle="light-content" />
             <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backButton, { top: topOffset }] }>
+                    <Ionicons name="arrow-back" size={24} color="#5D3A2F" />
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.viewLayout}>
                     <View style={styles.column2Layout}>
                         <View style={styles.boxLayout} /><View style={styles.boxLayout} /><View style={styles.box2Layout} />
@@ -212,6 +220,9 @@ export default function Order() {
                 </TouchableOpacity>
                 <Image source={logo} style={styles.logoImage} />
                 <View style={styles.headerRight}>
+                    <TouchableOpacity onPress={() => loadCategories()} style={[styles.refreshButton, { top: topOffset }]}>
+                        <Ionicons name="refresh" size={22} color="#333" />
+                    </TouchableOpacity>
                     <TouchableOpacity onPress={() => setCartVisible(true)} style={{ marginRight: 15 }}>
                         <Ionicons name="cart-outline" size={24} color="#333" />
                         {totalItems > 0 && (
@@ -332,7 +343,7 @@ const styles = StyleSheet.create({
     columnLayout: { backgroundColor: "#D9D9D9", borderRadius: 1, paddingBottom: 140, marginTop: -10, marginBottom: 69, marginHorizontal: 10, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, },
     column2Layout: { alignItems: "center", },
     inputLayout: { color: "#FFFFFF", fontSize: 20, flex: 1, textAlignVertical: 'center', fontWeight: 'bold' },
-    row2Layout: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#B72F14", borderRadius: 20, paddingVertical: 12, paddingHorizontal: 32, marginVertical: 6, marginHorizontal: 29, shadowColor: "#5D3A2FB8", shadowOpacity: 0.7, shadowOffset: { width: 7, height: 5 }, shadowRadius: 4, elevation: 4, },
+    row2Layout: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#911F09", borderRadius: 20, paddingVertical: 12, paddingHorizontal: 32, marginVertical: 6, marginHorizontal: 29, shadowColor: "#5D3A2FB8", shadowOpacity: 0.7, shadowOffset: { width: 7, height: 5 }, shadowRadius: 4, elevation: 4, },
     viewLayout: { alignItems: "center", paddingTop: 0, paddingBottom: 0, marginRight: 10, },
     logoImage: { width: 120, height: 40, resizeMode: 'contain', },
     headerRight: { flexDirection: "row", alignItems: "center", },
@@ -368,6 +379,8 @@ const styles = StyleSheet.create({
     closeText: { color: '#FFF', fontWeight: 'bold' },
     badge: { position: 'absolute', top: -5, right: -5, backgroundColor: 'red', borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center' },
     badgeText: { color: 'white', fontSize: 12, fontWeight: 'bold' },
+    backButton: { position: 'absolute', top: 12, left: 12, padding: 8, zIndex: 20 },
+    refreshButton: { position: 'absolute', top: 12, right: 60, padding: 8, zIndex: 20 },
 });
 // import React, { useEffect, useState, useRef } from "react";
 // import {
