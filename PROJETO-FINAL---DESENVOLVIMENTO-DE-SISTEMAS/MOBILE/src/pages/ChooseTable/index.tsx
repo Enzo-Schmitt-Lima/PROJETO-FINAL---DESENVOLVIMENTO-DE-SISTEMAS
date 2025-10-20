@@ -265,9 +265,9 @@ const styles = StyleSheet.create({
   // --- BOTÕES DE MESA ---
   mesaBtn: {
     backgroundColor: "#D32F2F", 
-    borderRadius: 5, 
+    borderRadius: 33, 
     paddingVertical: 10,
-    marginVertical: 4,
+    marginVertical: 6,
     width: "70%", 
     alignItems: "center",
     alignSelf: 'center',
