@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
     View,
     Text,
@@ -9,9 +9,6 @@ import {
     Alert,
     Image,
     SafeAreaView,
-    ViewStyle,
-    TextStyle,
-    ImageStyle,
     TextInput,
     StatusBar,
     Modal,
@@ -328,7 +325,7 @@ const styles = StyleSheet.create({
         flex: 1, 
         backgroundColor: "#911F09", 
     },
-    header: { 
+    header: {
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'space-between', 
@@ -345,8 +342,8 @@ const styles = StyleSheet.create({
         }, 
         shadowRadius: 4, 
         elevation: 4, 
-        marginBottom: 1, 
-        marginTop: 55, 
+        marginBottom: 0, 
+        marginTop: 45, 
         borderTopLeftRadius: 30, 
         borderTopRightRadius: 30, 
         marginHorizontal: 10, 
@@ -473,7 +470,7 @@ const styles = StyleSheet.create({
         borderRadius: 6, 
         alignItems: "center", 
         borderWidth: 1, 
-        borderColor: '#B72F14', 
+        borderColor: '#ad290fff', 
         elevation: 2, 
         shadowColor: "#000", 
         shadowOffset: { 
