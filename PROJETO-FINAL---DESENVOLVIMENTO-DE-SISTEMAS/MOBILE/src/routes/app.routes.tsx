@@ -65,6 +65,7 @@ export default function AppRoutes() {
           title: "Pagamento",
           headerStyle: { backgroundColor: "#1d1d2e" },
           headerTintColor: "#FFF",
+          headerShown: false,
         }}
       />
       <Stack.Screen
@@ -74,6 +75,7 @@ export default function AppRoutes() {
           title: "Status do Pedido",
           headerStyle: { backgroundColor: "#1d1d2e" },
           headerTintColor: "#FFF",
+          headerShown: false,
         }}
       />
       <Stack.Screen

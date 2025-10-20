@@ -187,7 +187,10 @@ export default function ChooseTable() {
               <Text style={styles.prosseguirText}>PROSSEGUIR</Text>
             </TouchableOpacity>
             
-             <Text style={styles.sacText}>💬 SAC</Text>
+            <Image 
+              source={require('../../../assets/sac.png')} 
+              style={styles.sacImage} 
+            />
           </View>
         </ScrollView>
       </View>
@@ -207,8 +210,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#d9d9d9', 
     borderRadius: 34,
     marginHorizontal: 15, 
-    marginBottom: 10,
-    marginTop: 20, 
+    marginBottom: 25,
+    marginTop: 45, 
   },
   
   // --- HEADER ---
@@ -314,11 +317,5 @@ const styles = StyleSheet.create({
   },
   
   // --- Rodapé SAC ---
-  sacText: {
-    textAlign: 'right',
-    color: '#666',
-    fontSize: 12,
-    marginTop: 20,
-    paddingRight: 15,
-  },
+  sacImage: { marginTop: 10, alignSelf: 'flex-end' },
 });

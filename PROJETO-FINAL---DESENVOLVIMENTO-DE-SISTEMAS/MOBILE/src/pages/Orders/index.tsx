@@ -134,7 +134,9 @@ export default function Orders() {
         </TouchableOpacity>
         <Text style={styles.logo}>RED HOT CHILLI</Text>
         <Text style={styles.title}>Meus pedidos</Text>
-        <View style={styles.searchBar}><TextInput style={styles.searchInput} placeholder="" /></View>
+        <View style={styles.searchBar}>
+          <TextInput style={styles.searchInput} placeholder="Buscar pedido..." />
+        </View>
         <ScrollView style={{ width: '100%', flex: 1 }}>
           {loading ? (
             <Text style={styles.loadingText}>Carregando pedidos...</Text>
@@ -160,7 +162,10 @@ export default function Orders() {
             ))
           )}
         </ScrollView>
-        <Text style={styles.sacText}>SAC</Text>
+        <Image 
+          source={require('../../../assets/sac.png')} 
+          style={styles.sacImage} 
+        />
       </View>
     </View>
   );
