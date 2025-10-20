@@ -220,9 +220,6 @@ export default function Payment() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={[styles.closeButton, { top: topOffsetWithExtra, left: 18 }]} onPress={() => navigation.goBack()}>
-          <Text style={{ fontSize: 22, color: '#911F09' }}>✕</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={[styles.refreshIcon, { top: topOffsetWithExtra }]} onPress={refreshOrder}>
           <Ionicons name="refresh" size={20} color="#911F09" />
         </TouchableOpacity>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
@@ -23,6 +24,7 @@ export default function OrderStatus() {
 
   const [orderData, setOrderData] = useState<OrderData | null>(order || null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -43,6 +45,20 @@ export default function OrderStatus() {
 
   const handleOrderArrived = () => {
     (navigation as any).navigate('Feedback');
+  };
+
+  const refreshOrderStatus = async () => {
+    if (!displayId) return;
+    try {
+      setRefreshing(true);
+      const resp = await api.get(`/order/detail?order_id=${displayId}`);
+      const updatedOrder = (resp.data as any).order || resp.data;
+      setOrderData(updatedOrder);
+    } catch (err) {
+      console.error('Erro ao atualizar status do pedido:', err);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const statusText = (s?: number) => {
@@ -73,11 +89,14 @@ export default function OrderStatus() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-    <Text style={styles.title}>Status do Pedido</Text>
-    <Text style={styles.subtitle}>Mesa {displayTable}</Text>
-    {paymentMethod && <Text style={styles.info}>Pagamento: {paymentMethod}</Text>}
-    <Text style={styles.info}>Total: R$ {displayTotal.toFixed(2)}</Text>
-    <Text style={styles.status}>{loading ? 'Carregando status...' : displayStatusText}</Text>
+        <TouchableOpacity style={styles.refreshButton} onPress={refreshOrderStatus} disabled={refreshing}>
+          <Ionicons name="refresh" size={24} color="#911F09" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Status do Pedido</Text>
+        <Text style={styles.subtitle}>Mesa {displayTable}</Text>
+        {paymentMethod && <Text style={styles.info}>Pagamento: {paymentMethod}</Text>}
+        <Text style={styles.info}>Total: R$ {displayTotal.toFixed(2)}</Text>
+        <Text style={styles.status}>{loading ? 'Carregando status...' : displayStatusText}</Text>
         <TouchableOpacity style={styles.button} onPress={handleOrderArrived}>
           <Text style={styles.buttonText}>O pedido chegou?</Text>
         </TouchableOpacity>
@@ -147,6 +166,12 @@ const styles = StyleSheet.create({
     color: '#911F09',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  refreshButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 10,
   },
   sacText: {
     color: '#911F09',

@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   editAvatar: { backgroundColor: '#FFF', borderRadius: 16, padding: 4, borderWidth: 1, borderColor: '#BBB' },
   editIcon: { fontSize: 18, color: '#911F09' },
   userName: { fontWeight: 'bold', fontSize: 18, color: '#1A3A6B', marginBottom: 12 },
-  editBox: { borderWidth: 2, borderColor: '#3FFFA3', borderRadius: 8, padding: 10, width: '100%', marginBottom: 12 },
+  editBox: { borderWidth: 2, borderColor: '#F5F5F5', borderRadius: 8, padding: 10, width: '100%', marginBottom: 12 },
   editTitle: { fontWeight: 'bold', fontSize: 15, color: '#1A3A6B', marginBottom: 6 },
   inputRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   inputLabel: { width: 70, color: '#555', fontWeight: 'bold' },
