@@ -324,411 +324,313 @@ export default function Order() {
 
 // --- STYLESHEET (DA SUA AMIGA) ---
 const styles = StyleSheet.create({
-    containerLayout: { flex: 1, backgroundColor: "#911F09", },
-    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#D9D9D9', paddingVertical: 10, paddingHorizontal: 15, borderBottomWidth: 1, borderBottomColor: '#ccc', shadowColor: "rgba(0,0,0,0.25)", shadowOpacity: 0.3, shadowOffset: { width: 0, height: 4 }, shadowRadius: 4, elevation: 4, marginBottom: 1, marginTop: 55, borderTopLeftRadius: 30, borderTopRightRadius: 30, marginHorizontal: 10, },
-    scrollView: { flex: 1, backgroundColor: "#911F09", },
-    boxLayout: { width: 35, height: 5, backgroundColor: "#5D3A2F", borderRadius: 10, marginBottom: 6, },
-    box2Layout: { width: 35, height: 5, backgroundColor: "#5D3A2F", borderRadius: 10, },
-    columnLayout: { backgroundColor: "#D9D9D9", borderRadius: 1, paddingBottom: 140, marginTop: -10, marginBottom: 69, marginHorizontal: 10, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, },
-    column2Layout: { alignItems: "center", },
-    inputLayout: { color: "#FFFFFF", fontSize: 20, flex: 1, textAlignVertical: 'center', fontWeight: 'bold' },
-    row2Layout: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#B72F14", borderRadius: 20, paddingVertical: 12, paddingHorizontal: 32, marginVertical: 6, marginHorizontal: 29, shadowColor: "#5D3A2FB8", shadowOpacity: 0.7, shadowOffset: { width: 7, height: 5 }, shadowRadius: 4, elevation: 4, },
-    viewLayout: { alignItems: "center", paddingTop: 0, paddingBottom: 0, marginRight: 10, },
-    logoImage: { width: 120, height: 40, resizeMode: 'contain', },
-    headerRight: { flexDirection: "row", alignItems: "center", },
-    searchBarContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 50, paddingHorizontal: 15, paddingVertical: 10, marginHorizontal: 29, marginBottom: 20, marginTop: 30, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 3.84, elevation: 5, },
-    searchBarInput: { flex: 1, marginLeft: 10, fontSize: 18, color: '#101026', paddingVertical: 0, height: 30, },
-    noResultsText: { textAlign: 'center', marginTop: 20, fontSize: 18, color: '#911F09', fontWeight: 'bold', marginHorizontal: 30, },
-    productsListView: { marginHorizontal: 29, marginBottom: 20, },
-    categoryWrapper: { marginBottom: 12, },
-    productContainer: { flexDirection: "row", justifyContent: "space-between", backgroundColor: "#FFFFFF", marginVertical: 4, padding: 10, borderRadius: 6, alignItems: "center", borderWidth: 1, borderColor: '#B72F14', elevation: 2, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 2, },
-    productImage: { width: 60, height: 60, borderRadius: 6, marginRight: 10 },
-    productInfo: { flex: 1, justifyContent: "center" },
-    productName: { color: "#101026", fontWeight: "bold", fontSize: 16 },
-    productDesc: { color: "#555", fontSize: 12 },
-    productPrice: { color: "#101026", fontWeight: "bold", marginTop: 4 },
-    counter: { flexDirection: "row", alignItems: "center" },
-    counterButton: { width: 35, height: 35, backgroundColor: "#F2CA85", justifyContent: "center", alignItems: "center", borderRadius: 6, },
-    counterText: { fontWeight: "bold", color: "#101026", fontSize: 18 },
-    amount: { color: "#101026", marginHorizontal: 12, fontSize: 16, fontWeight: 'bold', },
-    summaryContainer: { backgroundColor: "#5D3A2F", paddingVertical: 8, paddingHorizontal: 4, },
-    summaryItem: { backgroundColor: "#D9D9D9", padding: 6, marginHorizontal: 4, borderRadius: 6, },
-    summaryText: { color: "#101026", fontWeight: "bold" },
-    footer: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: "row", justifyContent: "space-between", padding: 12, backgroundColor: "#911F09", },
-    footerButton: { flex: 1, marginHorizontal: 4, paddingVertical: 12, borderRadius: 6, alignItems: "center", },
-    footerText: { fontWeight: "bold", color: "#FFF", fontSize: 16 },
-    orderSummary: { backgroundColor: "#5D3A2F", padding: 10, alignItems: "center", },
-    totalText: { color: "#101026", fontSize: 16, fontWeight: "bold", textAlign: 'center', marginBottom: 10 },
-    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-    cartContainer: { backgroundColor: '#FFF', padding: 20, borderRadius: 10, width: '80%', maxHeight: '60%' },
-    cartTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
-    cartItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
-    cartText: { fontSize: 16 },
-    closeButton: { backgroundColor: '#B72F14', padding: 10, borderRadius: 5, marginTop: 10, alignItems: 'center' },
-    closeText: { color: '#FFF', fontWeight: 'bold' },
-    badge: { position: 'absolute', top: -5, right: -5, backgroundColor: 'red', borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center' },
-    badgeText: { color: 'white', fontSize: 12, fontWeight: 'bold' },
+    containerLayout: { 
+        flex: 1, 
+        backgroundColor: "#911F09", 
+    },
+    header: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        backgroundColor: '#D9D9D9', 
+        paddingVertical: 10, 
+        paddingHorizontal: 15, 
+        borderBottomWidth: 1, 
+        borderBottomColor: '#ccc', 
+        shadowColor: "rgba(0,0,0,0.25)", 
+        shadowOpacity: 0.3, 
+        shadowOffset: { 
+            width: 0, 
+            height: 4 
+        }, 
+        shadowRadius: 4, 
+        elevation: 4, 
+        marginBottom: 1, 
+        marginTop: 55, 
+        borderTopLeftRadius: 30, 
+        borderTopRightRadius: 30, 
+        marginHorizontal: 10, 
+    },
+    scrollView: { 
+        flex: 1, 
+        backgroundColor: "#911F09", 
+    },
+    boxLayout: { 
+        width: 35, 
+        height: 5, 
+        backgroundColor: "#5D3A2F", 
+        borderRadius: 10, 
+        marginBottom: 6, 
+    },
+    box2Layout: { 
+        width: 35, 
+        height: 5, 
+        backgroundColor: "#5D3A2F", 
+        borderRadius: 10, 
+    },
+    columnLayout: { 
+        backgroundColor: "#D9D9D9", 
+        borderRadius: 1, 
+        paddingBottom: 140, 
+        marginTop: -10, 
+        marginBottom: 69, 
+        marginHorizontal: 10, 
+        borderBottomLeftRadius: 30, 
+        borderBottomRightRadius: 30, 
+    },
+    column2Layout: { 
+        alignItems: "center", 
+    },
+    inputLayout: {
+        color: "#FFFFFF", 
+        fontSize: 20, 
+        flex: 1, 
+        textAlignVertical: 'center', 
+        fontWeight: 'bold' 
+    },
+    row2Layout: {
+        flexDirection: "row", 
+        justifyContent: "space-between",
+        alignItems: "center", 
+        backgroundColor: "#B72F14", 
+        borderRadius: 20, 
+        paddingVertical: 12, 
+        paddingHorizontal: 32, 
+        marginVertical: 6, 
+        marginHorizontal: 29, 
+        shadowColor: "#5D3A2FB8", 
+        shadowOpacity: 0.7, 
+        shadowOffset: {
+            width: 7, 
+            height: 5 
+        }, 
+        shadowRadius: 4, 
+        elevation: 4, 
+    },
+    viewLayout: { 
+        alignItems: "center", 
+        paddingTop: 0, 
+        paddingBottom: 0, 
+        marginRight: 10, 
+    },
+    logoImage: { 
+        width: 120, 
+        height: 40, 
+        resizeMode: 'contain', 
+    },
+    headerRight: { 
+        flexDirection: "row", 
+        alignItems: "center", 
+    },
+    searchBarContainer: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        backgroundColor: '#FFFFFF', 
+        borderRadius: 50, 
+        paddingHorizontal: 15, 
+        paddingVertical: 10, 
+        marginHorizontal: 29, 
+        marginBottom: 20, 
+        marginTop: 30, 
+        shadowColor: "#000", 
+        shadowOffset: { 
+            width: 0, 
+            height: 2 
+        }, 
+        shadowOpacity: 0.15, 
+        shadowRadius: 3.84, 
+        elevation: 5, 
+    },
+    searchBarInput: { 
+        flex: 1, 
+        marginLeft: 10, 
+        fontSize: 18, 
+        color: '#101026', 
+        paddingVertical: 0, 
+        height: 30, 
+    },
+    noResultsText: { 
+        textAlign: 'center', 
+        marginTop: 20, 
+        fontSize: 18, 
+        color: '#911F09', 
+        fontWeight: 'bold', 
+        marginHorizontal: 30, 
+    },
+    productsListView: { 
+        marginHorizontal: 29, 
+        marginBottom: 20, 
+    },
+    categoryWrapper: { 
+        marginBottom: 12, 
+    },
+    productContainer: { 
+        flexDirection: "row", 
+        justifyContent: "space-between", 
+        backgroundColor: "#FFFFFF", 
+        marginVertical: 4, 
+        padding: 10, 
+        borderRadius: 6, 
+        alignItems: "center", 
+        borderWidth: 1, 
+        borderColor: '#B72F14', 
+        elevation: 2, 
+        shadowColor: "#000", 
+        shadowOffset: { 
+            width: 0, 
+            height: 2 
+        }, 
+        shadowOpacity: 0.1, 
+        shadowRadius: 2, 
+    },
+    productImage: { 
+        width: 60, 
+        height: 60, 
+        borderRadius: 6, 
+        marginRight: 10 
+    },
+    productInfo: { 
+        flex: 1, 
+        justifyContent: "center" 
+    },
+    productName: { 
+        color: "#101026", 
+        fontWeight: "bold", 
+        fontSize: 16 
+    },
+    productDesc: { 
+        color: "#555", 
+        fontSize: 12 
+    },
+    productPrice: { 
+        color: "#101026", 
+        fontWeight: "bold", 
+        marginTop: 4 
+    },
+    counter: { 
+        flexDirection: "row", 
+        alignItems: "center" 
+    },
+    counterButton: { 
+        width: 35, 
+        height: 35, 
+        backgroundColor: "#F2CA85", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        borderRadius: 6, 
+    },
+    counterText: { 
+        fontWeight: "bold", 
+        color: "#101026", 
+        fontSize: 18 
+    },
+    amount: { 
+        color: "#101026", 
+        marginHorizontal: 12, 
+        fontSize: 16, 
+        fontWeight: 'bold', 
+    },
+    summaryContainer: { 
+        backgroundColor: "#5D3A2F", 
+        paddingVertical: 8, 
+        paddingHorizontal: 4, 
+    },
+    summaryItem: { 
+        backgroundColor: "#D9D9D9", 
+        padding: 6, 
+        marginHorizontal: 4, 
+        borderRadius: 6, 
+    },
+    summaryText: { 
+        color: "#101026", 
+        fontWeight: "bold" 
+    },
+    footer: { 
+        position: 'absolute', 
+        bottom: 0, 
+        left: 0, 
+        right: 0, 
+        flexDirection: "row", 
+        justifyContent: "space-between", 
+        padding: 12, 
+        backgroundColor: "#911F09", 
+    },
+    footerButton: { 
+        flex: 1, 
+        marginHorizontal: 4, 
+        paddingVertical: 12, 
+        borderRadius: 6, 
+        alignItems: "center", 
+    },
+    footerText: { 
+        fontWeight: "bold", 
+        color: "#FFF", 
+        fontSize: 16 
+    },
+    orderSummary: { 
+        backgroundColor: "#5D3A2F", 
+        padding: 10, 
+        alignItems: "center", 
+    },
+    totalText: { 
+        color: "#101026", 
+        fontSize: 16, 
+        fontWeight: "bold", 
+        textAlign: 'center', 
+        marginBottom: 10 
+    },
+    overlay: { 
+        flex: 1, 
+        backgroundColor: 'rgba(0,0,0,0.5)', 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    cartContainer: { 
+        backgroundColor: '#FFF', 
+        padding: 20, 
+        borderRadius: 10,
+        width: '80%', 
+        maxHeight: '60%' 
+    },
+    cartTitle: { 
+        fontSize: 20, 
+        fontWeight: 'bold', 
+        marginBottom: 10, 
+        textAlign: 'center' 
+    },
+    cartItem: { 
+        padding: 10, 
+        borderBottomWidth: 1, 
+        borderBottomColor: '#ccc' 
+    },
+    cartText: { 
+        fontSize: 16 
+    },
+    closeButton: { 
+        backgroundColor: '#B72F14', 
+        padding: 10, 
+        borderRadius: 5, 
+        marginTop: 10, 
+        alignItems: 'center' 
+    },
+    closeText: { 
+        color: '#FFF', 
+        fontWeight: 'bold' 
+    },
+    badge: { 
+        position: 'absolute', 
+        top: -5, 
+        right: -5, 
+        backgroundColor: 'red', 
+        borderRadius: 10, 
+        minWidth: 20, 
+        height: 20, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    badgeText: { 
+        color: 'white', 
+        fontSize: 12, 
+        fontWeight: 'bold' 
+    },
 });
-// import React, { useEffect, useState, useRef } from "react";
-// import {
-//   View,
-//   Text,
-//   StyleSheet,
-//   TouchableOpacity,
-//   ScrollView,
-//   FlatList,
-//   Alert,
-//   Image,
-// } from "react-native";
-// import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
-// import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-// import { StackParamsList } from "../../routes/app.routes";
-// import api from "../../services/api";
-
-// // A correção foi feita aqui. Adicionando o 'order' ao tipo de parâmetro.
-// type OrderRouteProp = RouteProp<StackParamsList, "Order">;
-
-// export default function Order() {
-//   const route = useRoute<OrderRouteProp>();
-//   const navigation =
-//     useNavigation<NativeStackNavigationProp<StackParamsList>>();
-
-//   const [categories, setCategories] = useState<any[]>([]);
-//   const [showProducts, setShowProducts] = useState<string | null>(null);
-//   const [total, setTotal] = useState(0);
-//   const [hasOrderItems, setHasOrderItems] = useState(false);
-//   const [orderSummary, setOrderSummary] = useState<any[]>([]);
-//   const [imageError, setImageError] = useState<string | null>(null);
-
-//   const scrollRef = useRef<ScrollView>(null);
-//   const categoryRefs = useRef<{ [key: string]: number }>({});
-
-//   useEffect(() => {
-//     async function loadCategories() {
-//       try {
-//         const response = await api.get("/category");
-  
-//         const formatted = response.data.map((cat: any) => ({
-//           ...cat,
-//           products: cat.products.map((p: any) => ({
-//             ...p,
-//             amount: 0,
-//           })),
-//         }));
-
-//         setCategories(formatted);
-//       } catch (err) {
-//         console.log("Erro ao buscar categorias:", err);
-//       }
-//     }
-
-//     loadCategories();
-//   }, []);
-
-//   useEffect(() => {
-//     async function checkImageURLs() {
-//       if (categories.length > 0) {
-//         for (const category of categories) {
-//           for (const product of category.products) {
-//             console.log('Verificando URL da imagem:', product.bannerUri);
-//             console.log('ID do produto:', product.id);
-//           }
-//         }
-//       }
-//     }
-//     checkImageURLs();
-//   }, [categories]);
-
-//   const handleCategoryPress = (id: string) => {
-//     setShowProducts(showProducts === id ? null : id);
-//     const y = categoryRefs.current[id];
-//     if (y !== undefined) {
-//       scrollRef.current?.scrollTo({ y, animated: true });
-//     }
-//   };
-
-//   const updateOrderSummary = (updatedCategories: any[]) => {
-//     const summary: any[] = [];
-//     updatedCategories.forEach((cat) =>
-//       cat.products.forEach((p: any) => {
-//         if (p.amount > 0)
-//           summary.push({ ...p, category: cat.title || cat.name });
-//       })
-//     );
-//     setOrderSummary(summary);
-//   };
-
-//   const increment = async (catId: string, prodId: string, price: string) => {
-//     try {
-//       // Chama a API para adicionar o item
-//       await api.post('/order/add', {
-//         order_id: route.params.order_id,
-//         product_id: prodId,
-//         amount: 1,
-//       });
-
-//       // Atualiza o estado local
-//       const updated = categories.map((cat) => {
-//         if (cat.id === catId) {
-//           return {
-//             ...cat,
-//             products: cat.products.map((p: any) =>
-//               p.id === prodId ? { ...p, amount: p.amount + 1 } : p
-//             ),
-//           };
-//         }
-//         return cat;
-//       });
-//       setCategories(updated);
-//       setTotal((prev) => prev + parseFloat(price));
-//       setHasOrderItems(true);
-//       updateOrderSummary(updated);
-//     } catch (err) {
-//       console.log('Erro ao adicionar item:', err);
-//       Alert.alert('Erro', 'Não foi possível adicionar o item ao pedido.');
-//     }
-//   };
-
-//   const decrement = async (catId: string, prodId: string, price: string) => {
-//     try {
-//       // Primeiro, buscar os itens do pedido para encontrar o item_id
-//       const orderDetailResponse = await api.get(`/order/detail?order_id=${route.params.order_id}`);
-//       const orderItems = orderDetailResponse.data.items || [];
-
-//       // Encontrar um item que corresponda ao produto
-//       const itemToRemove = orderItems.find((item: any) => item.product_id === prodId);
-
-//       if (itemToRemove) {
-//         // Chama a API para remover o item
-//         await api.delete('/order/remove', {
-//           params: { item_id: itemToRemove.id }
-//         });
-//       }
-
-//       // Atualiza o estado local
-//       const updated = categories.map((cat) => {
-//         if (cat.id === catId) {
-//           return {
-//             ...cat,
-//             products: cat.products.map((p: any) =>
-//               p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p
-//             ),
-//           };
-//         }
-//         return cat;
-//       });
-//       setCategories(updated);
-
-//       setTotal((prev) => Math.max(0, prev - parseFloat(price)));
-
-//       const anyItem = updated.some((c) =>
-//         c.products.some((p: any) => p.amount > 0)
-//       );
-//       setHasOrderItems(anyItem);
-//       updateOrderSummary(updated);
-//     } catch (err) {
-//       console.log('Erro ao remover item:', err);
-//       Alert.alert('Erro', 'Não foi possível remover o item do pedido.');
-//     }
-//   };
-
-//   const handleCancelOrder = () => {
-//     navigation.goBack();
-//   };
-
-//   // Funcao para navegar para a tela de pagamento
-//   const handleNavigateToPayment = () => {
-//     // Verifica se há itens no pedido
-//     if (total === 0) {
-//       Alert.alert('Pedido Vazio', 'Não é possível finalizar um pedido sem itens.');
-//       return;
-//     }
-
-//     // Navega para a tela de pagamento, passando os dados necessários
-//     navigation.navigate('Payment', {
-//       number: route.params.number,
-//       order: route.params.order,
-//       total: total,
-//     });
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.title}>Mesa {route.params.number}</Text>
-//       {imageError && (
-//         <Text style={styles.errorText}>
-//           Erro ao carregar imagem: {imageError}
-//         </Text>
-//       )}
-
-//       <ScrollView ref={scrollRef} style={{ flex: 1 }}>
-//         {categories.map((cat) => (
-//           <View
-//             key={cat.id}
-//             onLayout={(event) => {
-//               const layout = event.nativeEvent.layout;
-//               categoryRefs.current[cat.id] = layout.y;
-//             }}
-//             style={styles.categoryContainer}
-//           >
-//             <TouchableOpacity
-//               onPress={() => handleCategoryPress(cat.id)}
-//               style={styles.categoryButton}
-//             >
-//               <Text style={styles.categoryTitle}>{cat.title || cat.name}</Text>
-//             </TouchableOpacity>
-
-//             {showProducts === cat.id &&
-//               cat.products.map((prod: any) => (
-//                 <View key={prod.id} style={styles.productContainer}>
-//                   {prod.bannerUri ? (
-//                     <Image
-//                       source={{ uri: prod.bannerUri }}
-//                       style={styles.productImage}
-//                       resizeMode="cover"
-//                     />
-//                   ) : (
-//                     <View
-//                       style={[styles.productImage, { backgroundColor: "#555" }]}
-//                     />
-//                   )}
-
-//                   <View style={styles.productInfo}>
-//                     <Text style={styles.productName}>{prod.name}</Text>
-//                     <Text style={styles.productDesc}>{prod.description}</Text>
-//                     <Text style={styles.productPrice}>R$ {prod.price}</Text>
-//                   </View>
-
-//                   <View style={styles.counter}>
-//                     <TouchableOpacity
-//                       style={styles.counterButton}
-//                       onPress={() => decrement(cat.id, prod.id, prod.price)}
-//                     >
-//                       <Text style={styles.counterText}>-</Text>
-//                     </TouchableOpacity>
-//                     <Text style={styles.amount}>{prod.amount}</Text>
-//                     <TouchableOpacity
-//                       style={styles.counterButton}
-//                       onPress={() => increment(cat.id, prod.id, prod.price)}
-//                     >
-//                       <Text style={styles.counterText}>+</Text>
-//                     </TouchableOpacity>
-//                   </View>
-//                 </View>
-//               ))}
-//           </View>
-//         ))}
-//       </ScrollView>
-
-//       {hasOrderItems && (
-//         <View style={styles.summaryContainer}>
-//           <FlatList
-//             data={orderSummary}
-//             keyExtractor={(item) => item.id}
-//             horizontal
-//             showsHorizontalScrollIndicator={false}
-//             renderItem={({ item }) => (
-//               <View style={styles.summaryItem}>
-//                 <Text style={styles.summaryText}>
-//                   {item.name} x {item.amount} - R${" "}
-//                   {(item.amount * parseFloat(item.price)).toFixed(2)}
-//                 </Text>
-//               </View>
-//             )}
-//           />
-//         </View>
-//       )}
-
-//       {hasOrderItems && (
-//         <View style={styles.orderSummary}>
-//           <Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
-//         </View>
-//       )}
-
-//       <View style={styles.footer}>
-//         <TouchableOpacity
-//           style={[styles.footerButton, { backgroundColor: "#FF3F4B" }]}
-//           onPress={handleCancelOrder}
-//         >
-//           <Text style={styles.footerText}>Cancelar Pedido</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity
-//           style={[styles.footerButton, { backgroundColor: "#3FFFA3" }]}
-//           onPress={handleNavigateToPayment} // Chamando a nova função de navegação
-//         >
-//           <Text style={styles.footerText}>Finalizar Pagamento</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: { flex: 1, backgroundColor: "#1d1d2e", paddingTop: 16 },
-//   title: { fontSize: 24, fontWeight: "bold", color: "#FFF", textAlign: "center" },
-//   categoryContainer: { marginBottom: 12 },
-//   categoryButton: {
-//     backgroundColor: "#29295c",
-//     padding: 12,
-//     borderRadius: 8,
-//   },
-//   categoryTitle: { fontSize: 18, color: "#FFF", fontWeight: "bold" },
-//   productContainer: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     backgroundColor: "#3b3b6b",
-//     marginVertical: 4,
-//     padding: 10,
-//     borderRadius: 6,
-//     alignItems: "center",
-//   },
-//   productImage: { width: 60, height: 60, borderRadius: 6, marginRight: 10 },
-//   productInfo: { flex: 1, justifyContent: "center" },
-//   productName: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
-//   productDesc: { color: "#DDD", fontSize: 12 },
-//   productPrice: { color: "#FFF", fontWeight: "bold", marginTop: 4 },
-//   counter: { flexDirection: "row", alignItems: "center" },
-//   counterButton: {
-//     width: 30,
-//     height: 30,
-//     backgroundColor: "#3FFFA3",
-//     justifyContent: "center",
-//     alignItems: "center",
-//     borderRadius: 6,
-//   },
-//   counterText: { fontWeight: "bold", color: "#101026", fontSize: 18 },
-//   amount: { color: "#FFF", marginHorizontal: 8, fontSize: 16 },
-//   summaryContainer: {
-//     backgroundColor: "#29295c",
-//     paddingVertical: 8,
-//     paddingHorizontal: 4,
-//   },
-//   summaryItem: {
-//     backgroundColor: "#3FFFA3",
-//     padding: 6,
-//     marginHorizontal: 4,
-//     borderRadius: 6,
-//   },
-//   summaryText: { color: "#101026", fontWeight: "bold" },
-//   footer: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     padding: 12,
-//     backgroundColor: "#101026",
-//   },
-//   footerButton: {
-//     flex: 1,
-//     marginHorizontal: 4,
-//     paddingVertical: 12,
-//     borderRadius: 6,
-//     alignItems: "center",
-//   },
-//   footerText: { fontWeight: "bold", color: "#FFF", fontSize: 16 },
-//   orderSummary: {
-//     backgroundColor: "#29295c",
-//     padding: 10,
-//     alignItems: "center",
-//   },
-//   totalText: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
-//   errorText: { color: "red", textAlign: "center", marginVertical: 10 },
-// });
