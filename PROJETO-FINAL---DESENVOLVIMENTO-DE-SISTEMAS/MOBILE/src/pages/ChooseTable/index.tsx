@@ -210,8 +210,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#d9d9d9', 
     borderRadius: 34,
     marginHorizontal: 15, 
-    marginBottom: 10,
-    marginTop: 20, 
+    marginBottom: 25,
+    marginTop: 45, 
   },
   
   // --- HEADER ---
