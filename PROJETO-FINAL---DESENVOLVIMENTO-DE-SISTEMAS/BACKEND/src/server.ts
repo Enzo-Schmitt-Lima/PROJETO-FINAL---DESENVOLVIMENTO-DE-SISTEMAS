@@ -3,6 +3,7 @@ import cors from "cors";
 import "express-async-errors";
 import path from "path";
 import { router } from "./routes";
+import 'dotenv/config';
 
 const app = express();
 
