@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, StatusBar, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -186,5 +186,10 @@ const styles = StyleSheet.create({
   orderSub: { color: '#FFF', fontSize: 13, marginTop: 4 },
   loadingText: { textAlign: 'center', fontSize: 16, color: '#1A3A6B', marginTop: 20 },
   noOrdersText: { textAlign: 'center', fontSize: 16, color: '#1A3A6B', marginTop: 20 },
-  sacText: { color: '#911F09', fontWeight: 'bold', fontSize: 14, marginTop: 10, alignSelf: 'flex-end' },
+  sacImage: {
+    width: 50,
+    height: 50,
+    marginTop: 10,
+    alignSelf: 'flex-end',
+  },
 });

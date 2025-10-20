@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Platform, StatusBar, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -204,10 +204,10 @@ export default function Payment() {
             <Text style={styles.finishButtonText}>{loading ? 'Processando...' : paymentMethod === 'dinheiro' ? 'FINALIZAR PEDIDO' : 'FINALIZAR PAGAMENTO'}</Text>
           </TouchableOpacity>
         </View>
-            <Image 
-              source={require('../../../assets/sac.png')} 
-              style={styles.sacImage} 
-            />
+        <Image
+          source={require('../../../assets/sac.png')}
+          style={styles.sacImage}
+        />
       </View>
     </View>
   );
@@ -333,12 +333,10 @@ const styles = StyleSheet.create({
     textAlign: 'center', // CENTRALIZA O TEXTO
   },
   sacImage: {
-    color: '#911F09',
-    fontWeight: 'bold',
-    fontSize: 14,
-    position: 'absolute',
-    bottom: 10,
-    right: 20,
+    width: 50,
+    height: 50,
+    marginTop: 10,
+    alignSelf: 'flex-end',
   },
   refreshIcon: { position: 'absolute', top: 18, right: 18, zIndex: 3 },
 });
