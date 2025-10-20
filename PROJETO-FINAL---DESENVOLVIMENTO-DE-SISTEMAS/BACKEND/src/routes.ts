@@ -90,8 +90,7 @@ const clearDraftOrdersController = new ClearDraftOrdersController();
 
 router.post("/order", isAuthenticated, (req, res) => createOrderController.handle(req, res));
 router.delete("/order", isAuthenticated, (req, res) => removeOrderController.handle(req, res));
-
-router.post("/order/add", isAuthenticated, (req, res) => addItemController.handle(req, res));
+router.post("/order/add", isAuthenticated, (req, res) =>{ addItemController.handle(req, res) });
 router.delete("/order/remove", isAuthenticated, (req, res) => removeItemController.handle(req, res));
 router.put("/order/send", isAuthenticated, (req, res) => sendOrderController.handle(req, res));
 
