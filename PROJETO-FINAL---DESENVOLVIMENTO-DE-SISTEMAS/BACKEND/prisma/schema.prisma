@@ -76,6 +76,7 @@ model Order {
   items      Item[]
   table      Table       @relation(fields: [tableId], references: [id])
   pagamento  Pagamento[]
+  feedback   Feedback[]
 
   @@map("orders")
 }
@@ -91,6 +92,7 @@ model adicionais {
   id              String      @id @default(uuid())
   presente        Boolean      @default(true)
   produtoIngredienteId      String
+  adicionando     Boolean
   created_at      DateTime?    @default(now())
   update_at       DateTime?    @default(now())
   produtoIngrediente ProdutoIngrediente @relation(fields: [produtoIngredienteId], references: [id])
@@ -140,5 +142,17 @@ model ProdutoIngrediente {
   adicionais adicionais []
 
   @@unique([produtoId, ingredienteId]) 
+}
+
+model Feedback {
+  id         String    @id @default(uuid())
+  comment    String
+  rating     Int
+  order_id   String
+  order        Order     @relation(fields: [order_id], references: [id])
+  created_at DateTime? @default(now())
+  update_at  DateTime? @default(now())
+ 
+  @@map("feedbacks")
 }
 
