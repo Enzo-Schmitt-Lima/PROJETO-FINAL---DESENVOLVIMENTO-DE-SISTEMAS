@@ -43,17 +43,13 @@ class UpdatePagamentoStatusService {
 
       console.log('Calculated total amount:', totalAmount);
 
-      // Atualizar o valor do pagamento e status do pedido
+      // Atualizar o valor do pagamento
       await prismaClient.pagamento.update({
         where: { id: pagamento_id },
         data: { amount: totalAmount },
       });
 
-      await prismaClient.order.update({
-        where: { id: pagamento.order_id },
-        data: { status: 3 }, // FINALIZADO
-      });
-
+      // Não finalizar o pedido automaticamente — o status será alterado apenas pelo Insomnia
       console.log('Payment updated with amount:', totalAmount);
     }
 

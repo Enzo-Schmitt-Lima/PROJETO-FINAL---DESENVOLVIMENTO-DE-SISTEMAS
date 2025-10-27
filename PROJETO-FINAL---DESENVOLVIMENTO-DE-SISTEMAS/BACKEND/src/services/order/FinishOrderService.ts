@@ -1,4 +1,5 @@
 import prismaClient from "../../../prisma";
+import { getIO } from "../../libs/socket";
 
 export enum StatusPedido {
   INDO_PREPARO = 0,
@@ -31,6 +32,14 @@ class FinishOrderService {
         draft: false
       },
     });
+
+    // Emite atualização via socket
+    try {
+      const io = getIO();
+      io.emit("order:update", { order_id, status: StatusPedido.FINALIZADO });
+    } catch (err) {
+      console.error("Socket emit falhou em FinishOrderService:", err.message || err);
+    }
 
     return {
       ...updatedOrder,

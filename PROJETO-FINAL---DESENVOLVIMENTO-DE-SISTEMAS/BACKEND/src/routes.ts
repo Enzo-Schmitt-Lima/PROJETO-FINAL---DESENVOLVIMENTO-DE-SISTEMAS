@@ -27,12 +27,14 @@ import { RemoveItemController } from "./controllers/order/RemoveItemController";
 import { SendOrderController } from "./controllers/order/SendOrderController";
 import { ListOrdersController } from "./controllers/order/ListOrdersController";
 import { DetailOrderController } from "./controllers/order/DetailOrderController";
+import { GetOrderController } from "./controllers/order/GetOrderController";
 import { FinishOrderController } from "./controllers/order/FinishOrderController";
 import { UpdateStatusPedidoController } from "./controllers/order/UpdateStatusPedidoController";
 
 // -------------------- TABLES --------------------
 import { CreateTablesController } from "./controllers/tables/CreateTablesController";
 import { ListTablesController } from "./controllers/tables/ListTablesController";
+import { ReleaseTableController } from "./controllers/tables/ReleaseTableController";
 
 // -------------------- ROLES --------------------
 import { CreateRoleController } from "./controllers/roles/CreateRoleController";
@@ -87,15 +89,18 @@ const detailOrderController = new DetailOrderController();
 const finishOrderController = new FinishOrderController();
 const updateStatusPedidoController = new UpdateStatusPedidoController();
 const clearDraftOrdersController = new ClearDraftOrdersController();
+const getOrderController = new GetOrderController();
 
 router.post("/order", isAuthenticated, (req, res) => createOrderController.handle(req, res));
 router.delete("/order", isAuthenticated, (req, res) => removeOrderController.handle(req, res));
-router.post("/order/add", isAuthenticated, (req, res) =>{ addItemController.handle(req, res) });
+
+router.post("/order/add", isAuthenticated, (req, res) => { addItemController.handle(req, res); });
 router.delete("/order/remove", isAuthenticated, (req, res) => removeItemController.handle(req, res));
 router.put("/order/send", isAuthenticated, (req, res) => sendOrderController.handle(req, res));
 
 router.get("/orders", isAuthenticated, (req, res) => listOrdersController.handle(req, res));
 router.get("/order/detail", isAuthenticated, (req, res) => detailOrderController.handle(req, res));
+router.get("/orders/:id", isAuthenticated, (req, res) => { getOrderController.handle(req, res); });
 
 router.put("/order/finish", isAuthenticated, (req, res) => finishOrderController.handle(req, res));
 router.put("/order/status", isAuthenticated, (req, res) => updateStatusPedidoController.handle(req, res));
@@ -115,9 +120,11 @@ router.put("/pagamento/metodo", isAuthenticated, (req, res) => metodoPagamentoCo
 // -------------------- TABLES --------------------
 const listTablesController = new ListTablesController();
 const createTablesController = new CreateTablesController();
+const releaseTableController = new ReleaseTableController();
 
 router.get("/tables", isAuthenticated, (req, res) => listTablesController.handle(req, res));
 router.post("/tables", isAuthenticated, (req, res) => createTablesController.handle(req, res));
+router.put('/table/:id/release', isAuthenticated, (req, res) => { releaseTableController.handle(req, res).catch(err => res.status(500).json({ error: err.message })); });
 
 // -------------------- ROLES --------------------
 const createRoleController = new CreateRoleController();

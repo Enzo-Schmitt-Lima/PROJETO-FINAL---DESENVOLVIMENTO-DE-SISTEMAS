@@ -1,4 +1,5 @@
 import prismaClient from "../../../prisma";
+import { getIO } from "../../libs/socket";
 
 interface ItemRequest {
   order_id: string;
@@ -77,6 +78,14 @@ if (pagamento) {
           pagamento_id: pagamento.id,
         },
       });
+    }
+
+    // Emite evento via socket com dados atualizados do pedido
+    try {
+      const io = getIO();
+      io.emit("order:update", { order_id, total, pagamento });
+    } catch (err) {
+      console.error("Socket emit falhou em AddItemService:", err.message || err);
     }
 
     return { item, pagamento };

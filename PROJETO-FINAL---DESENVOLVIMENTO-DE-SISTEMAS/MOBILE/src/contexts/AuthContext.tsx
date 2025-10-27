@@ -64,8 +64,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await api.post('/session', { email, password });
       console.log("Resposta do servidor:", response.data);
 
-      const { id, name, token } = response.data;
-      const userData: UserProps = { id, name, email, token };
+  const { id, name, token } = response.data as any;
+  const userData: UserProps = { id, name, email, token };
       setUser(userData);
 
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;

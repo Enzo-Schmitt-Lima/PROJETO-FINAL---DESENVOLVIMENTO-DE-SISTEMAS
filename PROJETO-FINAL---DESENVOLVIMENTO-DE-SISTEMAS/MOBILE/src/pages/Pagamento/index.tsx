@@ -1,70 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Platform, StatusBar, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
 import api from '../../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type PaymentRouteProp = RouteProp<StackParamsList, 'Payment'>;
 
 export default function Payment() {
-  console.log('[Payment] Componente renderizado');
   const route = useRoute<PaymentRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
   const { number, order, total } = route.params;
 
-  console.log('Payment page - route params:', { number, order, total });
-  console.log('Payment page - order object:', order);
-  console.log('Payment page - order.id:', order?.id);
-
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24;
+  // add extra spacing so icons are not too close to notch/statusbar
+  const topExtra = 20;
+  const topOffsetWithExtra = topOffset + topExtra;
 
   const handlePayment = async () => {
     if (!paymentMethod) {
       Alert.alert('Forma de Pagamento', 'Por favor, selecione uma forma de pagamento.');
       return;
     }
-
     setLoading(true);
-
     try {
-      // Mapear método para número conforme enum do backend
       const metodoMap: { [key: string]: number } = {
         dinheiro: 3,
         cartao: 1,
         pix: 0,
       };
       const metodoNum = metodoMap[paymentMethod];
-
       let pagamentoId;
 
       // SEMPRE buscar dados atualizados do pedido
-      const orderDetailResponse = await api.get(`/order/detail?order_id=${order.id}`);
-      const pagamentoArray = orderDetailResponse.data.pagamento || [];
+  const orderDetailResponse = await api.get(`/order/detail?order_id=${order.id}`);
+  const pagamentoArray = (orderDetailResponse.data as any).pagamento || [];
 
       if (pagamentoArray.length > 0) {
-        // Já existe pagamento, usar o ID existente
         pagamentoId = pagamentoArray[0].id;
       } else {
-        // Criar um novo pagamento para o pedido
         try {
           const createPaymentResponse = await api.post('/pagamento', {
             order_id: order.id,
             amount: total,
             metodo: metodoNum,
           });
-          pagamentoId = createPaymentResponse.data.id;
+          pagamentoId = (createPaymentResponse.data as any).id;
         } catch (createError: any) {
-          // Se já existe pagamento, buscar o ID existente
           if (
             createError.response?.status === 409 &&
             createError.response?.data?.error?.includes('Pagamento já existe')
           ) {
             Alert.alert('Pagamento já existe', 'Já existe um pagamento para este pedido. O status será atualizado.');
             const orderDetailRetry = await api.get(`/order/detail?order_id=${order.id}`);
-            if (orderDetailRetry.data.pagamento && orderDetailRetry.data.pagamento.length > 0) {
-              pagamentoId = orderDetailRetry.data.pagamento[0].id;
+            const retryData = orderDetailRetry.data as any;
+            if (retryData.pagamento && retryData.pagamento.length > 0) {
+              pagamentoId = retryData.pagamento[0].id;
             } else {
               throw new Error('Não foi possível obter o ID do pagamento existente');
             }
@@ -78,40 +75,67 @@ export default function Payment() {
           }
         }
       }
-
-      // Atualiza método de pagamento
       await api.put('/pagamento/metodo', {
         pagamento_id: pagamentoId,
         metodo: metodoNum,
       });
-
-      // Atualiza status do pagamento para PAID (1)
       await api.put('/pagamento/status', {
         pagamento_id: pagamentoId,
         status: 1,
       });
 
-      // Finaliza o pedido
-      await api.put('/order/finish', {
-        order_id: order.id,
-      });
+      // Não finalizar o pedido automaticamente — apenas atualizar os dados do pedido
+      try {
+        const updatedOrderResp = await api.get(`/order/detail?order_id=${order.id}`);
+        const updatedOrder = (updatedOrderResp.data as any).order || updatedOrderResp.data;
 
-  Alert.alert('Pagamento Concluído!', `O pedido na mesa ${number} foi pago com sucesso.`);
-  navigation.navigate('OrderStatus', { number, order, total });
+        // Oferece opções ao usuário: acompanhar pedido ou voltar aos produtos
+        Alert.alert(
+          'Pagamento Concluído!',
+          `O pedido na mesa ${number} foi pago com sucesso.`,
+          [
+            { text: 'Acompanhar pedido', onPress: () => navigation.navigate('Orders') },
+            { text: 'Voltar para produtos', onPress: () => navigation.navigate('Order', { number, order_id: order.id, order: updatedOrder }) }
+          ],
+          { cancelable: false }
+        );
+      } catch (errRefresh: any) {
+        console.error('Erro ao atualizar pedido após pagamento:', errRefresh);
+        Alert.alert(
+          'Pagamento Concluído!',
+          `O pedido na mesa ${number} foi pago com sucesso.`,
+          [
+            { text: 'Acompanhar pedido', onPress: () => navigation.navigate('Orders') },
+            { text: 'Voltar para produtos', onPress: () => navigation.navigate('Order', { number, order_id: order.id, order }) }
+          ],
+          { cancelable: false }
+        );
+      }
     } catch (err: any) {
       console.error('Erro ao processar pagamento:', err);
-      console.error('Detalhes do erro:', err.response?.data);
-      console.error('Status:', err.response?.status);
-      console.error('URL:', err.config?.url);
-
       let errorMessage = 'Ocorreu um erro ao processar o pagamento. Tente novamente.';
       if (err.response?.data?.error) {
         errorMessage += `\n\nDetalhes: ${err.response.data.error}`;
       }
-
       Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshOrder = async () => {
+    if (!order?.id) return;
+    try {
+      setRefreshing(true);
+      const resp = await api.get(`/order/detail?order_id=${order.id}`);
+  const updatedOrder = (resp.data as any).order || (resp.data as any);
+      console.log('[Payment] order refreshed', updatedOrder);
+      Alert.alert('Atualizado', 'Dados do pedido atualizados.');
+    } catch (err) {
+      console.error('Erro ao atualizar pedido:', err);
+      Alert.alert('Erro', 'Não foi possível atualizar o pedido agora.');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -120,10 +144,7 @@ export default function Payment() {
   const [cardName, setCardName] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCVV, setCardCVV] = useState('');
-  const [pixCode, setPixCode] = useState('');
-  const [walletCode, setWalletCode] = useState('');
 
-  // Função para renderizar campos extras
   const renderExtraFields = () => {
     if (paymentMethod === 'cartao') {
       return (
@@ -138,33 +159,16 @@ export default function Payment() {
         </View>
       );
     }
-    if (paymentMethod === 'pix') {
-      return (
-        <View style={styles.extraFieldsPix}>
-          <Text style={styles.extraLabel}>PIX: copie e cole</Text>
-          <TextInput style={styles.input} placeholder="Código PIX" value={pixCode} onChangeText={setPixCode} />
-        </View>
-      );
-    }
-    if (paymentMethod === 'carteira') {
-      return (
-        <View style={styles.extraFieldsWallet}>
-          <Text style={styles.extraLabel}>Preencha (cartão online):</Text>
-          <TextInput style={styles.input} placeholder="Código da carteira" value={walletCode} onChangeText={setWalletCode} />
-        </View>
-      );
-    }
     if (paymentMethod === 'dinheiro') {
-      return (
-        <View style={styles.extraFieldsMoney}>
-          <Text style={styles.extraLabel}>Por favor, espere o garçom se dirigir à sua mesa</Text>
-        </View>
-      );
-    }
+        return (
+          <View style={styles.extraFieldsMoney}>
+            <Text style={styles.extraLabel}>Por favor, espere o garçom se dirigir à sua mesa</Text>
+          </View>
+        );
+      }
     return null;
   };
 
-  // Métodos de pagamento
   const paymentOptions = [
     { key: 'cartao', label: 'Cartão de crédito / débito (físico)' },
     { key: 'pix', label: 'PIX (digital)' },
@@ -175,8 +179,8 @@ export default function Payment() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-          <Text style={{ fontSize: 22, color: '#911F09' }}>✕</Text>
+        <TouchableOpacity style={[styles.refreshIcon, { top: topOffsetWithExtra }]} onPress={refreshOrder}>
+          <Ionicons name="refresh" size={20} color="#911F09" />
         </TouchableOpacity>
         <Text style={styles.cardTitle}>Pagar com:</Text>
         <View style={styles.optionsContainer}>
@@ -200,7 +204,10 @@ export default function Payment() {
             <Text style={styles.finishButtonText}>{loading ? 'Processando...' : paymentMethod === 'dinheiro' ? 'FINALIZAR PEDIDO' : 'FINALIZAR PAGAMENTO'}</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.sacText}>SAC</Text>
+        <Image
+          source={require('../../../assets/sac.png')}
+          style={styles.sacImage}
+        />
       </View>
     </View>
   );
@@ -212,46 +219,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#911F09',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 0,
   },
   cardContainer: {
     backgroundColor: '#F5F5F5',
     borderRadius: 30,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+    paddingVertical: 45,
+    paddingHorizontal: 20,
     width: '95%',
-    maxWidth: 380,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 6,
-    position: 'relative',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 18,
-    left: 18,
-    zIndex: 2,
+    shadowRadius: 8,
+    elevation: 8,
   },
   cardTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1A3A6B',
-    marginBottom: 18,
-    marginTop: 10,
-    textAlign: 'left',
-    width: '100%',
+    marginBottom: 20,
   },
   optionsContainer: {
     width: '100%',
-    marginBottom: 18,
+    marginBottom: 20,
   },
   radioRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 15,
   },
   radioCircle: {
     width: 22,
@@ -260,48 +255,28 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#1A3A6B',
     marginRight: 12,
-    backgroundColor: '#FFF',
   },
   radioSelected: {
-    backgroundColor: '#3fffa3',
-    borderColor: '#3fffa3',
+    backgroundColor: '#60a95bff',
+    borderColor: '#2b6b29ff',
   },
   radioLabel: {
     fontSize: 17,
     color: '#1A3A6B',
-    fontWeight: '500',
   },
   extraFieldsCard: {
     width: '100%',
-    backgroundColor: '#FFF',
+    backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  extraFieldsPix: {
-    width: '100%',
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  extraFieldsWallet: {
-    width: '100%',
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
+    marginBottom: 20,
   },
   extraFieldsMoney: {
     width: '100%',
-    backgroundColor: '#FFF',
+    backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
+    marginBottom: 20,
   },
   extraLabel: {
     fontSize: 15,
@@ -312,54 +287,56 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#FFF',
     borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
+    padding: 12,
+    marginBottom: 10,
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#DDD',
-    color: '#1A3A6B',
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     width: '100%',
-    marginTop: 18,
-    marginBottom: 8,
+    marginTop: 'auto',
+    paddingTop: 10,
+    justifyContent: 'space-between', // Garante espaço entre os botões
+    alignItems: 'center', // Garante que estejam alinhados verticalmente
   },
   backButton: {
     backgroundColor: '#B72F14',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
+    paddingVertical: 15,
+    borderRadius: 10,
     flex: 1,
     marginRight: 10,
+    justifyContent: 'center', // CENTRALIZA CONTEÚDO VERTICALMENTE
+    alignItems: 'center',     // CENTRALIZA CONTEÚDO HORIZONTALMENTE
   },
   backButtonText: {
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 16,
+    textAlign: 'center', // CENTRALIZA O TEXTO
   },
   finishButton: {
     backgroundColor: '#F2CA85',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
+    paddingVertical: 15,
+    borderRadius: 10,
     flex: 1,
+    justifyContent: 'center', // CENTRALIZA CONTEÚDO VERTICALMENTE
+    alignItems: 'center',     // CENTRALIZA CONTEÚDO HORIZONTALMENTE
   },
   finishButtonText: {
     color: '#911F09',
     fontWeight: 'bold',
     fontSize: 16,
+    textAlign: 'center', // CENTRALIZA O TEXTO
   },
-  sacText: {
-    color: '#911F09',
-    fontWeight: 'bold',
-    fontSize: 14,
+  sacImage: {
+    width: 50,
+    height: 50,
     marginTop: 10,
     alignSelf: 'flex-end',
   },
+  refreshIcon: { position: 'absolute', top: 18, right: 18, zIndex: 3 },
 });
