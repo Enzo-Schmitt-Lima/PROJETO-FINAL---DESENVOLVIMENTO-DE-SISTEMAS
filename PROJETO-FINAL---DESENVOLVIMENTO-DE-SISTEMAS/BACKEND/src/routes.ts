@@ -50,6 +50,12 @@ import { CreatePagamentoController } from "./controllers/Pagamento/CreatePagamen
 import { ListPaymentsController } from "./controllers/Pagamento/ListPaymentsController";
 import { ClearDraftOrdersController } from "./controllers/order/ClearDraftOrdersController";
 
+// -------------------- ADICIONAL --------------------
+
+import { CreateAdicionalController } from "./controllers/Adicional/CreateAdicionalController";
+import { ListAdicionalController } from "./controllers/Adicional/ListAdicionalController";
+
+
 const router = Router();
 const upload = multer(uploadConfig.upload("./tmp"));
 
@@ -136,5 +142,14 @@ const listIngredienteController = new ListIngredienteController();
 
 router.post("/ingrediente", isAuthenticated, (req, res) => createIngredienteController.handle(req, res));
 router.get("/ingrediente", isAuthenticated, (req, res) => listIngredienteController.handle(req, res));
+
+// -------------------- ADICIONAL --------------------
+const createAdicionalController = new CreateAdicionalController();
+
+router.post("/adicional", isAuthenticated, (req, res) => createAdicionalController.handle(req, res));
+router.get("/adicional", isAuthenticated, (req, res) => {
+    const listAdicionalController = new ListAdicionalController();
+    return listAdicionalController.handle(req, res);
+});
 
 export { router };
