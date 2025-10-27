@@ -54,6 +54,7 @@ model Item {
   product_id String
   order      Order     @relation(fields: [order_id], references: [id])
   product    Product   @relation(fields: [product_id], references: [id])
+  itemAdicional ItemAdicional[]
   @@map("items")
 }
  
@@ -90,12 +91,24 @@ model Role {
 
 model adicionais {
   id              String      @id @default(uuid())
-  presente        Boolean      @default(true)
-  produtoIngredienteId      String
-  adicionando     Boolean
+  name            String
+  price           Float
   created_at      DateTime?    @default(now())
   update_at       DateTime?    @default(now())
-  produtoIngrediente ProdutoIngrediente @relation(fields: [produtoIngredienteId], references: [id])
+  itemAdicional   ItemAdicional[]
+}
+
+model ItemAdicional {
+  id            String      @id @default(uuid())
+  item        Item      @relation(fields: [itemId], references: [id])
+  itemId       String
+  adicional     adicionais @relation(fields: [adicionalId], references: [id])
+  adicionalId   String
+  quantity     Int
+  created_at    DateTime?    @default(now())
+  update_at     DateTime?    @default(now())
+
+  @@unique([itemId, adicionalId]) 
 }
  
 model ingredientes {
@@ -139,7 +152,6 @@ model ProdutoIngrediente {
   produtoId     String
   ingredientes  ingredientes @relation(fields: [ingredienteId], references: [id])
   ingredienteId String
-  adicionais adicionais []
 
   @@unique([produtoId, ingredienteId]) 
 }
