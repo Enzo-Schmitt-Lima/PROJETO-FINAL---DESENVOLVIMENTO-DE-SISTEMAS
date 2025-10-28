@@ -56,6 +56,12 @@ import { CreatePagamentoController } from "./controllers/Pagamento/CreatePagamen
 import { ListPaymentsController } from "./controllers/Pagamento/ListPaymentsController";
 import { ClearDraftOrdersController } from "./controllers/order/ClearDraftOrdersController";
 
+// -------------------- ADICIONAL --------------------
+
+import { CreateAdicionalController } from "./controllers/Adicional/CreateAdicionalController";
+import { ListAdicionalController } from "./controllers/Adicional/ListAdicionalController";
+
+
 const router = Router();
 const upload = multer(uploadConfig.upload("./tmp"));
 
