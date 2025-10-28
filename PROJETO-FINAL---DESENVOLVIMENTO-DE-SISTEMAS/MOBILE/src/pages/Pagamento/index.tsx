@@ -89,27 +89,12 @@ export default function Payment() {
         const updatedOrderResp = await api.get(`/order/detail?order_id=${order.id}`);
         const updatedOrder = (updatedOrderResp.data as any).order || updatedOrderResp.data;
 
-        // Oferece opções ao usuário: acompanhar pedido ou voltar aos produtos
-        Alert.alert(
-          'Pagamento Concluído!',
-          `O pedido na mesa ${number} foi pago com sucesso.`,
-          [
-            { text: 'Acompanhar pedido', onPress: () => navigation.navigate('Orders') },
-            { text: 'Voltar para produtos', onPress: () => navigation.navigate('Order', { number, order_id: order.id, order: updatedOrder }) }
-          ],
-          { cancelable: false }
-        );
+        // Navigate directly to Orders after payment
+        navigation.navigate('Orders');
       } catch (errRefresh: any) {
         console.error('Erro ao atualizar pedido após pagamento:', errRefresh);
-        Alert.alert(
-          'Pagamento Concluído!',
-          `O pedido na mesa ${number} foi pago com sucesso.`,
-          [
-            { text: 'Acompanhar pedido', onPress: () => navigation.navigate('Orders') },
-            { text: 'Voltar para produtos', onPress: () => navigation.navigate('Order', { number, order_id: order.id, order }) }
-          ],
-          { cancelable: false }
-        );
+        // Navigate directly to Orders after payment
+        navigation.navigate('Orders');
       }
     } catch (err: any) {
       console.error('Erro ao processar pagamento:', err);
@@ -204,10 +189,7 @@ export default function Payment() {
             <Text style={styles.finishButtonText}>{loading ? 'Processando...' : paymentMethod === 'dinheiro' ? 'FINALIZAR PEDIDO' : 'FINALIZAR PAGAMENTO'}</Text>
           </TouchableOpacity>
         </View>
-        <Image
-          source={require('../../../assets/sac.png')}
-          style={styles.sacImage}
-        />
+
       </View>
     </View>
   );

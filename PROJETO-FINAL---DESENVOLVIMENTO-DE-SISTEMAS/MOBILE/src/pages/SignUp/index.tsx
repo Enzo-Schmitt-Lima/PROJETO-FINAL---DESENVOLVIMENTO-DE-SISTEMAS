@@ -18,6 +18,7 @@ type RootStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
   ChooseTable: undefined;
+  CreateComanda: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, "SignUp">;
@@ -41,7 +42,7 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
         Alert.alert("Sucesso!", "Cadastro realizado!");
         navigation.reset({
           index: 0,
-          routes: [{ name: "ChooseTable" }],
+          routes: [{ name: "CreateComanda" }],
         });
       }
     } catch (err) {

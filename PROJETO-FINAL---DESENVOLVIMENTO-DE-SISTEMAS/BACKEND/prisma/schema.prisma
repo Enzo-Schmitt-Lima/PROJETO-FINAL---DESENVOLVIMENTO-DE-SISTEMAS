@@ -1,12 +1,12 @@
 generator client {
   provider = "prisma-client-js"
 }
- 
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
- 
+
 model User {
   id         String    @id @default(uuid())
   name       String
@@ -16,6 +16,7 @@ model User {
   update_at  DateTime? @default(now())
   roles_id   String
   roles      Role      @relation(fields: [roles_id], references: [id])
+
   @@map("users")
 }
 
@@ -25,46 +26,48 @@ model Category {
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
   products   Product[]
- 
+
   @@map("categories")
 }
 
 model Product {
-  id          String       @id @default(uuid())
-  name        String
-  price       String
-  description String
-  banner      String
-  created_at  DateTime?    @default(now())
-  update_at   DateTime?    @default(now())
-  category_id String
-  items       Item[]
-  category    Category     @relation(fields: [category_id], references: [id])
+  id                 String               @id @default(uuid())
+  name               String
+  price              String
+  description        String
+  banner             String
+  created_at         DateTime?            @default(now())
+  update_at          DateTime?            @default(now())
+  category_id        String
   productIngrediente ProdutoIngrediente[]
- 
+  items              Item[]
+  category           Category             @relation(fields: [category_id], references: [id])
+
   @@map("products")
 }
- 
+
 model Item {
-  id         String    @id @default(uuid())
-  amount     Int
-  created_at DateTime? @default(now())
-  update_at  DateTime? @default(now())
-  order_id   String
-  product_id String
-  order      Order     @relation(fields: [order_id], references: [id])
-  product    Product   @relation(fields: [product_id], references: [id])
-  itemAdicional ItemAdicional[]
+  id            String          @id @default(uuid())
+  amount        Int
+  created_at    DateTime?       @default(now())
+  update_at     DateTime?       @default(now())
+  order_id      String
+  product_id    String
+  ItemAdicional ItemAdicional[]
+  order         Order           @relation(fields: [order_id], references: [id])
+  product       Product         @relation(fields: [product_id], references: [id])
+
   @@map("items")
 }
- 
+
 model Table {
   id     Int     @id @default(autoincrement())
   number Int     @unique
   orders Order[]
+
   @@map("tables")
 }
- 
+
 model Order {
   id         String      @id @default(uuid())
   draft      Boolean     @default(true)
@@ -74,62 +77,50 @@ model Order {
   tableId    Int
   status     Int         @default(0)
   comanda    Comanda[]
+  feedback   Feedback[]
   items      Item[]
   table      Table       @relation(fields: [tableId], references: [id])
   pagamento  Pagamento[]
-  feedback   Feedback[]
 
   @@map("orders")
 }
- 
+
 model Role {
   id    String @id @default(uuid())
   name  String @unique
   users User[]
+
   @@map("roles")
 }
 
 model adicionais {
-  id              String      @id @default(uuid())
-  name            String
-  price           Float
-  created_at      DateTime?    @default(now())
-  update_at       DateTime?    @default(now())
-  itemAdicional   ItemAdicional[]
+  id            String          @id @default(uuid())
+  created_at    DateTime?       @default(now())
+  update_at     DateTime?       @default(now())
+  name          String
+  price         Float
+  ItemAdicional ItemAdicional[]
 }
 
-model ItemAdicional {
-  id            String      @id @default(uuid())
-  item        Item      @relation(fields: [itemId], references: [id])
-  itemId       String
-  adicional     adicionais @relation(fields: [adicionalId], references: [id])
-  adicionalId   String
-  quantity     Int
-  created_at    DateTime?    @default(now())
-  update_at     DateTime?    @default(now())
-
-  @@unique([itemId, adicionalId]) 
-}
- 
 model ingredientes {
-  id         String       @id @default(uuid())
-  name       String       @unique
+  id                 String               @id @default(uuid())
+  name               String               @unique
   productIngrediente ProdutoIngrediente[]
 
   @@map("ingredientes")
 }
- 
+
 model Pagamento {
   id         String    @id @default(uuid())
   order_id   String
   amount     Float
-  status     Int @default(0)
+  status     Int       @default(0)
   created_at DateTime  @default(now())
   updated_at DateTime? @updatedAt
   metodo     Int
+  comanda    Comanda[]
   order      Order     @relation(fields: [order_id], references: [id])
-  comanda Comanda[]
- 
+
   @@map("pagamento")
 }
 
@@ -147,13 +138,13 @@ model Comanda {
 }
 
 model ProdutoIngrediente {
-  id            String      @id @default(uuid())
-  product     Product  @relation(fields: [produtoId], references: [id])
+  id            String       @id @default(uuid())
   produtoId     String
-  ingredientes  ingredientes @relation(fields: [ingredienteId], references: [id])
   ingredienteId String
+  ingredientes  ingredientes @relation(fields: [ingredienteId], references: [id])
+  product       Product      @relation(fields: [produtoId], references: [id])
 
-  @@unique([produtoId, ingredienteId]) 
+  @@unique([produtoId, ingredienteId])
 }
 
 model Feedback {
@@ -161,10 +152,22 @@ model Feedback {
   comment    String
   rating     Int
   order_id   String
-  order        Order     @relation(fields: [order_id], references: [id])
   created_at DateTime? @default(now())
   update_at  DateTime? @default(now())
- 
+  order      Order     @relation(fields: [order_id], references: [id])
+
   @@map("feedbacks")
 }
 
+model ItemAdicional {
+  id          String     @id
+  itemId      String
+  adicionalId String
+  created_at  DateTime?  @default(now())
+  update_at   DateTime?  @default(now())
+  quantity    Int
+  adicionais  adicionais @relation(fields: [adicionalId], references: [id])
+  items       Item       @relation(fields: [itemId], references: [id])
+
+  @@unique([itemId, adicionalId])
+}

@@ -6,13 +6,13 @@ interface ingredientRequest{
 class CreateIngredienteService {
     async execute({ name }: ingredientRequest) {
 
-        if(name === ''){
-            throw new Error('Name invalid')
+        if (typeof name !== 'string' || name.trim() === '') {
+            throw new Error('Name must be a non-empty string')
         }
         
         const ingrediente = await prismaClient.ingredientes.create({
             data: {
-                name
+                name: name
             },
             select:{
                 id: true,
