@@ -152,7 +152,7 @@ router.delete("/product/remove-ingredient", isAuthenticated, (req, res) => new R
 
 // INGREDIENTES NOS PRODUTOS
 
-router.post('/productIngrediente', new CreateIngredienteController().handle.bind(new CreateIngredienteController));
+
 
 
 

@@ -37,7 +37,6 @@ interface Product {
 interface ProductIngredient {
   id: string;
   ingrediente: Ingredient;
-  adicionais: any[];
 }
 
 export default function EditProductIngredients() {
