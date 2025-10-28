@@ -1,21 +1,16 @@
- import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback, useContext } from "react";
 import {
 View,
 Text,
 StyleSheet,
 TouchableOpacity,
 ScrollView,
-FlatList,
 Alert,
 Image,
 SafeAreaView,
-ViewStyle,
-TextStyle,
-ImageStyle,
 TextInput,
 StatusBar,
 Platform,
-Modal,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -24,6 +19,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import api from "../../services/api";
 import HamburgerMenu from "../../components/HamburgerMenu";
+import { AuthContext } from "../../contexts/AuthContext";
 
 
 // --- TIPAGENS ---
@@ -52,6 +48,7 @@ const logo = require("../../../assets/logo.png");
 export default function Order() {
 const route = useRoute<OrderRouteProp>();
 const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+const { user, isGuest } = useContext(AuthContext);
 
 const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24;
 
@@ -63,7 +60,7 @@ const [totalItems, setTotalItems] = useState(0);
 const [hasOrderItems, setHasOrderItems] = useState(false);
 const [orderSummary, setOrderSummary] = useState<any[]>([]);
 const [searchText, setSearchText] = useState("");
-const [cartVisible, setCartVisible] = useState(false);
+
 const [menuVisible, setMenuVisible] = useState(false);
 
 const scrollRef = useRef<ScrollView>(null);
@@ -140,28 +137,28 @@ Alert.alert('Erro', 'Não foi possível adicionar o item ao pedido.');
 };
 
 const decrement = async (catId: string, prodId: string) => {
-try {
-const orderDetailResponse = await api.get(`/order/detail?order_id=${route.params.order_id}`);
-const orderItems = (orderDetailResponse.data as any).items || [];
-const itemToRemove = orderItems.find((item: any) => item.product_id === prodId);
+    try {
+      const orderDetailResponse = await api.get(`/order/detail?order_id=${route.params.order_id}`);
+      const orderItems = (orderDetailResponse.data as any).items || [];
+      const itemToRemove = orderItems.find((item: any) => item.product_id === prodId);
 
-if (itemToRemove) {
-await api.delete('/order/remove', { params: { item_id: itemToRemove.id } });
-}
+      if (itemToRemove) {
+        await api.delete('/order/remove', { params: { item_id: itemToRemove.id } });
+      }
 
-const updated = categories.map((cat) => {
-if (cat.id === catId) {
-return { ...cat, products: cat.products.map((p: any) => p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p) };
-}
-return cat;
-});
-setCategories(updated);
-updateOrderSummaryAndTotal(updated);
-} catch (err) {
-console.log('Erro ao remover item:', err);
-Alert.alert('Erro', 'Não foi possível remover o item do pedido.');
-}
-};
+      const updated = categories.map((cat) => {
+        if (cat.id === catId) {
+          return { ...cat, products: cat.products.map((p: any) => p.id === prodId ? { ...p, amount: Math.max(0, p.amount - 1) } : p) };
+        }
+        return cat;
+      });
+      setCategories(updated);
+      updateOrderSummaryAndTotal(updated);
+    } catch (err) {
+      console.log('Erro ao remover item:', err);
+      Alert.alert('Erro', 'Não foi possível remover o item do pedido.');
+    }
+  };
 
 const handleCancelOrder = () => { navigation.goBack(); };
 const handleNavigateToPayment = () => {
@@ -223,14 +220,16 @@ return (
 <TouchableOpacity onPress={() => loadCategories()} style={[styles.refreshButton, { top: topOffset }]}>
 <Ionicons name="refresh" size={22} color="#333" />
 </TouchableOpacity>
-<TouchableOpacity onPress={() => setCartVisible(true)} style={{ marginRight: 15 }}>
-<Ionicons name="cart-outline" size={24} color="#333" />
+
+<TouchableOpacity onPress={() => navigation.navigate('Cart', { number: route.params.number, order_id: route.params.order_id })} style={styles.cartButton}>
+<Ionicons name="cart-outline" size={28} color="#333" />
 {totalItems > 0 && (
 <View style={styles.badge}>
 <Text style={styles.badgeText}>{totalItems}</Text>
 </View>
 )}
 </TouchableOpacity>
+
 <TouchableOpacity onPress={() => navigation.navigate('Account')}>
 <Ionicons name="person-circle-outline" size={28} color="#333" />
 </TouchableOpacity>
@@ -239,6 +238,10 @@ return (
 
 <ScrollView style={styles.scrollView} ref={scrollRef}>
 <View style={styles.columnLayout}>
+<View style={styles.welcomeContainer}>
+<Text style={styles.welcomeText}>Bem-vindo, {isGuest ? 'Visitante' : user?.name || 'Visitante'}!</Text>
+<Text style={styles.tableText}>Mesa {route.params.number}</Text>
+</View>
 <View style={styles.searchBarContainer}>
 <Ionicons name="search-outline" size={24} color="#5D3A2F" />
 <TextInput style={styles.searchBarInput} placeholder="Pesquisar produtos" placeholderTextColor="#888" value={searchText} onChangeText={setSearchText} />
@@ -265,15 +268,9 @@ return (
 <Text style={styles.productDesc}>{prod.description}</Text>
 <Text style={styles.productPrice}>R$ {parseFloat(prod.price).toFixed(2)}</Text>
 </View>
-<View style={styles.counter}>
-<TouchableOpacity style={[styles.counterButton, { backgroundColor: '#FF3F4B' }]} onPress={() => decrement(cat.id, prod.id)} disabled={prod.amount === 0}>
-<Text style={styles.counterText}>-</Text>
+<TouchableOpacity style={styles.addToCartButton} onPress={() => increment(cat.id, prod.id)}>
+<Text style={styles.addToCartText}>Adicionar ao Carrinho</Text>
 </TouchableOpacity>
-<Text style={styles.amount}>{prod.amount}</Text>
-<TouchableOpacity style={styles.counterButton} onPress={() => increment(cat.id, prod.id)}>
-<Text style={styles.counterText}>+</Text>
-</TouchableOpacity>
-</View>
 </View>
 ))}
 </View>
@@ -299,30 +296,7 @@ return (
 
 
 
-<Modal visible={cartVisible} transparent animationType="slide">
-<TouchableOpacity style={styles.overlay} onPress={() => setCartVisible(false)} activeOpacity={1}>
-<View style={styles.cartContainer}>
-<Text style={styles.cartTitle}>Carrinho Atual</Text>
-{orderSummary.length > 0 ? (
-<FlatList
-data={orderSummary}
-keyExtractor={(item) => item.id}
-renderItem={({ item }) => (
-<View style={styles.cartItem}>
-<Text style={styles.cartText}>{item.name} x {item.amount} - R$ {(item.amount * parseFloat(item.price)).toFixed(2)}</Text>
-</View>
-)}
-/>
-) : (
-<Text style={styles.cartText}>Carrinho vazio</Text>
-)}
-<Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
-<TouchableOpacity style={styles.closeButton} onPress={() => setCartVisible(false)}>
-<Text style={styles.closeText}>Fechar</Text>
-</TouchableOpacity>
-</View>
-</TouchableOpacity>
-</Modal>
+
 
 <HamburgerMenu
 onNavigate={(route: string) => navigation.navigate(route as any)}
@@ -381,4 +355,10 @@ badge: { position: 'absolute', top: -5, right: -5, backgroundColor: 'red', borde
 badgeText: { color: 'white', fontSize: 12, fontWeight: 'bold' },
 backButton: { position: 'absolute', top: 12, left: 12, padding: 8, zIndex: 20 },
 refreshButton: { position: 'absolute', top: 12, right: 60, padding: 8, zIndex: 20 },
+welcomeContainer: { alignItems: 'center', marginHorizontal: 29, marginTop: 20, marginBottom: 10 },
+welcomeText: { fontSize: 24, fontWeight: 'bold', color: '#911F09', textAlign: 'center' },
+tableText: { fontSize: 18, color: '#5D3A2F', textAlign: 'center', marginTop: 5 },
+addToCartButton: { backgroundColor: "#F2CA85", paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, justifyContent: "center", alignItems: "center" },
+addToCartText: { fontWeight: "bold", color: "#101026", fontSize: 14 },
+cartButton: { position: 'relative', marginRight: 10 },
 });

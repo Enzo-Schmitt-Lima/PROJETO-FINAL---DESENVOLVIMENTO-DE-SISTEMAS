@@ -162,10 +162,6 @@ export default function Orders() {
             ))
           )}
         </ScrollView>
-        <Image 
-          source={require('../../../assets/sac.png')} 
-          style={styles.sacImage} 
-        />
       </View>
     </View>
   );

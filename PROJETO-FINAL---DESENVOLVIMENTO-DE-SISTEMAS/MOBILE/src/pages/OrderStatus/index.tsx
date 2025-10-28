@@ -100,10 +100,6 @@ export default function OrderStatus() {
         <TouchableOpacity style={styles.button} onPress={handleOrderArrived}>
           <Text style={styles.buttonText}>O pedido chegou?</Text>
         </TouchableOpacity>
-            <Image 
-              source={require('../../../assets/sac.png')} 
-              style={styles.sacImage} 
-            />
       </View>
     </View>
   );

@@ -15,14 +15,33 @@ class AddItemService {
     });
     if (!product) throw new Error("Produto não encontrado");
 
-    // Cria o item
-    const item = await prismaClient.item.create({
-      data: {
+    // Verifica se o item já existe no pedido
+    const existingItem = await prismaClient.item.findFirst({
+      where: {
         order_id,
         product_id,
-        amount,
       },
     });
+
+    let item;
+    if (existingItem) {
+      // Atualiza a quantidade do item existente
+      item = await prismaClient.item.update({
+        where: { id: existingItem.id },
+        data: {
+          amount: existingItem.amount + amount,
+        },
+      });
+    } else {
+      // Cria um novo item
+      item = await prismaClient.item.create({
+        data: {
+          order_id,
+          product_id,
+          amount,
+        },
+      });
+    }
 
     // Calcula o total do pedido
     const items = await prismaClient.item.findMany({

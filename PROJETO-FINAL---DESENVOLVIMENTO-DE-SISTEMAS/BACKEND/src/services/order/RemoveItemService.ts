@@ -28,9 +28,16 @@ if (order.status >= 1) {
 
     const order_id = item.order_id;
 
-    await prismaClient.item.delete({
-      where: { id: item_id },
-    });
+    if (item.amount > 1) {
+      await prismaClient.item.update({
+        where: { id: item_id },
+        data: { amount: item.amount - 1 },
+      });
+    } else {
+      await prismaClient.item.delete({
+        where: { id: item_id },
+      });
+    }
 
     const items = await prismaClient.item.findMany({
       where: { order_id },

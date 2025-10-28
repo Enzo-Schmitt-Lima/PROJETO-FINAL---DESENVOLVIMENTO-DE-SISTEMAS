@@ -18,6 +18,7 @@ import { ListCategoryController } from "./controllers/category/ListCategoryContr
 import { CreateProductController } from "./controllers/product/CreateProductController";
 import { ListByCategoryController } from "./controllers/product/ListByCategoryController";
 import { UpdateProductController } from "./controllers/product/UpdateProductController";
+import { GetProductController } from "./controllers/product/GetProductController";
 
 // -------------------- ORDER --------------------
 import { CreateOrderController } from "./controllers/order/CreateOrderController";
@@ -42,6 +43,11 @@ import { CreateRoleController } from "./controllers/roles/CreateRoleController";
 // -------------------- INGREDIENTE --------------------
 import { CreateIngredienteController } from "./controllers/ingrediente/CreateIngredienteController";
 import { ListIngredienteController } from "./controllers/ingrediente/ListCategoryController";
+
+// -------------------- PRODUCT INGREDIENTS --------------------
+import { ListProductIngredientsController } from "./controllers/product/ListProductIngredientsController";
+import { AddIngredientToProductController } from "./controllers/product/AddIngredientToProductController";
+import { RemoveIngredientFromProductController } from "./controllers/product/RemoveIngredientFromProductController";
 
 // -------------------- PAGAMENTO --------------------
 import { UpdatePagamentoStatusController } from "./controllers/Pagamento/StatusPedidoController";
@@ -73,10 +79,12 @@ router.get("/category", isAuthenticated, (req, res) => listCategoryController.ha
 const createProductController = new CreateProductController();
 const listByCategoryController = new ListByCategoryController();
 const updateProductController = new UpdateProductController();
+const getProductController = new GetProductController();
 
 router.post("/product", isAuthenticated, upload.single("banner"), (req, res) => createProductController.handle(req, res));
 router.get("/category/product", isAuthenticated, (req, res) => listByCategoryController.handle(req, res));
 router.patch("/product/:id", isAuthenticated, upload.single("banner"), (req, res) => updateProductController.handle(req, res));
+router.get("/product/:id", isAuthenticated, (req, res) => getProductController.handle(req, res));
 
 // -------------------- ORDER --------------------
 const createOrderController = new CreateOrderController();
@@ -136,5 +144,16 @@ const listIngredienteController = new ListIngredienteController();
 
 router.post("/ingrediente", isAuthenticated, (req, res) => createIngredienteController.handle(req, res));
 router.get("/ingrediente", isAuthenticated, (req, res) => listIngredienteController.handle(req, res));
+
+// -------------------- PRODUCT INGREDIENTS --------------------
+router.get("/product/ingredients", isAuthenticated, (req, res) => new ListProductIngredientsController().handle(req, res));
+router.post("/product/add-ingredient", isAuthenticated, (req, res) => new AddIngredientToProductController().handle(req, res));
+router.delete("/product/remove-ingredient", isAuthenticated, (req, res) => new RemoveIngredientFromProductController().handle(req, res));
+
+// INGREDIENTES NOS PRODUTOS
+
+router.post('/productIngrediente', new CreateIngredienteController().handle.bind(new CreateIngredienteController));
+
+
 
 export { router };
