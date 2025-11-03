@@ -9,6 +9,9 @@ interface Payment {
   id: string;
   order: { id: string; items: { product: { name: string }; amount: number }[] };
   method: string;
+  statusText?: string;
+  orderStatusText?: string;
+  orderFinalized?: boolean;
   created_at: string;
   amount: number;
 }
@@ -21,8 +24,9 @@ export default function Payments() {
   useEffect(() => {
     async function loadPayments() {
       try {
-        const response = await api.get('/payments');
-        setPayments(response.data);
+    const response = await api.get('/payments');
+    // backend now returns statusText, orderStatusText and orderFinalized
+    setPayments(response.data as any[]);
       } catch (err) {
         console.log('Erro ao carregar pagamentos:', err);
         Alert.alert('Erro', 'Não foi possível carregar os pagamentos.');
@@ -40,7 +44,7 @@ export default function Payments() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('ChooseTable')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>← Voltar</Text>
         </TouchableOpacity>
         <Image 
@@ -57,8 +61,10 @@ export default function Payments() {
           ) : (
             payments.map(payment => (
               <TouchableOpacity key={payment.id} style={styles.paymentBox}>
-                <Text style={styles.paymentText}>#{payment.id} {getDesc(payment.order.items)}</Text>
-                <Text style={styles.paymentSub}>Total: R$ {payment.amount.toFixed(2)} | Método: {payment.method} | Data: {new Date(payment.created_at).toLocaleDateString('pt-BR')}</Text>
+                <Text style={styles.paymentText}>{getDesc(payment.order.items)}</Text>
+                <Text style={styles.paymentSub}>
+                  Total: R$ {payment.amount.toFixed(2)} | Método: {payment.method} | Status: {payment.statusText || '—'}{payment.orderFinalized ? ' | Pedido finalizado' : ''} | {new Date(payment.created_at).toLocaleDateString('pt-BR')}
+                </Text>
               </TouchableOpacity>
             ))
           )}

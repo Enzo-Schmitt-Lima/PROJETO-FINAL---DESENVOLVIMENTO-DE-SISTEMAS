@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Platform, StatusBar, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
 import api from '../../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type PaymentRouteProp = RouteProp<StackParamsList, 'Payment'>;
 
@@ -14,6 +16,12 @@ export default function Payment() {
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24;
+  // add extra spacing so icons are not too close to notch/statusbar
+  const topExtra = 20;
+  const topOffsetWithExtra = topOffset + topExtra;
 
   const handlePayment = async () => {
     if (!paymentMethod) {
@@ -29,8 +37,11 @@ export default function Payment() {
       };
       const metodoNum = metodoMap[paymentMethod];
       let pagamentoId;
-      const orderDetailResponse = await api.get(`/order/detail?order_id=${order.id}`);
-      const pagamentoArray = orderDetailResponse.data.pagamento || [];
+
+      // SEMPRE buscar dados atualizados do pedido
+  const orderDetailResponse = await api.get(`/order/detail?order_id=${order.id}`);
+  const pagamentoArray = (orderDetailResponse.data as any).pagamento || [];
+
       if (pagamentoArray.length > 0) {
         pagamentoId = pagamentoArray[0].id;
       } else {
@@ -40,7 +51,7 @@ export default function Payment() {
             amount: total,
             metodo: metodoNum,
           });
-          pagamentoId = createPaymentResponse.data.id;
+          pagamentoId = (createPaymentResponse.data as any).id;
         } catch (createError: any) {
           if (
             createError.response?.status === 409 &&
@@ -48,8 +59,9 @@ export default function Payment() {
           ) {
             Alert.alert('Pagamento já existe', 'Já existe um pagamento para este pedido. O status será atualizado.');
             const orderDetailRetry = await api.get(`/order/detail?order_id=${order.id}`);
-            if (orderDetailRetry.data.pagamento && orderDetailRetry.data.pagamento.length > 0) {
-              pagamentoId = orderDetailRetry.data.pagamento[0].id;
+            const retryData = orderDetailRetry.data as any;
+            if (retryData.pagamento && retryData.pagamento.length > 0) {
+              pagamentoId = retryData.pagamento[0].id;
             } else {
               throw new Error('Não foi possível obter o ID do pagamento existente');
             }
@@ -71,11 +83,19 @@ export default function Payment() {
         pagamento_id: pagamentoId,
         status: 1,
       });
-      await api.put('/order/finish', {
-        order_id: order.id,
-      });
-      Alert.alert('Pagamento Concluído!', `O pedido na mesa ${number} foi pago com sucesso.`);
-      navigation.navigate('OrderStatus', { number, order, total });
+
+      // Não finalizar o pedido automaticamente — apenas atualizar os dados do pedido
+      try {
+        const updatedOrderResp = await api.get(`/order/detail?order_id=${order.id}`);
+        const updatedOrder = (updatedOrderResp.data as any).order || updatedOrderResp.data;
+
+        // Navigate directly to Orders after payment
+        navigation.navigate('Orders');
+      } catch (errRefresh: any) {
+        console.error('Erro ao atualizar pedido após pagamento:', errRefresh);
+        // Navigate directly to Orders after payment
+        navigation.navigate('Orders');
+      }
     } catch (err: any) {
       console.error('Erro ao processar pagamento:', err);
       let errorMessage = 'Ocorreu um erro ao processar o pagamento. Tente novamente.';
@@ -88,6 +108,23 @@ export default function Payment() {
     }
   };
 
+  const refreshOrder = async () => {
+    if (!order?.id) return;
+    try {
+      setRefreshing(true);
+      const resp = await api.get(`/order/detail?order_id=${order.id}`);
+  const updatedOrder = (resp.data as any).order || (resp.data as any);
+      console.log('[Payment] order refreshed', updatedOrder);
+      Alert.alert('Atualizado', 'Dados do pedido atualizados.');
+    } catch (err) {
+      console.error('Erro ao atualizar pedido:', err);
+      Alert.alert('Erro', 'Não foi possível atualizar o pedido agora.');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Campos extras para cada método
   const [cardNumber, setCardNumber] = useState('');
   const [cardName, setCardName] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
@@ -127,11 +164,10 @@ export default function Payment() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        {/* REMOVIDO: O BOTÃO "X" */}
-        
-        {/* Ajuste do título para alinhar à esquerda, agora que o 'X' sumiu */}
-        <Text style={[styles.cardTitle, {alignSelf: 'flex-start', marginLeft: 10}]}>Pagar com:</Text>
-        
+        <TouchableOpacity style={[styles.refreshIcon, { top: topOffsetWithExtra }]} onPress={refreshOrder}>
+          <Ionicons name="refresh" size={20} color="#911F09" />
+        </TouchableOpacity>
+        <Text style={styles.cardTitle}>Pagar com:</Text>
         <View style={styles.optionsContainer}>
           {paymentOptions.map(opt => (
             <TouchableOpacity
@@ -153,10 +189,7 @@ export default function Payment() {
             <Text style={styles.finishButtonText}>{loading ? 'Processando...' : paymentMethod === 'dinheiro' ? 'FINALIZAR PEDIDO' : 'FINALIZAR PAGAMENTO'}</Text>
           </TouchableOpacity>
         </View>
-            <Image 
-              source={require('../../../assets/sac.png')} 
-              style={styles.sacImage} 
-            />
+
       </View>
     </View>
   );
@@ -282,11 +315,10 @@ const styles = StyleSheet.create({
     textAlign: 'center', // CENTRALIZA O TEXTO
   },
   sacImage: {
-    color: '#911F09',
-    fontWeight: 'bold',
-    fontSize: 14,
-    position: 'absolute',
-    bottom: 10,
-    right: 20,
+    width: 50,
+    height: 50,
+    marginTop: 10,
+    alignSelf: 'flex-end',
   },
+  refreshIcon: { position: 'absolute', top: 18, right: 18, zIndex: 3 },
 });

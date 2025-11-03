@@ -18,12 +18,14 @@ type RootStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
   ChooseTable: undefined;
+  CreateComanda: undefined;
+  AssignTable: undefined;
 };
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, "SignIn">;
 
 const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
-  const { signIn, loadingAuth } = useContext(AuthContext);
+  const { signIn, loadingAuth, enterAsGuest } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -35,10 +37,7 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
 
     const userData = await signIn({ email, password });
     if (userData) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "ChooseTable" }],
-      });
+      navigation.navigate("AssignTable");
     }
   }
 
@@ -90,6 +89,16 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
               <Text style={styles.signupText}>
                 Não tem uma conta? {"\n"}Cadastre-se
               </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.submitButton, { backgroundColor: "#B72F14", marginTop: 10 }]}
+              onPress={() => {
+                enterAsGuest();
+                navigation.navigate("AssignTable");
+              }}
+            >
+              <Text style={[styles.submitButtonText, { color: "#FFFFFF" }]}>ENTRAR COMO VISITANTE</Text>
             </TouchableOpacity>
           </View>
 

@@ -17,7 +17,8 @@ export default function Logout() {
     const tableId = await AsyncStorage.getItem('currentTableId');
     if (tableId) {
       try {
-        await api.put(`/table/${tableId}`, { status: 'free' });
+        // Use new endpoint that marks non-finalized orders as finalized and frees the table
+        await api.put(`/table/${tableId}/release`);
       } catch (err) {
         console.log('Erro ao liberar mesa:', err);
       }
