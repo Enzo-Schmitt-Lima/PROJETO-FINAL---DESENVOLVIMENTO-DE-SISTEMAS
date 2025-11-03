@@ -35,10 +35,9 @@ export type StackParamsList = {
 
 const Stack = createNativeStackNavigator<StackParamsList>();
 
-export default function AppRoutes() {
+export default function AppRoutesGuest() {
   return (
-    <Stack.Navigator>
-      {/* Tela inicial após login */}
+    <Stack.Navigator initialRouteName="CreateComanda">
       <Stack.Screen
         name="CreateComanda"
         component={CreateComanda}
@@ -78,7 +77,7 @@ export default function AppRoutes() {
           headerTintColor: "#FFF",
         }}
       />
-      
+
       {/* Nova tela de pagamento */}
       <Stack.Screen
         name="Payment"
@@ -118,49 +117,12 @@ export default function AppRoutes() {
         }}
       />
       <Stack.Screen
-        name="Account"
-        component={require('../pages/Account').default}
-        options={{
-          title: "Minha conta",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Orders"
-        component={require('../pages/Orders').default}
-        options={{
-          title: "Meus pedidos",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Payments"
-        component={require('../pages/Payments').default}
-        options={{
-          title: "Meus pagamentos",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Logout"
-        component={require('../pages/Logout').default}
-        options={{
-          title: "Sair",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
         name="EditProductIngredients"
         component={require('../pages/EditProductIngredients').default}
         options={{
           title: "Editar Ingredientes",
           headerShown: false,
         }}
-      />
-      <Stack.Screen
-        name="AssignTable"
-        component={AssignTable}
-        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="EditProduct"

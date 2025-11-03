@@ -8,9 +8,7 @@ import {
   Alert,
   SafeAreaView,
   StatusBar,
-  TextInput,
   Image,
-  Modal,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -45,29 +43,18 @@ export default function EditProductIngredients() {
   const { product_id, product_name } = route.params;
 
   const [productIngredients, setProductIngredients] = useState<ProductIngredient[]>([]);
-  const [allIngredients, setAllIngredients] = useState<Ingredient[]>([]);
-  const [selectedIngredient, setSelectedIngredient] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<Product | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
 
   const loadProductIngredients = async () => {
     try {
+      console.log("Product ID:", product_id);
       const response = await api.get(`/product/ingredients?product_id=${product_id}`);
+      console.log("Response data:", response.data);
       setProductIngredients(response.data ? response.data as ProductIngredient[] : []);
     } catch (err) {
       console.log("Erro ao carregar ingredientes do produto:", err);
       Alert.alert('Erro', 'Não foi possível carregar os ingredientes.');
-    }
-  };
-
-  const loadAllIngredients = async () => {
-    try {
-      const response = await api.get("/ingrediente");
-      setAllIngredients(response.data ? response.data as Ingredient[] : []);
-    } catch (err) {
-      console.log("Erro ao carregar todos os ingredientes:", err);
-      Alert.alert('Erro', 'Não foi possível carregar os ingredientes disponíveis.');
     }
   };
 
@@ -82,31 +69,11 @@ export default function EditProductIngredients() {
 
   useEffect(() => {
     const loadData = async () => {
-      await Promise.all([loadProductIngredients(), loadAllIngredients(), loadProduct()]);
+      await Promise.all([loadProductIngredients(), loadProduct()]);
       setLoading(false);
     };
     loadData();
   }, []);
-
-  const addIngredient = async () => {
-    if (!selectedIngredient) {
-      Alert.alert('Erro', 'Selecione um ingrediente para adicionar.');
-      return;
-    }
-
-    try {
-      await api.post('/product/add-ingredient', {
-        product_id,
-        ingredient_id: selectedIngredient,
-      });
-      await loadProductIngredients();
-      setSelectedIngredient("");
-      Alert.alert('Sucesso', 'Ingrediente adicionado com sucesso!');
-    } catch (err) {
-      console.log('Erro ao adicionar ingrediente:', err);
-      Alert.alert('Erro', 'Não foi possível adicionar o ingrediente.');
-    }
-  };
 
   const removeIngredient = async (ingredientId: string) => {
     try {
@@ -118,14 +85,6 @@ export default function EditProductIngredients() {
       Alert.alert('Erro', 'Não foi possível remover o ingrediente.');
     }
   };
-
-  const handleSelectIngredient = (ingredient: Ingredient) => {
-    setSelectedIngredient(ingredient.id);
-  };
-
-  const availableIngredients = allIngredients.filter(
-    (ing) => !productIngredients.some((pi) => pi.ingrediente.id === ing.id)
-  );
 
   if (loading) {
     return (
@@ -170,23 +129,7 @@ export default function EditProductIngredients() {
         )}
       </View>
 
-      <View style={styles.addIngredientSection}>
-        <Text style={styles.sectionTitle}>Adicionar Ingrediente</Text>
-        <View style={styles.addIngredientContainer}>
-          <TextInput
-            style={styles.ingredientInput}
-            placeholder="Selecione um ingrediente"
-            value={allIngredients.find((ing) => ing.id === selectedIngredient)?.name || ""}
-            editable={false}
-          />
-          <TouchableOpacity style={styles.selectButton} onPress={() => setModalVisible(true)}>
-            <Text style={styles.selectButtonText}>Selecionar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
-            <Ionicons name="add" size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* Removido a seção de adicionar ingrediente, pois o cliente só pode remover */}
 
       <View style={styles.ingredientsList}>
         <Text style={styles.sectionTitle}>Ingredientes Atuais</Text>
@@ -208,32 +151,7 @@ export default function EditProductIngredients() {
         />
       </View>
 
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Selecionar Ingrediente</Text>
-            <FlatList
-              data={availableIngredients}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.modalItem}
-                  onPress={() => {
-                    handleSelectIngredient(item);
-                    setModalVisible(false);
-                  }}
-                >
-                  <Text style={styles.modalItemText}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-              ListEmptyComponent={<Text style={styles.emptyText}>Nenhum ingrediente disponível</Text>}
-            />
-            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.closeButtonText}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -252,13 +170,6 @@ const styles = StyleSheet.create({
   editIcon: { position: 'absolute', top: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 10, padding: 5 },
   productName: { fontSize: 18, fontWeight: 'bold', color: '#101026' },
   productDetails: { fontSize: 14, color: '#666', marginTop: 5 },
-  addIngredientSection: { padding: 15, backgroundColor: '#FFF', margin: 10, borderRadius: 6 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#911F09', marginBottom: 10 },
-  addIngredientContainer: { flexDirection: 'row', alignItems: 'center' },
-  ingredientInput: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 10, marginRight: 10 },
-  selectButton: { backgroundColor: "#F2CA85", paddingVertical: 10, paddingHorizontal: 15, borderRadius: 6, marginRight: 10 },
-  selectButtonText: { fontWeight: "bold", color: "#101026" },
-  addButton: { backgroundColor: "#911F09", padding: 10, borderRadius: 6 },
   ingredientsList: { flex: 1, padding: 15, backgroundColor: '#FFF', margin: 10, borderRadius: 6 },
   ingredientItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
   ingredientName: { fontSize: 16, color: '#101026' },
@@ -266,11 +177,5 @@ const styles = StyleSheet.create({
   emptyText: { textAlign: 'center', marginTop: 20, fontSize: 16, color: '#911F09' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#D9D9D9" },
   loadingText: { fontSize: 16, color: '#911F09', fontWeight: 'bold' },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { backgroundColor: '#FFF', padding: 20, borderRadius: 10, width: '80%', maxHeight: '60%' },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#911F09', marginBottom: 15, textAlign: 'center' },
-  modalItem: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  modalItemText: { fontSize: 16, color: '#101026' },
-  closeButton: { marginTop: 15, backgroundColor: "#911F09", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 6, alignSelf: 'center' },
-  closeButtonText: { color: '#FFF', fontWeight: 'bold' },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#911F09', marginBottom: 10 },
 });

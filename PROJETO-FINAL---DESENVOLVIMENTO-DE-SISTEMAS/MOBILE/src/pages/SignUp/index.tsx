@@ -11,6 +11,7 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../../contexts/AuthContext";
 
@@ -24,7 +25,7 @@ type RootStackParamList = {
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, "SignUp">;
 
 export default function SignUp({ navigation }: SignUpScreenProps) {
-  const { signUp, loadingAuth } = useContext(AuthContext);
+  const { signUp, loadingAuth, isGuest } = useContext(AuthContext);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -53,6 +54,13 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {isGuest && (
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#5D3A2F" />
+          </TouchableOpacity>
+        </View>
+      )}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.mainContainer}>
           <View style={styles.contentWrapper}>
@@ -131,6 +139,8 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#911F09" },
+  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#D9D9D9', paddingVertical: 10, paddingHorizontal: 15, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  backButton: { padding: 8 },
   scrollContainer: { flexGrow: 1, justifyContent: "center" },
   mainContainer: {
     backgroundColor: "#D9D9D9",

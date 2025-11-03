@@ -2,13 +2,19 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function HamburgerMenu({ onNavigate, visible, onClose }: { onNavigate: (route: string) => void; visible: boolean; onClose: () => void }) {
+export default function HamburgerMenu({ onNavigate, visible, onClose, isGuest }: { onNavigate: (route: string) => void; visible: boolean; onClose: () => void; isGuest?: boolean }) {
   const menuItems = [
     { label: 'Início', route: 'ChooseTable' },
     { label: 'Minha conta', route: 'Account' },
     { label: 'Meus pedidos', route: 'Orders' },
     { label: 'Meus pagamentos', route: 'Payments' },
     { label: 'Sair', route: 'Logout' },
+  ];
+
+  const guestMenuItems = [
+    { label: 'Início', route: null }, // Stay on same screen, just close menu
+    { label: 'Fazer login', route: 'SignIn' },
+    { label: 'Fazer cadastro', route: 'SignUp' },
   ];
 
   return (
@@ -24,13 +30,15 @@ export default function HamburgerMenu({ onNavigate, visible, onClose }: { onNavi
       <Pressable style={styles.overlay} onPress={onClose}>
         <View pointerEvents="box-none" style={styles.menuWrapper}>
           <View style={styles.menuContainer}>
-            {menuItems.map(item => (
+            {(isGuest ? guestMenuItems : menuItems).map(item => (
               <TouchableOpacity
                 key={item.label}
                 style={styles.menuItem}
                 onPress={() => {
                   onClose();
-                  onNavigate(item.route);
+                  if (item.route) {
+                    onNavigate(item.route);
+                  }
                 }}
               >
                 <Text style={styles.menuText}>{item.label}</Text>

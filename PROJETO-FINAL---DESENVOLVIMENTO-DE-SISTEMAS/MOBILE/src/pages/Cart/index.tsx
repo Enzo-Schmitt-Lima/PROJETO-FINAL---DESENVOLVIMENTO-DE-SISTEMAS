@@ -64,7 +64,9 @@ export default function Cart() {
       setTotal(newTotal);
     } catch (err) {
       console.log("Erro ao carregar carrinho:", err);
-      Alert.alert('Erro', 'Não foi possível carregar o carrinho.');
+      // For guests, show empty cart instead of error
+      setCartItems([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }

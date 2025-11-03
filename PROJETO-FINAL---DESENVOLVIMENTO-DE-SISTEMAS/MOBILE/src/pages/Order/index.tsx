@@ -230,7 +230,7 @@ return (
 )}
 </TouchableOpacity>
 
-<TouchableOpacity onPress={() => navigation.navigate('Account')}>
+<TouchableOpacity onPress={() => isGuest ? navigation.navigate('SignUp') : navigation.navigate('Account')}>
 <Ionicons name="person-circle-outline" size={28} color="#333" />
 </TouchableOpacity>
 </View>
@@ -302,6 +302,7 @@ return (
 onNavigate={(route: string) => navigation.navigate(route as any)}
 visible={menuVisible}
 onClose={() => setMenuVisible(false)}
+isGuest={isGuest}
 />
 </SafeAreaView>
 );
