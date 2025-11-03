@@ -24,10 +24,12 @@ interface SignUpProps {
 interface AuthContextData {
   user: UserProps | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   loadingAuth: boolean;
   signIn: (credentials: SignInProps) => Promise<UserProps | null>;
   signUp: (credentials: SignUpProps) => Promise<UserProps | null>;
   signOut: () => Promise<void>;
+  enterAsGuest: () => void;
 }
 
 interface AuthProviderProps {
@@ -39,6 +41,7 @@ export const AuthContext = createContext({} as AuthContextData);
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserProps | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   const isAuthenticated = !!user;
 
@@ -64,8 +67,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await api.post('/session', { email, password });
       console.log("Resposta do servidor:", response.data);
 
-      const { id, name, token } = response.data;
-      const userData: UserProps = { id, name, email, token };
+  const { id, name, token } = response.data as any;
+  const userData: UserProps = { id, name, email, token };
       setUser(userData);
 
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -103,15 +106,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       await AsyncStorage.clear();
       setUser(null);
+      setIsGuest(false);
     } catch (error) {
       console.log('Erro ao limpar pedidos em draft:', error);
       await AsyncStorage.clear();
       setUser(null);
+      setIsGuest(false);
     }
   }
 
+  function enterAsGuest() {
+    setIsGuest(true);
+    setUser(null);
+  }
+
+  // Função para navegar para CreateComanda após login
+  function navigateToCreateComanda() {
+    // Esta função será chamada após login bem-sucedido
+    // A navegação será feita no componente que usa o contexto
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loadingAuth, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isGuest, loadingAuth, signIn, signUp, signOut, enterAsGuest }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,17 +3,39 @@ import { AddItemService } from "../../services/order/AddItemService";
 
 class AddItemController {
     async handle(req: Request, res: Response){
-        const { order_id, product_id, amount} = req.body;
+        console.log('AddItemController payload:', req.body);
+
+        const { order_id } = req.body;
+        const items = req.body.items as Array<{ product_id: string; amount: number }> | undefined;
+        const singleProductId = req.body.product_id as string | undefined;
+        const singleAmount = req.body.amount as number | undefined;
 
         const addItem = new AddItemService();
 
-        const order = await addItem.execute({
-            order_id,
-            product_id,
-            amount
-        });
+        try {
+            if (items && Array.isArray(items) && items.length > 0) {
+                const results = [] as any[];
+                for (const it of items) {
+                    console.log('Processing item in array:', it);
+                    const r = await addItem.execute({ order_id, product_id: it.product_id, amount: it.amount });
+                    results.push(r);
+                }
+                console.log('AddItemController results for array:', results);
+                return res.json({ items: results });
+            }
 
-        res.json(order);
+            if (singleProductId) {
+                const result = await addItem.execute({ order_id, product_id: singleProductId, amount: singleAmount || 1 });
+                console.log('AddItemController result (single):', result);
+                return res.json(result);
+            }
+
+            console.log('AddItemController: nenhum item válido no payload');
+            return res.status(400).json({ error: 'Nenhum item fornecido' });
+        } catch (err: any) {
+            console.error('Erro em AddItemController:', err);
+            return res.status(500).json({ error: err.message || 'Erro ao adicionar item' });
+        }
     }
 }
 

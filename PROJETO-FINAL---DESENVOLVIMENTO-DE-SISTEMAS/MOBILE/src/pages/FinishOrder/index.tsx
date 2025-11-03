@@ -15,7 +15,8 @@ export default function FinishOrder() {
   async function handleFinish() {
     try {
       await api.put("/order/send", { order_id: route.params?.order_id });
-      navigation.popToTop();
+  // Após finalizar, navegar para a tela que permite acompanhar o pedido
+  navigation.navigate('AcompanharPedido', { order_id: route.params?.order_id });
     } catch (err) {
       console.log("Erro ao finalizar pedido. Tente mais tarde.");
     }

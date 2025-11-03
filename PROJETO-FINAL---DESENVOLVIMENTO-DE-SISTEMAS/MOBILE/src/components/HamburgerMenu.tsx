@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function HamburgerMenu({ onNavigate, visible, onClose }: { onNavigate: (route: string) => void; visible: boolean; onClose: () => void }) {
+export default function HamburgerMenu({ onNavigate, visible, onClose, isGuest }: { onNavigate: (route: string) => void; visible: boolean; onClose: () => void; isGuest?: boolean }) {
   const menuItems = [
     { label: 'Início', route: 'ChooseTable' },
     { label: 'Minha conta', route: 'Account' },
@@ -11,24 +11,42 @@ export default function HamburgerMenu({ onNavigate, visible, onClose }: { onNavi
     { label: 'Sair', route: 'Logout' },
   ];
 
+  const guestMenuItems = [
+    { label: 'Início', route: null }, // Stay on same screen, just close menu
+    { label: 'Fazer login', route: 'SignIn' },
+    { label: 'Fazer cadastro', route: 'SignUp' },
+  ];
+
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <TouchableOpacity style={styles.overlay} onPress={onClose} activeOpacity={1}>
-        <View style={styles.menuContainer}>
-          {menuItems.map(item => (
-            <TouchableOpacity
-              key={item.label}
-              style={styles.menuItem}
-              onPress={() => {
-                onClose();
-                onNavigate(item.route);
-              }}
-            >
-              <Text style={styles.menuText}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent={true}
+      presentationStyle="overFullScreen"
+      hardwareAccelerated={true}
+      onRequestClose={onClose}
+    >
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <View pointerEvents="box-none" style={styles.menuWrapper}>
+          <View style={styles.menuContainer}>
+            {(isGuest ? guestMenuItems : menuItems).map(item => (
+              <TouchableOpacity
+                key={item.label}
+                style={styles.menuItem}
+                onPress={() => {
+                  onClose();
+                  if (item.route) {
+                    onNavigate(item.route);
+                  }
+                }}
+              >
+                <Text style={styles.menuText}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     </Modal>
   );
 }
@@ -38,11 +56,16 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 8,
   },
-  overlay: {
+    overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.08)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
+  },
+  menuWrapper: {
+    paddingTop: 50,
+    paddingLeft: 8,
+    width: '100%',
   },
   menuContainer: {
     backgroundColor: '#B72F14',

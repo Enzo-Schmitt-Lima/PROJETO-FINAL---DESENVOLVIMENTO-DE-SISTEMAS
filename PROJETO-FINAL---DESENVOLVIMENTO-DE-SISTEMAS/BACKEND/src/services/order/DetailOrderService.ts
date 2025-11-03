@@ -6,21 +6,43 @@ interface DetailRequest {
 
 class DetailOrderService{
     async execute({ order_id }: DetailRequest){
-        // Busca itens do pedido
-        const items = await prismaClient.item.findMany({
-            where: { order_id },
-            include: { product: true, order: true }
+        // Busca o pedido completo
+        const order = await prismaClient.order.findUnique({
+            where: { id: order_id },
+            include: {
+                items: { include: { product: true } },
+                pagamento: true,
+                table: true,
+            }
         });
 
-        // Busca pagamento do pedido
-        const pagamento = await prismaClient.pagamento.findMany({
-            where: { order_id }
-        });
+        if (!order) return { error: 'Pedido não encontrado' };
 
-        return {
-            items,
-            pagamento
+        // Map status to text
+        const statusTextMap: any = {
+            0: 'Em preparo',
+            1: 'Em preparo',
+            2: 'Pronto',
+            3: 'Finalizado'
         };
+
+        const MapMetodo: any = {
+            0: 'Pix',
+            1: 'Débito',
+            2: 'Crédito',
+            3: 'Dinheiro físico (pagar com o garçom)'
+        };
+
+        const orderWithText = {
+            ...order,
+            statusText: typeof order.status === 'number' ? statusTextMap[order.status] : undefined,
+            pagamento: (order.pagamento || []).map((p: any) => ({
+                ...p,
+                statusText: p.statusText || (p.metodo !== undefined ? MapMetodo[p.metodo] : undefined)
+            }))
+        };
+
+        return orderWithText;
     }
 }
 

@@ -1,4 +1,5 @@
 import prismaClient from "../../../prisma";
+import { getIO } from "../../libs/socket";
 
 interface OrderRequest {
   tableId: number; // ID da mesa
@@ -19,7 +20,7 @@ class CreateOrderService {
     // Cria o pedido usando a relação
     const order = await prismaClient.order.create({
       data: {
-        draft: true,
+        draft: false,
         status: 0,
         name: name || null,
         table: {
@@ -43,10 +44,20 @@ class CreateOrderService {
       }
     });
 
-    return {
+    const orderWithPayment = {
       ...order,
       pagamento: [pagamento]
     };
+
+    // Emite evento 'order:create' via socket para atualizar clientes em tempo real
+    try {
+      const io = getIO();
+      io.emit('order:create', orderWithPayment);
+    } catch (err) {
+      console.error('Socket emit falhou em CreateOrderService:', err.message || err);
+    }
+
+    return orderWithPayment;
   }
 }
 

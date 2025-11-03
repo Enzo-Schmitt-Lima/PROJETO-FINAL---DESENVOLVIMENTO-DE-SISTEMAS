@@ -11,6 +11,7 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../../contexts/AuthContext";
 
@@ -18,12 +19,13 @@ type RootStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
   ChooseTable: undefined;
+  CreateComanda: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, "SignUp">;
 
 export default function SignUp({ navigation }: SignUpScreenProps) {
-  const { signUp, loadingAuth } = useContext(AuthContext);
+  const { signUp, loadingAuth, isGuest } = useContext(AuthContext);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -41,7 +43,7 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
         Alert.alert("Sucesso!", "Cadastro realizado!");
         navigation.reset({
           index: 0,
-          routes: [{ name: "ChooseTable" }],
+          routes: [{ name: "CreateComanda" }],
         });
       }
     } catch (err) {
@@ -52,13 +54,19 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {isGuest && (
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#5D3A2F" />
+          </TouchableOpacity>
+        </View>
+      )}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.mainContainer}>
           <View style={styles.contentWrapper}>
             <View style={styles.titleContainer}>
               <Text style={styles.titleText}>Cadastre-se</Text>
               <View style={styles.titleUnderlineWrapper}>
-                <View style={styles.titleUnderline} />
               </View>
             </View>
 
@@ -106,7 +114,6 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
               <Text style={styles.loginPromptText}>
                 Já tem uma conta? {"\n"}Entre
               </Text>
-              <View style={styles.loginPromptUnderline} />
             </TouchableOpacity>
           </View>
 
@@ -130,6 +137,8 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#911F09" },
+  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#D9D9D9', paddingVertical: 10, paddingHorizontal: 15, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  backButton: { padding: 8 },
   scrollContainer: { flexGrow: 1, justifyContent: "center" },
   mainContainer: {
     backgroundColor: "#D9D9D9",
@@ -142,7 +151,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: { alignItems: "center", paddingTop: 50, paddingBottom: 20 },
   titleContainer: { alignItems: "center", marginBottom: 30 },
-  titleText: { color: "#4F5476", fontSize: 28, fontWeight: "bold" },
+  titleText: { color: "#4F5476", fontSize: 30, fontWeight: "bold" },
   titleUnderlineWrapper: { alignItems: "center" },
   titleUnderline: {
     width: 120,

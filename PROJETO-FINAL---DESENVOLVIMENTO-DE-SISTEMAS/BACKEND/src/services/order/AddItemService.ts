@@ -1,4 +1,5 @@
 import prismaClient from "../../../prisma";
+import { getIO } from "../../libs/socket";
 
 interface ItemRequest {
   order_id: string;
@@ -14,14 +15,33 @@ class AddItemService {
     });
     if (!product) throw new Error("Produto não encontrado");
 
-    // Cria o item
-    const item = await prismaClient.item.create({
-      data: {
+    // Verifica se o item já existe no pedido
+    const existingItem = await prismaClient.item.findFirst({
+      where: {
         order_id,
         product_id,
-        amount,
       },
     });
+
+    let item;
+    if (existingItem) {
+      // Atualiza a quantidade do item existente
+      item = await prismaClient.item.update({
+        where: { id: existingItem.id },
+        data: {
+          amount: existingItem.amount + amount,
+        },
+      });
+    } else {
+      // Cria um novo item
+      item = await prismaClient.item.create({
+        data: {
+          order_id,
+          product_id,
+          amount,
+        },
+      });
+    }
 
     // Calcula o total do pedido
     const items = await prismaClient.item.findMany({
@@ -77,6 +97,14 @@ if (pagamento) {
           pagamento_id: pagamento.id,
         },
       });
+    }
+
+    // Emite evento via socket com dados atualizados do pedido
+    try {
+      const io = getIO();
+      io.emit("order:update", { order_id, total, pagamento });
+    } catch (err) {
+      console.error("Socket emit falhou em AddItemService:", err.message || err);
     }
 
     return { item, pagamento };
