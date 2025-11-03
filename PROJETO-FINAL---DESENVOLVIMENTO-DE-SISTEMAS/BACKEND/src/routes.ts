@@ -64,6 +64,8 @@ import { ClearDraftOrdersController } from "./controllers/order/ClearDraftOrders
 import { CreateAdicionalController } from "./controllers/Adicional/CreateAdicionalController";
 import { ListAdicionalController } from "./controllers/Adicional/ListAdicionalController";
 
+import { AddItemAdicionalController } from "./controllers/itemAdicional/CreateItemAdicionalController";
+
 
 const router = Router();
 const upload = multer(uploadConfig.upload("./tmp"));

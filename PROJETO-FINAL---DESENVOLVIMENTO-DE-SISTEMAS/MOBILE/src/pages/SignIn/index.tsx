@@ -57,7 +57,6 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
             <View style={styles.titleContainer}>
               <Text style={styles.titleText}>Login</Text>
               <View style={styles.titleUnderlineWrapper}>
-                <View style={styles.titleUnderline} />
               </View>
             </View>
 
@@ -98,7 +97,6 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
               <Text style={styles.signupText}>
                 Não tem uma conta? {"\n"}Cadastre-se
               </Text>
-              <View style={styles.signupUnderline} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -145,7 +143,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: { alignItems: "center", paddingTop: 80, paddingBottom: 20 },
   titleContainer: { alignItems: "center", marginBottom: 30 },
-  titleText: { color: "#4F5476", fontSize: 28, fontWeight: "bold" },
+  titleText: { color: "#4F5476", fontSize: 30, fontWeight: "bold" },
   titleUnderlineWrapper: { alignItems: "center" },
   titleUnderline: {
     width: 40,

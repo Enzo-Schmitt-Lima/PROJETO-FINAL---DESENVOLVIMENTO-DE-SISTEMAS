@@ -67,7 +67,6 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
             <View style={styles.titleContainer}>
               <Text style={styles.titleText}>Cadastre-se</Text>
               <View style={styles.titleUnderlineWrapper}>
-                <View style={styles.titleUnderline} />
               </View>
             </View>
 
@@ -115,7 +114,6 @@ export default function SignUp({ navigation }: SignUpScreenProps) {
               <Text style={styles.loginPromptText}>
                 Já tem uma conta? {"\n"}Entre
               </Text>
-              <View style={styles.loginPromptUnderline} />
             </TouchableOpacity>
           </View>
 
@@ -153,7 +151,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: { alignItems: "center", paddingTop: 50, paddingBottom: 20 },
   titleContainer: { alignItems: "center", marginBottom: 30 },
-  titleText: { color: "#4F5476", fontSize: 28, fontWeight: "bold" },
+  titleText: { color: "#4F5476", fontSize: 30, fontWeight: "bold" },
   titleUnderlineWrapper: { alignItems: "center" },
   titleUnderline: {
     width: 120,
