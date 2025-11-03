@@ -61,6 +61,8 @@ import { ClearDraftOrdersController } from "./controllers/order/ClearDraftOrders
 import { CreateAdicionalController } from "./controllers/Adicional/CreateAdicionalController";
 import { ListAdicionalController } from "./controllers/Adicional/ListAdicionalController";
 
+import { AddItemAdicionalController } from "./controllers/itemAdicional/CreateItemAdicionalController";
+
 
 const router = Router();
 const upload = multer(uploadConfig.upload("./tmp"));
@@ -155,6 +157,16 @@ router.get("/ingrediente", isAuthenticated, (req, res) => listIngredienteControl
 router.get("/product/ingredients", isAuthenticated, (req, res) => new ListProductIngredientsController().handle(req, res));
 router.post("/product/add-ingredient", isAuthenticated, (req, res) => new AddIngredientToProductController().handle(req, res));
 router.delete("/product/remove-ingredient", isAuthenticated, (req, res) => new RemoveIngredientFromProductController().handle(req, res));
+
+// -------------------- ADICIONAIS --------------------
+router.post("/adicional", isAuthenticated, (req, res) => new CreateAdicionalController().handle(req, res));
+router.get("/adicional", isAuthenticated, (req, res) => new ListAdicionalController().handle(req, res));
+
+router.post('/item/adicional', isAuthenticated, new AddItemAdicionalController().handle.bind(new AddItemAdicionalController()));
+
+
+
+
 
 // INGREDIENTES NOS PRODUTOS
 
