@@ -62,6 +62,7 @@ import { CreateAdicionalController } from "./controllers/Adicional/CreateAdicion
 import { ListAdicionalController } from "./controllers/Adicional/ListAdicionalController";
 
 import { AddItemAdicionalController } from "./controllers/itemAdicional/CreateItemAdicionalController";
+import { CreateFeedbackController } from "./controllers/Feedback/CreateFeedbackController";
 
 
 const router = Router();
@@ -163,6 +164,15 @@ router.post("/adicional", isAuthenticated, (req, res) => new CreateAdicionalCont
 router.get("/adicional", isAuthenticated, (req, res) => new ListAdicionalController().handle(req, res));
 
 router.post('/item/adicional', isAuthenticated, new AddItemAdicionalController().handle.bind(new AddItemAdicionalController()));
+
+// -------------------- FEEDBACK --------------------
+const createFeedbackController = new CreateFeedbackController();
+
+router.post("/feedback", isAuthenticated, new CreateFeedbackController().handle.bind(new CreateFeedbackController())
+);
+
+
+
 
 
 
