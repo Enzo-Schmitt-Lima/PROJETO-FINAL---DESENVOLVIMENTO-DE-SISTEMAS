@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, StatusBar, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
 import api from '../../services/api';
 import { connectSocket, getSocket } from '../../services/socket';
+import { AuthContext } from '../../contexts/AuthContext';
 
 interface Order {
   id: string;
@@ -19,6 +20,7 @@ interface Order {
 
 export default function Orders() {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const { isGuest } = useContext(AuthContext);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const topOffset = (Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24) + 18;
@@ -36,6 +38,12 @@ export default function Orders() {
   };
 
   useEffect(() => {
+    if (isGuest) {
+      Alert.alert('Acesso Restrito', 'Você deve estar logado para ver seus pedidos.');
+      navigation.goBack();
+      return;
+    }
+
     async function loadOrders() {
       try {
         const response = await api.get('/orders');
@@ -82,7 +90,7 @@ export default function Orders() {
     return () => {
       try { s.off('order:update', onOrderUpdate); s.off('order:create', onOrderCreate); } catch (e) { }
     };
-  }, []);
+  }, [isGuest, navigation]);
 
   const calculateTotal = (items: Order['items']) => {
     return items.reduce((total, item) => total + item.amount * parseFloat(item.product.price), 0);

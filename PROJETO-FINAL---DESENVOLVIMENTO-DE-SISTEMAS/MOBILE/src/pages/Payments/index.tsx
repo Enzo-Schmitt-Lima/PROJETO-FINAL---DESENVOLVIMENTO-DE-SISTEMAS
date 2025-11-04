@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
 import api from '../../services/api';
+import { AuthContext } from '../../contexts/AuthContext';
 
 interface Payment {
   id: string;
@@ -18,10 +19,17 @@ interface Payment {
 
 export default function Payments() {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const { isGuest } = useContext(AuthContext);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isGuest) {
+      Alert.alert('Acesso Restrito', 'Você deve estar logado para ver seus pagamentos.');
+      navigation.goBack();
+      return;
+    }
+
     async function loadPayments() {
       try {
     const response = await api.get('/payments');
@@ -35,7 +43,7 @@ export default function Payments() {
       }
     }
     loadPayments();
-  }, []);
+  }, [isGuest, navigation]);
 
   const getDesc = (items: Payment['order']['items']) => {
     return items.map(item => `${item.product.name} x${item.amount}`).join(' + ');

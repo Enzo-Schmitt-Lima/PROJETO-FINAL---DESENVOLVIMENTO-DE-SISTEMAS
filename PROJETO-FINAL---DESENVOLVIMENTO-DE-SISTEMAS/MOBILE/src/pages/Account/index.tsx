@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
@@ -7,12 +7,20 @@ import { AuthContext } from '../../contexts/AuthContext';
 
 export default function Account() {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-  const { user } = useContext(AuthContext);
+  const { user, isGuest } = useContext(AuthContext);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name || 'Tal de Tal');
   const [email, setEmail] = useState(user?.email || 'tal@talmail.com');
   const [phone, setPhone] = useState('99 99999-9999');
   const [password, setPassword] = useState('************');
+
+  useEffect(() => {
+    if (isGuest) {
+      Alert.alert('Acesso Restrito', 'Você deve estar logado para acessar sua conta.');
+      navigation.goBack();
+      return;
+    }
+  }, [isGuest, navigation]);
 
   return (
     <View style={styles.bgContainer}>
