@@ -67,6 +67,11 @@ import { ListAdicionalController } from "./controllers/Adicional/ListAdicionalCo
 import { AddItemAdicionalController } from "./controllers/itemAdicional/CreateItemAdicionalController";
 import { CreateFeedbackController } from "./controllers/Feedback/CreateFeedbackController";
 
+// -------------------- ITEM INGREDIENTES --------------------
+import { AddItemIngredienteController } from "./controllers/itemIngrediente/AddItemIngredienteController";
+import { ListItemIngredientesController } from "./controllers/itemIngrediente/ListItemIngredientesController";
+import { RemoveItemIngredienteController } from "./controllers/itemIngrediente/RemoveItemIngredienteController";
+
 
 const router = Router();
 const upload = multer(uploadConfig.upload("./tmp"));
@@ -177,6 +182,15 @@ const createFeedbackController = new CreateFeedbackController();
 
 router.post("/feedback", isAuthenticated, new CreateFeedbackController().handle.bind(new CreateFeedbackController())
 );
+
+// -------------------- ITEM INGREDIENTES --------------------
+const addItemIngredienteController = new AddItemIngredienteController();
+const removeItemIngredienteController = new RemoveItemIngredienteController();
+const listItemIngredientesController = new ListItemIngredientesController();
+
+router.post("/item/ingrediente/add", isAuthenticated, (req, res) => addItemIngredienteController.handle(req, res));
+router.post("/item/ingrediente/remove", isAuthenticated, (req, res) => removeItemIngredienteController.handle(req, res)); // Alterado de DELETE para POST
+router.get("/item/ingredientes", isAuthenticated, (req, res) => listItemIngredientesController.handle(req, res));
 
 
 

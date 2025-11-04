@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, StatusBar, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
 import api from '../../services/api';
 import { connectSocket, getSocket } from '../../services/socket';
 import { AuthContext } from '../../contexts/AuthContext';
+
+type OrdersRouteProp = RouteProp<StackParamsList, 'Orders'>;
 
 interface Order {
   id: string;
@@ -20,10 +22,12 @@ interface Order {
 
 export default function Orders() {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const route = useRoute<OrdersRouteProp>();
   const { isGuest } = useContext(AuthContext);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const topOffset = (Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24) + 18;
+  const { order_id, number } = route.params || {};
 
   const handleRefresh = async () => {
     setLoading(true);
@@ -134,7 +138,13 @@ export default function Orders() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={[styles.backButton, { top: topOffset }]} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={[styles.backButton, { top: topOffset }]} onPress={() => {
+          if (order_id && number) {
+            navigation.navigate('Order', { number, order_id });
+          } else {
+            navigation.goBack();
+          }
+        }}>
           <Text style={styles.backText}>← Voltar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.refreshButton, { top: topOffset }]} onPress={handleRefresh}>
