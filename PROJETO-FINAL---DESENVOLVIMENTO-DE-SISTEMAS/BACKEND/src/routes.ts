@@ -65,6 +65,12 @@ import { CreateAdicionalController } from "./controllers/Adicional/CreateAdicion
 import { ListAdicionalController } from "./controllers/Adicional/ListAdicionalController";
 
 import { AddItemAdicionalController } from "./controllers/itemAdicional/CreateItemAdicionalController";
+import { CreateFeedbackController } from "./controllers/Feedback/CreateFeedbackController";
+
+// -------------------- ITEM INGREDIENTES --------------------
+import { AddItemIngredienteController } from "./controllers/itemIngrediente/AddItemIngredienteController";
+import { ListItemIngredientesController } from "./controllers/itemIngrediente/ListItemIngredientesController";
+import { RemoveItemIngredienteController } from "./controllers/itemIngrediente/RemoveItemIngredienteController";
 
 
 const router = Router();
@@ -165,6 +171,33 @@ router.delete("/product/remove-ingredient", isAuthenticated, (req, res) => new R
 const listProductsWithIngredientsController = new ListProductsWithIngredientsController();
 
 router.get("/products/with-ingredients", (req, res) => listProductsWithIngredientsController.handle(req, res));
+// -------------------- ADICIONAIS --------------------
+router.post("/adicional", isAuthenticated, (req, res) => new CreateAdicionalController().handle(req, res));
+router.get("/adicional", isAuthenticated, (req, res) => new ListAdicionalController().handle(req, res));
+
+router.post('/item/adicional', isAuthenticated, new AddItemAdicionalController().handle.bind(new AddItemAdicionalController()));
+
+// -------------------- FEEDBACK --------------------
+const createFeedbackController = new CreateFeedbackController();
+
+router.post("/feedback", isAuthenticated, new CreateFeedbackController().handle.bind(new CreateFeedbackController())
+);
+
+// -------------------- ITEM INGREDIENTES --------------------
+const addItemIngredienteController = new AddItemIngredienteController();
+const removeItemIngredienteController = new RemoveItemIngredienteController();
+const listItemIngredientesController = new ListItemIngredientesController();
+
+router.post("/item/ingrediente/add", isAuthenticated, (req, res) => addItemIngredienteController.handle(req, res));
+router.post("/item/ingrediente/remove", isAuthenticated, (req, res) => removeItemIngredienteController.handle(req, res)); // Alterado de DELETE para POST
+router.get("/item/ingredientes", isAuthenticated, (req, res) => listItemIngredientesController.handle(req, res));
+
+
+
+
+
+
+
 
 // INGREDIENTES NOS PRODUTOS
 

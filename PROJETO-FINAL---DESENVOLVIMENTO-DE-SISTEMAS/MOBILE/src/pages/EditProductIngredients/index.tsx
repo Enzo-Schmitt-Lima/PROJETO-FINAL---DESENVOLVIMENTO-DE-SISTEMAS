@@ -22,6 +22,7 @@ type EditProductIngredientsRouteProp = RouteProp<StackParamsList, "EditProductIn
 interface Ingredient {
   id: string;
   name: string;
+  selected: boolean;
 }
 
 interface Product {
@@ -37,10 +38,17 @@ interface ProductIngredient {
   ingrediente: Ingredient;
 }
 
+interface ItemCustomization {
+  ingrediente: { id: string; name: string };
+  removed: boolean;
+}
+
+
+
 export default function EditProductIngredients() {
   const route = useRoute<EditProductIngredientsRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-  const { product_id, product_name } = route.params;
+  const { product_id, product_name, item_id } = route.params;
 
   const [productIngredients, setProductIngredients] = useState<ProductIngredient[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,14 +57,34 @@ export default function EditProductIngredients() {
   const loadProductIngredients = async () => {
     try {
       console.log("Product ID:", product_id);
-      const response = await api.get(`/product/ingredients?product_id=${product_id}`);
-      console.log("Response data:", response.data);
-      setProductIngredients(response.data ? response.data as ProductIngredient[] : []);
+      console.log("Item ID:", item_id);
+  
+      const productIngredientsResponse = await api.get(`/product/ingredients?product_id=${product_id}`);
+      const baseIngredients = (productIngredientsResponse.data || []) as ProductIngredient[];
+  
+      let itemCustomizations: ItemCustomization[] = [];
+      if (item_id) {
+        const itemCustomizationsResponse = await api.get(`/item/ingredientes?item_id=${item_id}`);
+        itemCustomizations = (itemCustomizationsResponse.data || []) as ItemCustomization[];
+      }
+  
+      const removedIngredientIds = new Set(
+        itemCustomizations.filter(c => c.removed).map(c => c.ingrediente.id)
+      );
+  
+      const mergedIngredients = baseIngredients.map(pi => ({
+        ...pi,
+        ingrediente: { ...pi.ingrediente, selected: !removedIngredientIds.has(pi.ingrediente.id) }
+      }));
+  
+      setProductIngredients(mergedIngredients);
     } catch (err) {
       console.log("Erro ao carregar ingredientes do produto:", err);
       Alert.alert('Erro', 'Não foi possível carregar os ingredientes.');
     }
   };
+
+
 
   const loadProduct = async () => {
     try {
@@ -75,14 +103,33 @@ export default function EditProductIngredients() {
     loadData();
   }, []);
 
-  const removeIngredient = async (ingredientId: string) => {
+  const toggleIngredient = async (ingredient: Ingredient) => {
+    // Atualização Otimista da UI
+    setProductIngredients(prevIngredients =>
+      prevIngredients.map(pi =>
+        pi.ingrediente.id === ingredient.id
+          ? { ...pi, ingrediente: { ...pi.ingrediente, selected: !pi.ingrediente.selected } }
+          : pi
+      )
+    );
+
     try {
-      await api.delete('/product/remove-ingredient', { params: { product_id, ingredient_id: ingredientId } });
-      await loadProductIngredients();
-      Alert.alert('Sucesso', 'Ingrediente removido com sucesso!');
+      if (ingredient.selected) {
+        // Marca o ingrediente como removido
+        await api.post('/item/ingrediente/remove', {
+          item_id, ingrediente_id: ingredient.id
+        });
+      } else {
+        // Add ingredient back to item
+        await api.post('/item/ingrediente/add', {
+          item_id,
+          ingrediente_id: ingredient.id,
+        });
+      }
     } catch (err) {
-      console.log('Erro ao remover ingrediente:', err);
-      Alert.alert('Erro', 'Não foi possível remover o ingrediente.');
+      await loadProductIngredients(); // Recarrega para reverter a UI em caso de erro
+      console.log('Erro ao alterar ingrediente:', err);
+      Alert.alert('Erro', 'Não foi possível alterar o ingrediente.');
     }
   };
 
@@ -129,23 +176,20 @@ export default function EditProductIngredients() {
         )}
       </View>
 
-      {/* Removido a seção de adicionar ingrediente, pois o cliente só pode remover */}
-
       <View style={styles.ingredientsList}>
         <Text style={styles.sectionTitle}>Ingredientes Atuais</Text>
         <FlatList
           data={productIngredients}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={styles.ingredientItem}>
+            <TouchableOpacity style={styles.ingredientItem} onPress={() => toggleIngredient(item.ingrediente)}>
               <Text style={styles.ingredientName}>{item.ingrediente.name}</Text>
-              <TouchableOpacity
-                style={styles.removeButton}
-                onPress={() => removeIngredient(item.ingrediente.id)}
-              >
-                <Ionicons name="trash" size={20} color="#FFF" />
-              </TouchableOpacity>
-            </View>
+              <Ionicons
+                name={item.ingrediente.selected ? 'checkbox' : 'square-outline'}
+                size={24}
+                color={item.ingrediente.selected ? '#F2CA85' : '#CCC'}
+              />
+            </TouchableOpacity>
           )}
           ListEmptyComponent={<Text style={styles.emptyText}>Nenhum ingrediente adicionado</Text>}
         />

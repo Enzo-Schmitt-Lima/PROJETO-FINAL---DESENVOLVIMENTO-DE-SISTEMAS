@@ -56,19 +56,26 @@ export default function Cart() {
       if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   const response = await api.get(`/order/detail?order_id=${params.order_id}`);
       const items = (response.data as any).items || [];
-      const formattedItems = items.map((item: any) => ({
-        id: item.id,
-        product_id: item.product_id,
-        name: item.product.name,
-        price: item.product.price,
-        amount: item.amount,
-        description: item.product.description,
-        banner: item.product.banner,
-        bannerUri: item.product.banner,
-      }));
-      setCartItems(formattedItems);
-      const newTotal = formattedItems.reduce((sum: number, item: CartItem) => sum + item.amount * parseFloat(item.price), 0);
-      setTotal(newTotal);
+      const isPaid = (response.data as any).pagamento && (response.data as any).pagamento.some((p: any) => p.status === 1);
+      if (isPaid) {
+        // Clear the cart if the order is paid
+        setCartItems([]);
+        setTotal(0);
+      } else {
+        const formattedItems = items.map((item: any) => ({
+          id: item.id,
+          product_id: item.product_id,
+          name: item.product.name,
+          price: item.product.price,
+          amount: item.amount,
+          description: item.product.description,
+          banner: item.product.banner,
+          bannerUri: item.product.banner,
+        }));
+        setCartItems(formattedItems);
+        const newTotal = formattedItems.reduce((sum: number, item: CartItem) => sum + item.amount * parseFloat(item.price), 0);
+        setTotal(newTotal);
+      }
     } catch (err) {
       console.log("Erro ao carregar carrinho:", err, (err as any)?.response?.data, (err as any)?.response?.status);
       const status = (err as any)?.response?.status;
@@ -150,8 +157,8 @@ export default function Cart() {
     navigation.navigate('ChooseTable');
   };
 
-  const handleEditIngredients = (productId: string, productName: string) => {
-    navigation.navigate('EditProductIngredients', { product_id: productId, product_name: productName });
+  const handleEditIngredients = (item: CartItem) => {
+    navigation.navigate('EditProductIngredients', { product_id: item.product_id, product_name: item.name, item_id: item.id });
   };
 
   const handleProceedToPayment = () => {
@@ -210,7 +217,7 @@ export default function Cart() {
               <TouchableOpacity style={styles.controlButton} onPress={() => increment(item.product_id)}>
                 <Text style={styles.controlText}>+</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.editButton} onPress={() => handleEditIngredients(item.product_id, item.name)}>
+              <TouchableOpacity style={styles.editButton} onPress={() => handleEditIngredients(item)}>
                 <Ionicons name="create-outline" size={20} color="#911F09" />
               </TouchableOpacity>
             </View>

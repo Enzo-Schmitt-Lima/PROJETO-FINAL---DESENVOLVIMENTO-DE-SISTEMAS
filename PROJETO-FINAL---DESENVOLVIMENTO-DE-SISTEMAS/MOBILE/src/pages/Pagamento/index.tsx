@@ -89,8 +89,8 @@ export default function Payment() {
         const updatedOrderResp = await api.get(`/order/detail?order_id=${order.id}`);
         const updatedOrder = (updatedOrderResp.data as any).order || updatedOrderResp.data;
 
-        // Navigate directly to Orders after payment
-        navigation.navigate('Orders');
+      // Navigate directly to Orders after payment with params
+        navigation.navigate('Orders', { order_id: order.id, number: route.params.number });
       } catch (errRefresh: any) {
         console.error('Erro ao atualizar pedido após pagamento:', errRefresh);
         // Navigate directly to Orders after payment
