@@ -4,8 +4,15 @@ class GetProductService {
   async execute(id: string) {
     const product = await prismaClient.product.findUnique({
       where: {
-        id: id
-      }
+        id: id,
+      },
+      include: {
+        productIngrediente: {
+          include: {
+            ingrediente: true,
+          },
+        },
+      },
     });
     return product;
   }

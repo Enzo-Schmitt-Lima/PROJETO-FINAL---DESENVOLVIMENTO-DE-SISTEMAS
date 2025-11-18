@@ -52,14 +52,15 @@ const { user, isGuest } = useContext(AuthContext);
 
 const topOffset = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24;
 
-// --- SUA LÓGICA ORIGINAL (STATES) ---
-const [categories, setCategories] = useState<Category[]>([]);
-const [openCategory, setOpenCategory] = useState<string | null>(null); // Renomeado de 'showProducts' para compatibilidade
-const [total, setTotal] = useState(0);
-const [totalItems, setTotalItems] = useState(0);
-const [hasOrderItems, setHasOrderItems] = useState(false);
-const [orderSummary, setOrderSummary] = useState<any[]>([]);
-const [searchText, setSearchText] = useState("");
+  // --- SUA LÓGICA ORIGINAL (STATES) ---
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [openCategory, setOpenCategory] = useState<string | null>(null); // Renomeado de 'showProducts' para compatibilidade
+  const [total, setTotal] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [hasOrderItems, setHasOrderItems] = useState(false);
+  const [orderSummary, setOrderSummary] = useState<any[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [orderLoaded, setOrderLoaded] = useState(false);
 
 const [menuVisible, setMenuVisible] = useState(false);
 
@@ -89,10 +90,6 @@ Alert.alert('Erro', 'Não foi possível carregar as categorias.');
 }
 }, []);
 
-useEffect(() => {
-loadCategories();
-}, [loadCategories]);
-
 const updateOrderSummaryAndTotal = (updatedCategories: Category[]) => {
 const summary: any[] = [];
 let newTotal = 0;
@@ -113,6 +110,46 @@ setTotal(newTotal);
 setTotalItems(totalItems);
 setHasOrderItems(itemExists);
 };
+
+const loadOrderItems = useCallback(async () => {
+try {
+const response = await api.get(`/order/detail?order_id=${route.params.order_id}`);
+const items = (response.data as any).items || [];
+const isPaid = (response.data as any).pagamento && (response.data as any).pagamento.some((p: any) => p.status === 1);
+const updatedCategories = categories.map((cat) => ({
+...cat,
+products: cat.products.map((prod) => {
+const item = items.find((i: any) => i.product_id === prod.id);
+return { ...prod, amount: item ? item.amount : 0 };
+}),
+}));
+if (isPaid) {
+  // Clear the cart if the order is paid
+  const clearedCategories = updatedCategories.map((cat) => ({
+    ...cat,
+    products: cat.products.map((prod) => ({ ...prod, amount: 0 })),
+  }));
+  setCategories(clearedCategories);
+  updateOrderSummaryAndTotal(clearedCategories);
+} else {
+  setCategories(updatedCategories);
+  updateOrderSummaryAndTotal(updatedCategories);
+}
+} catch (err) {
+console.log('Erro ao carregar itens do pedido:', err);
+}
+}, [route.params.order_id, categories]);
+
+useEffect(() => {
+loadCategories();
+}, [loadCategories]);
+
+useEffect(() => {
+if (categories.length > 0 && !orderLoaded) {
+loadOrderItems();
+setOrderLoaded(true);
+}
+}, [categories, loadOrderItems, orderLoaded]);
 
 const increment = async (catId: string, prodId: string) => {
 try {

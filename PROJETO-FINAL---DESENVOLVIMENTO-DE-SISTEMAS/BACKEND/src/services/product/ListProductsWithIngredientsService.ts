@@ -15,7 +15,7 @@ class ListProductsWithIngredientsService {
                 category: true,
                 productIngrediente: {
                     include: {
-                        ingredientes: true,
+                        ingrediente: true,
                     },
                 },
             },

@@ -47,15 +47,16 @@ model Product {
 }
 
 model Item {
-  id            String          @id @default(uuid())
-  amount        Int
-  created_at    DateTime?       @default(now())
-  update_at     DateTime?       @default(now())
-  order_id      String
-  product_id    String
-  ItemAdicional ItemAdicional[]
-  order         Order           @relation(fields: [order_id], references: [id])
-  product       Product         @relation(fields: [product_id], references: [id])
+  id              String            @id @default(uuid())
+  amount          Int
+  created_at      DateTime?         @default(now())
+  update_at       DateTime?         @default(now())
+  order_id        String
+  product_id      String
+  ItemAdicional   ItemAdicional[]
+  ItemIngrediente ItemIngrediente[]
+  order           Order             @relation(fields: [order_id], references: [id])
+  product         Product           @relation(fields: [product_id], references: [id])
 
   @@map("items")
 }
@@ -106,6 +107,7 @@ model ingredientes {
   id                 String               @id @default(uuid())
   name               String               @unique
   productIngrediente ProdutoIngrediente[]
+  ItemIngrediente    ItemIngrediente[]
 
   @@map("ingredientes")
 }
@@ -141,7 +143,7 @@ model ProdutoIngrediente {
   id            String       @id @default(uuid())
   produtoId     String
   ingredienteId String
-  ingredientes  ingredientes @relation(fields: [ingredienteId], references: [id])
+  ingrediente   ingredientes @relation(fields: [ingredienteId], references: [id])
   product       Product      @relation(fields: [produtoId], references: [id])
 
   @@unique([produtoId, ingredienteId])
@@ -170,4 +172,17 @@ model ItemAdicional {
   items       Item       @relation(fields: [itemId], references: [id])
 
   @@unique([itemId, adicionalId])
+}
+
+model ItemIngrediente {
+  id            String       @id @default(uuid())
+  itemId        String
+  ingredienteId String
+  removed       Boolean      @default(false)
+  created_at    DateTime?    @default(now())
+  update_at     DateTime?    @default(now())
+  ingrediente   ingredientes @relation(fields: [ingredienteId], references: [id])
+  item          Item         @relation(fields: [itemId], references: [id])
+
+  @@unique([itemId, ingredienteId])
 }

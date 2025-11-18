@@ -10,14 +10,14 @@ class ListProductIngredientsService {
     const ingredients = await prismaClient.produtoIngrediente.findMany({
       where: { produtoId: product_id },
       include: {
-        ingredientes: true,
+        ingrediente: true,
       },
     });
     console.log("ListProductIngredientsService - raw ingredients:", ingredients);
 
     const result = ingredients.map(item => ({
       id: item.id,
-      ingrediente: item.ingredientes,
+      ingrediente: item.ingrediente,
       adicionais: [],
     }));
     console.log("ListProductIngredientsService - mapped result:", result);
