@@ -1,5 +1,6 @@
 import prismaClient from "../../../prisma";
 import { getIO } from "../../libs/socket";
+import { StatusPedido } from "./FinishOrderService";
 
 interface ItemRequest {
   order_id: string;
