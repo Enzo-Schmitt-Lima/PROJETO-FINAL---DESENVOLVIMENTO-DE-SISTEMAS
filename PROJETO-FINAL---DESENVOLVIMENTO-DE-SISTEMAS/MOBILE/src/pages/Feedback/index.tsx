@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
@@ -18,8 +18,11 @@ export default function Feedback() {
   };
 
   return (
-    <View style={styles.bgContainer}>
+    <SafeAreaView style={styles.bgContainer}>
       <View style={styles.cardContainer}>
+        <TouchableOpacity style={styles.topBack} onPress={() => navigation.navigate('ChooseTable')}>
+          <Text style={{ color: '#fff', fontWeight: '700' }}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Avalie seu atendimento</Text>
         <View style={styles.starsRow}>
           {[1,2,3,4,5].map(star => (
@@ -47,7 +50,7 @@ export default function Feedback() {
         </View>
         <Text style={styles.sacText}>SAC</Text>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -64,7 +67,7 @@ const styles = StyleSheet.create({
     padding: 28,
     width: '90%',
     maxWidth: 400,
-    alignItems: 'center',
+    alignItems: 'stretch',
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 4 },
@@ -164,5 +167,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 10,
     alignSelf: 'flex-end',
+  },
+  topBack: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    padding: 8,
+    backgroundColor: '#B72F14',
+    borderRadius: 8,
+    zIndex: 10,
   },
 });

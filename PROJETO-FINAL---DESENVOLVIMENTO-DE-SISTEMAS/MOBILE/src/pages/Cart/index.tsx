@@ -13,6 +13,9 @@ import {
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
@@ -40,6 +43,7 @@ export default function Cart() {
   const route = useRoute<CartRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
   const params = route.params as CartParams;
+  const { user } = useContext(AuthContext);
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -47,7 +51,10 @@ export default function Cart() {
 
   const loadCart = useCallback(async () => {
     try {
-      const response = await api.get(`/order/detail?order_id=${params.order_id}`);
+      // prefere token do contexto (mais rápido) e faz fallback no AsyncStorage
+      const token = user?.token || await AsyncStorage.getItem('@App:token');
+      if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  const response = await api.get(`/order/detail?order_id=${params.order_id}`);
       const items = (response.data as any).items || [];
       const formattedItems = items.map((item: any) => ({
         id: item.id,
@@ -63,8 +70,47 @@ export default function Cart() {
       const newTotal = formattedItems.reduce((sum: number, item: CartItem) => sum + item.amount * parseFloat(item.price), 0);
       setTotal(newTotal);
     } catch (err) {
-      console.log("Erro ao carregar carrinho:", err);
-      // For guests, show empty cart instead of error
+      console.log("Erro ao carregar carrinho:", err, (err as any)?.response?.data, (err as any)?.response?.status);
+      const status = (err as any)?.response?.status;
+      // Se 401, não navega automaticamente — mostra opção para o usuário
+      if (status === 401) {
+        // tenta recarregar token do AsyncStorage e refazer a requisição uma vez (corrige casos de race condition)
+        try {
+          const stored = await AsyncStorage.getItem('@App:token');
+          if (stored) {
+            api.defaults.headers.common['Authorization'] = `Bearer ${stored}`;
+            const retryResp = await api.get(`/order/detail?order_id=${params.order_id}`);
+            const retryItems = (retryResp.data as any).items || [];
+            const formattedItems = retryItems.map((item: any) => ({
+              id: item.id,
+              product_id: item.product_id,
+              name: item.product.name,
+              price: item.product.price,
+              amount: item.amount,
+              description: item.product.description,
+              banner: item.product.banner,
+              bannerUri: item.product.banner,
+            }));
+            setCartItems(formattedItems);
+            const newTotal = formattedItems.reduce((sum: number, item: CartItem) => sum + item.amount * parseFloat(item.price), 0);
+            setTotal(newTotal);
+            return;
+          }
+        } catch (retryErr) {
+          console.log('Retry erro:', retryErr);
+        }
+
+        Alert.alert(
+          'Sessão expirada',
+          'Sua sessão expirou. Deseja fazer login novamente?',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            { text: 'Ir para login', onPress: () => navigation.navigate('SignIn') }
+          ]
+        );
+        return;
+      }
+      // Para outros erros, limpa o carrinho localmente
       setCartItems([]);
       setTotal(0);
     } finally {
@@ -101,7 +147,7 @@ export default function Cart() {
   };
 
   const handleBackToOrder = () => {
-    navigation.goBack();
+    navigation.navigate('ChooseTable');
   };
 
   const handleEditIngredients = (productId: string, productName: string) => {

@@ -89,6 +89,9 @@ export default function OrderStatus() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('ChooseTable')}>
+          <Text style={{ color: '#911F09', fontWeight: '700' }}>← Voltar</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.refreshButton} onPress={refreshOrderStatus} disabled={refreshing}>
           <Ionicons name="refresh" size={24} color="#911F09" />
         </TouchableOpacity>
@@ -173,6 +176,7 @@ const styles = StyleSheet.create({
     right: 10,
     padding: 10,
   },
+  backButton: { position: 'absolute', top: 10, left: 12, padding: 8 },
   sacText: {
     color: '#911F09',
     fontWeight: 'bold',

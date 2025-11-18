@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, StatusBar, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -20,7 +21,7 @@ interface Order {
 
 export default function Orders() {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-  const { isGuest } = useContext(AuthContext);
+  const { isGuest, user } = useContext(AuthContext);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const topOffset = (Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24) + 18;
@@ -46,12 +47,34 @@ export default function Orders() {
 
     async function loadOrders() {
       try {
+        const token = user?.token || await AsyncStorage.getItem('@App:token');
+        if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
         const response = await api.get('/orders');
         const fetchedOrders = response.data as Order[];
-        // backend now returns statusText, table and pagamento with readable fields
         setOrders(fetchedOrders);
       } catch (err) {
-        console.log('Erro ao carregar pedidos:', err);
+        console.log('Erro ao carregar pedidos:', err, (err as any)?.response?.data, (err as any)?.response?.status);
+        const status = (err as any)?.response?.status;
+        if (status === 401) {
+          // tenta recuperar token do AsyncStorage e refazer a requisição uma vez
+          try {
+            const stored = await AsyncStorage.getItem('@App:token');
+            if (stored) {
+              api.defaults.headers.common['Authorization'] = `Bearer ${stored}`;
+              const retry = await api.get('/orders');
+              setOrders(retry.data as Order[]);
+              return;
+            }
+          } catch (retryErr) {
+            console.log('Retry erro orders:', retryErr);
+          }
+
+          Alert.alert('Sessão expirada', 'Faça login novamente.');
+          navigation.navigate('SignIn');
+          return;
+        }
+
         Alert.alert('Erro', 'Não foi possível carregar os pedidos.');
       } finally {
         setLoading(false);
@@ -134,7 +157,7 @@ export default function Orders() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={[styles.backButton, { top: topOffset }]} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={[styles.backButton, { top: topOffset }]} onPress={() => navigation.navigate('ChooseTable')}>
           <Text style={styles.backText}>← Voltar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.refreshButton, { top: topOffset }]} onPress={handleRefresh}>
@@ -177,7 +200,7 @@ export default function Orders() {
 
 const styles = StyleSheet.create({
   bgContainer: { flex: 1, backgroundColor: '#911F09', alignItems: 'center' },
-  cardContainer: { flex: 1, backgroundColor: '#F5F5F5', borderRadius: 30, padding: 28, width: '90%', maxWidth: 400, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8, elevation: 8, position: 'relative' },
+  cardContainer: { flex: 1, backgroundColor: '#F5F5F5', borderRadius: 30, padding: 20, width: '92%', maxWidth: 420, alignItems: 'stretch', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8, elevation: 8, position: 'relative' },
   backButton: { position: 'absolute', top: 10, left: 18, padding: 10, zIndex: 10 },
   refreshButton: { position: 'absolute', top: 10, right: 10, padding: 8 },
   backText: { color: '#911F09', fontSize: 16, fontWeight: 'bold' },
@@ -185,9 +208,10 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: 'bold', color: '#1A3A6B', marginBottom: 18, marginTop: 10, textAlign: 'center', width: '100%' },
   searchBar: { backgroundColor: '#EEE', borderRadius: 8, padding: 6, width: '100%', marginBottom: 12 },
   searchInput: { fontSize: 16, color: '#1A3A6B', padding: 4 },
-  orderBox: { backgroundColor: '#B72F14', borderRadius: 8, padding: 14, marginBottom: 12 },
-  orderText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
-  orderSub: { color: '#FFF', fontSize: 13, marginTop: 4 },
+  orderBox: { backgroundColor: '#B72F14', borderRadius: 8, padding: 14, marginBottom: 12, alignItems: 'flex-start' },
+  orderText: { color: '#FFF', fontWeight: 'bold', fontSize: 16, flexWrap: 'wrap', width: '72%' },
+  orderSub: { color: '#FFF', fontSize: 13, marginTop: 4, flexWrap: 'wrap' },
+  orderTotal: { color: '#FFF', fontSize: 14, marginTop: 6, fontWeight: '700' },
   loadingText: { textAlign: 'center', fontSize: 16, color: '#1A3A6B', marginTop: 20 },
   noOrdersText: { textAlign: 'center', fontSize: 16, color: '#1A3A6B', marginTop: 20 },
   sacImage: {

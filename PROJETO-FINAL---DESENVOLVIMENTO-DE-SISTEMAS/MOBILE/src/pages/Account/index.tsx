@@ -25,7 +25,7 @@ export default function Account() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('ChooseTable')}>
           <Text style={styles.backText}>← Voltar</Text>
         </TouchableOpacity>
         <Image 
@@ -59,7 +59,7 @@ export default function Account() {
 
 const styles = StyleSheet.create({
   bgContainer: { flex: 1, backgroundColor: '#911F09', justifyContent: 'center', alignItems: 'center' },
-  cardContainer: { backgroundColor: '#F5F5F5', borderRadius: 30, padding: 28, width: '90%', maxWidth: 400, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8, elevation: 8, position: 'relative' },
+  cardContainer: { backgroundColor: '#F5F5F5', borderRadius: 30, padding: 20, width: '90%', maxWidth: 420, alignItems: 'stretch', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8, elevation: 8, position: 'relative' },
   backButton: { position: 'absolute', top: 10, left: 10, padding: 10 },
   backText: { color: '#911F09', fontSize: 16, fontWeight: 'bold' },
   logoImage: { width: 100 },

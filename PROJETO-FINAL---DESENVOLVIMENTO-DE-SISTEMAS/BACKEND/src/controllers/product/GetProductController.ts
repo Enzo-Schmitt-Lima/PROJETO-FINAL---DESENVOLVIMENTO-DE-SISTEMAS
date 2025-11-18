@@ -9,11 +9,16 @@ class GetProductController {
 
     try {
       const product = await getProductService.execute(id);
+      
+      // Se o service encontrar, ele retorna o produto
+      return response.json(product);
 
-      response.json(product);
-    } catch (error) {
-      console.log("Erro ao buscar produto:", error);
-      response.status(500).json({ error: "Erro interno do servidor" });
+    } catch (error: any) { // Mudança leve: 'any' para pegar a .message
+      console.log("Erro ao buscar produto:", error.message);
+      
+      // Se o service jogar um erro, o controller captura aqui
+      // E avisa o frontend que deu erro
+      return response.status(404).json({ error: error.message });
     }
   }
 }

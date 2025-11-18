@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamsList } from '../../routes/app.routes';
 import api from '../../services/api';
 import { AuthContext } from '../../contexts/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Payment {
   id: string;
@@ -19,7 +21,7 @@ interface Payment {
 
 export default function Payments() {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-  const { isGuest } = useContext(AuthContext);
+  const { isGuest, user } = useContext(AuthContext);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,35 +34,53 @@ export default function Payments() {
 
     async function loadPayments() {
       try {
-    const response = await api.get('/payments');
-    // backend now returns statusText, orderStatusText and orderFinalized
-    setPayments(response.data as any[]);
+        const token = user?.token || await AsyncStorage.getItem('@App:token');
+        if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        const response = await api.get('/payments');
+        setPayments(response.data as any[]);
       } catch (err) {
-        console.log('Erro ao carregar pagamentos:', err);
+        console.log('Erro ao carregar pagamentos:', err, (err as any)?.response?.data, (err as any)?.response?.status);
+        const status = (err as any)?.response?.status;
+        if (status === 401) {
+          try {
+            const stored = await AsyncStorage.getItem('@App:token');
+            if (stored) {
+              api.defaults.headers.common['Authorization'] = `Bearer ${stored}`;
+              const retry = await api.get('/payments');
+              setPayments(retry.data as any[]);
+              return;
+            }
+          } catch (retryErr) {
+            console.log('Retry erro payments:', retryErr);
+          }
+
+          Alert.alert('Sessão expirada', 'Faça login novamente.');
+          navigation.navigate('SignIn');
+          return;
+        }
         Alert.alert('Erro', 'Não foi possível carregar os pagamentos.');
       } finally {
         setLoading(false);
       }
     }
+
     loadPayments();
-  }, [isGuest, navigation]);
+  }, [isGuest, user, navigation]);
 
   const getDesc = (items: Payment['order']['items']) => {
     return items.map(item => `${item.product.name} x${item.amount}`).join(' + ');
   };
 
   return (
-    <View style={styles.bgContainer}>
+    <SafeAreaView style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>← Voltar</Text>
+        <TouchableOpacity style={styles.topBack} onPress={() => navigation.navigate('ChooseTable')}>
+          <Ionicons name="arrow-back" size={20} color="#fff" />
         </TouchableOpacity>
-        <Image 
-          source={require('../../../assets/logo.png')} 
-          style={styles.logoImage} 
-        />
+        <Image source={require('../../../assets/logo.png')} style={styles.logoImage} />
         <Text style={styles.title}>Meus pagamentos</Text>
         <View style={styles.searchBar}><TextInput style={styles.searchInput} placeholder="" /></View>
+
         <ScrollView style={{ width: '100%', flex: 1 }}>
           {loading ? (
             <Text style={styles.loadingText}>Carregando pagamentos...</Text>
@@ -77,107 +97,101 @@ export default function Payments() {
             ))
           )}
         </ScrollView>
-          <Image 
-          source={require('../../../assets/sac.png')} 
-          style={styles.sacImage} 
-        />
+
+        <Image source={require('../../../assets/sac.png')} style={styles.sacImage} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  bgContainer: { 
-    flex: 1, 
-    backgroundColor: '#911F09', 
-    alignItems: 'center' 
+  bgContainer: {
+    flex: 1,
+    backgroundColor: '#911F09',
+    alignItems: 'center'
   },
   cardContainer: {
     marginTop: 50,
     marginBottom: 40,
-    flex: 1, 
-    backgroundColor: '#F5F5F5', 
-    borderRadius: 30, 
-    padding: 28, 
-    width: '95%', 
-    maxWidth: 400, 
-    alignItems: 'center', 
-    shadowColor: '#000', 
-    shadowOpacity: 0.2, 
-    shadowOffset: { width: 0, height: 4 }, 
-    shadowRadius: 8, 
-    elevation: 8, 
-    position: 'relative' 
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
+    padding: 20,
+    width: '95%',
+    maxWidth: 420,
+    alignItems: 'stretch',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 8,
+    position: 'relative'
   },
-  backButton: { 
-    position: 'absolute', 
-    top: 10, 
-    left: 10, 
-    padding: 10 
+  topBack: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    padding: 8,
+    backgroundColor: '#B72F14',
+    borderRadius: 8,
+    zIndex: 10,
   },
-  backText: { 
-    color: '#911F09', 
-    fontSize: 16, 
-    fontWeight: 'bold' 
+  logoImage: { width: 120, height: 40, resizeMode: 'contain', alignSelf: 'center', marginBottom: 8 },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1A3A6B',
+    marginBottom: 18,
+    marginTop: 10,
+    textAlign: 'center',
+    width: '100%'
   },
-  logoImage: { 
-    color: '#B72F14', 
-    fontWeight: 'bold', 
-    fontSize: 18, 
-    marginBottom: 8 
-  },
-  title: { 
-    fontSize: 22, 
-    fontWeight: 'bold', 
-    color: '#1A3A6B', 
-    marginBottom: 18, 
-    marginTop: 10, 
-    textAlign: 'center', 
-    width: '100%' 
-  },
-  searchBar: { 
-    backgroundColor: '#EEE', 
-    borderRadius: 8, 
-    padding: 6, 
-    width: '100%', 
+  searchBar: {
+    backgroundColor: '#EEE',
+    borderRadius: 8,
+    padding: 6,
+    width: '100%',
     marginBottom: 12
-   },
-  searchInput: { 
-    fontSize: 16, 
-    color: '#1A3A6B', 
-    padding: 4 
   },
-  paymentBox: { 
-    backgroundColor: '#B72F14', 
-    borderRadius: 8, 
-    padding: 14, 
-    marginBottom: 12
+  searchInput: {
+    fontSize: 16,
+    color: '#1A3A6B',
+    padding: 4
+  },
+  paymentBox: {
+    backgroundColor: '#B72F14',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 12,
+    alignItems: 'flex-start'
 
-   },
-  paymentText: { 
-    color: '#FFF', 
-    fontWeight: 'bold', 
-    fontSize: 16
-   },
-  paymentSub: { 
-    color: '#FFF', 
-    fontSize: 13, 
-    marginTop: 4
-   },
-  loadingText: { 
-    textAlign: 'center', 
-    fontSize: 16, 
-    color: '#1A3A6B', 
+  },
+  paymentText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+    flexWrap: 'wrap'
+  },
+  paymentSub: {
+    color: '#FFF',
+    fontSize: 13,
+    marginTop: 4,
+    flexWrap: 'wrap'
+  },
+  loadingText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#1A3A6B',
     marginTop: 20
-   },
-  noPaymentsText: { 
-    textAlign: 'center', 
-    fontSize: 16, 
-    color: '#1A3A6B', 
-    marginTop: 20 
+  },
+  noPaymentsText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#1A3A6B',
+    marginTop: 20
   },
   sacImage: {
-    marginTop: 10, 
-    alignSelf: 'flex-end' 
+    marginTop: 10,
+    alignSelf: 'flex-end'
   },
 });

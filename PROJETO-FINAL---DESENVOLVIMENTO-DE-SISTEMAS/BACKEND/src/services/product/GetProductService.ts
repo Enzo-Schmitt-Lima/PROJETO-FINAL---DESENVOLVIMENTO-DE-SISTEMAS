@@ -7,6 +7,16 @@ class GetProductService {
         id: id
       }
     });
+
+    // ----- CORREÇÃO APLICADA -----
+    // Se o produto não for encontrado (product for null),
+    // nós jogamos um erro.
+    if (!product) {
+      throw new Error("Produto não encontrado.");
+    }
+    // ----------------------------
+
+    // Se o código chegou aqui, o produto foi encontrado e será retornado.
     return product;
   }
 }

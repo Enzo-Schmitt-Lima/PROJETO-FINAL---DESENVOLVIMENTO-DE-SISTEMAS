@@ -206,10 +206,10 @@ return null;
 return (
 <SafeAreaView style={styles.containerLayout}>
 <StatusBar backgroundColor="#911F09" barStyle="light-content" />
-<View style={styles.header}>
-<TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backButton, { top: topOffset }] }>
-<Ionicons name="arrow-back" size={24} color="#5D3A2F" />
-</TouchableOpacity>
+  <View style={styles.header}>
+  <TouchableOpacity onPress={() => navigation.navigate('ChooseTable')} style={[styles.backButton, { top: topOffset }] }>
+  <Ionicons name="arrow-back" size={24} color="#5D3A2F" />
+  </TouchableOpacity>
 <TouchableOpacity onPress={() => setMenuVisible(true)} style={styles.viewLayout}>
 <View style={styles.column2Layout}>
 <View style={styles.boxLayout} /><View style={styles.boxLayout} /><View style={styles.box2Layout} />

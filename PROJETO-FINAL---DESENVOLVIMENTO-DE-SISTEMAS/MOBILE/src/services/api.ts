@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Determina automaticamente um baseURL para o backend:
 // 1. Se executando via Expo, tentamos extrair o IP do bundler (debuggerHost)
@@ -30,5 +31,25 @@ try {
 const api = axios.create({ baseURL });
 
 console.log('API baseURL configurada em:', baseURL);
+
+// Interceptor que garante que, antes de cada requisição, o header Authorization esteja presente.
+// Isso corrige casos onde o token ainda não foi aplicado em api.defaults por race conditions.
+api.interceptors.request.use(
+  async (config) => {
+    try {
+      if (config && config.headers && !config.headers['Authorization']) {
+        const token = await AsyncStorage.getItem('@App:token');
+        if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`;
+        }
+      }
+    } catch (e) {
+      // não bloquear a requisição se houver erro ao ler storage
+      console.log('api interceptor error reading token', e);
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default api;
