@@ -11,6 +11,8 @@ import Payment from "../pages/Pagamento";
 import AcompanharPedido from "../pages/AcompanharPedido";
 import AssignTable from "../pages/AssignTable";
 
+import CustomizeItem from "../pages/CustomizeItem";
+
 export type StackParamsList = {
   Dashboard: undefined;
   ChooseTable: undefined;
@@ -27,8 +29,9 @@ export type StackParamsList = {
   Payments: undefined;
   Logout: undefined;
   AssignTable: undefined;
-  EditProductIngredients: { product_id: string; product_name: string; item_id: string };
+  CustomizeItem: { product_id: string; product_name: string; item_id?: string; item_ids?: string[] };
   EditProduct: { product_id: string };
+  EditProductIngredients: { product_id: string; product_name: string; item_id: string };
   SignIn: undefined;
   SignUp: undefined;
 };
@@ -37,7 +40,7 @@ const Stack = createNativeStackNavigator<StackParamsList>();
 
 export default function AppRoutes() {
   return (
-    <Stack.Navigator>
+  <Stack.Navigator initialRouteName="CreateComanda">
       {/* Tela inicial após login */}
       <Stack.Screen
         name="CreateComanda"
@@ -150,10 +153,10 @@ export default function AppRoutes() {
         }}
       />
       <Stack.Screen
-        name="EditProductIngredients"
-        component={require('../pages/EditProductIngredients').default}
+        name="CustomizeItem"
+        component={CustomizeItem}
         options={{
-          title: "Editar Ingredientes",
+          title: "Personalizar Item",
           headerShown: false,
         }}
       />

@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import prismaClient from "../../../prisma";
 
 interface AddAdicionalRequest {
@@ -7,61 +8,82 @@ interface AddAdicionalRequest {
 
 class AddAdicionalService {
   async execute({ item_id, adicional_id }: AddAdicionalRequest) {
-    // Verifica se o item existe
     const item = await prismaClient.item.findUnique({
       where: { id: item_id },
-      include: { itemAdicional: true },
+      include: {
+        product: {
+          include: {
+            category: true,
+          },
+        },
+      },
     });
-    if (!item) throw new Error("Item não encontrado");
 
-    // Verifica se o adicional existe
+    if (!item) {
+      throw new Error("Item não encontrado");
+    }
+
+    // Check if the product's category allows 'adicionais'
+    const allowedCategories = ["Pizzas Clássicas", "Pizzas Especiais"];
+    if (!allowedCategories.includes(item.product.category.name)) {
+        throw new Error("Adicionais só podem ser adicionados em pizzas.");
+    }
+
     const adicional = await prismaClient.adicionais.findUnique({
       where: { id: adicional_id },
     });
     if (!adicional) throw new Error("Adicional não encontrado");
 
-    // Verifica se o adicional já foi adicionado ao item
-    const existing = item.itemAdicional.find(a => a.adicionalId === adicional_id);
-    if (existing) throw new Error("Adicional já adicionado a este item");
-
-    // Cria o adicional no item
-    await prismaClient.itemAdicional.create({
-      data: {
+    const existingItemAdicional = await prismaClient.itemAdicional.findFirst({
+      where: {
         itemId: item_id,
         adicionalId: adicional_id,
-        quantity: 1,
       },
     });
 
-    // Recalcula total do pedido
+    let updatedItemAdicional;
+    if (existingItemAdicional) {
+      // Se já existe, incrementa a quantidade
+      updatedItemAdicional = await prismaClient.itemAdicional.update({
+        where: { id: existingItemAdicional.id },
+        data: { quantity: existingItemAdicional.quantity + 1 },
+      });
+    } else {
+      // Se não existe, cria um novo com quantidade 1
+      updatedItemAdicional = await prismaClient.itemAdicional.create({
+        data: {
+          id: randomUUID(),
+          itemId: item_id,
+          adicionalId: adicional_id,
+          quantity: 1,
+        },
+      });
+    }
+
+    // Recalcula o total do pedido
     const items = await prismaClient.item.findMany({
       where: { order_id: item.order_id },
-      include: { product: true, itemAdicional: { include: { adicional: true } } },
+      include: {
+        product: true,
+        ItemAdicional: { include: { adicionais: true } },
+      },
     });
 
-    const total = items.reduce((sum, i) => {
-      const adicionaisTotal = i.itemAdicional.reduce((a, ad) => a + ad.adicional.price, 0);
-      return sum + i.amount * (parseFloat(i.product.price) + adicionaisTotal);
+    const total = items.reduce((sum, currentItem) => {
+      const productPrice = parseFloat(currentItem.product.price) * currentItem.amount;
+      const adicionaisTotal = currentItem.ItemAdicional.reduce((adicionalSum, itemAdicional) => {
+        return adicionalSum + (itemAdicional.adicionais.price * itemAdicional.quantity);
+      }, 0);
+      return sum + productPrice + adicionaisTotal;
     }, 0);
 
-    // Atualiza pagamento e comanda
-    const pagamento = await prismaClient.pagamento.findFirst({ where: { order_id: item.order_id } });
-    if (pagamento) {
-      await prismaClient.pagamento.update({
-        where: { id: pagamento.id },
-        data: { amount: total },
-      });
-    }
+    // Atualiza o pagamento
+    await prismaClient.pagamento.updateMany({
+      where: { order_id: item.order_id },
+      data: { amount: total },
+    });
 
-    const comanda = await prismaClient.comanda.findFirst({ where: { order_id: item.order_id } });
-    if (comanda) {
-      await prismaClient.comanda.update({
-        where: { id: comanda.id },
-        data: { amount: total },
-      });
-    }
-
-    return { message: "Adicional adicionado com sucesso", total };
+    return updatedItemAdicional;
   }
 }
 

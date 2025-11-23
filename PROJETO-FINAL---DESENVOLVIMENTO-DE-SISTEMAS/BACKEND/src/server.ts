@@ -21,6 +21,16 @@ app.use((req, res, next) => {
 app.use('/files', express.static(path.resolve(__dirname, '..', 'tmp')));
 app.use(router);
 
+// Global error handler — retorna JSON ao invés de HTML para erros não tratados.
+app.use((err: any, req: any, res: any, next: any) => {
+  try {
+    console.error('Global error handler:', err && err.stack ? err.stack : err);
+  } catch (e) { }
+  const status = err && err.statusCode ? err.statusCode : 500;
+  const message = err && err.message ? err.message : 'Internal server error';
+  res.status(status).json({ error: message });
+});
+
 // ====================== CONFIGURAÇÃO ======================
 const PORT = process.env.PORT || 3333;
 

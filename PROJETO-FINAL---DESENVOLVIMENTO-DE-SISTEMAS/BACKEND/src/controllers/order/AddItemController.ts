@@ -5,8 +5,8 @@ class AddItemController {
     async handle(req: Request, res: Response){
         console.log('AddItemController payload:', req.body);
 
-        const { order_id } = req.body;
-        const items = req.body.items as Array<{ product_id: string; amount: number }> | undefined;
+        const { order_id, customizations } = req.body;
+        const items = req.body.items as Array<{ product_id: string; amount: number; customizations?: any[] }> | undefined;
         const singleProductId = req.body.product_id as string | undefined;
         const singleAmount = req.body.amount as number | undefined;
 
@@ -17,7 +17,7 @@ class AddItemController {
                 const results = [] as any[];
                 for (const it of items) {
                     console.log('Processing item in array:', it);
-                    const r = await addItem.execute({ order_id, product_id: it.product_id, amount: it.amount });
+                    const r = await addItem.execute({ order_id, product_id: it.product_id, amount: it.amount, customizations: it.customizations });
                     results.push(r);
                 }
                 console.log('AddItemController results for array:', results);
@@ -25,7 +25,7 @@ class AddItemController {
             }
 
             if (singleProductId) {
-                const result = await addItem.execute({ order_id, product_id: singleProductId, amount: singleAmount || 1 });
+                const result = await addItem.execute({ order_id, product_id: singleProductId, amount: singleAmount || 1, customizations });
                 console.log('AddItemController result (single):', result);
                 return res.json(result);
             }

@@ -14,7 +14,11 @@ class ListProductIngredientsController {
       res.json(ingredients);
     } catch (err: any) {
       console.error("ListProductIngredientsController error:", err.message || err);
-      res.status(500).json({ error: "Erro interno" });
+      if (err.message === "Produto não encontrado") {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(500).json({ error: "Erro interno" });
+      }
     }
   }
 }

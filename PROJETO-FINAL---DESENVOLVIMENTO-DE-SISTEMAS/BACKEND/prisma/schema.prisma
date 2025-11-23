@@ -49,6 +49,7 @@ model Product {
 model Item {
   id              String            @id @default(uuid())
   amount          Int
+  with_ice        Boolean?
   created_at      DateTime?         @default(now())
   update_at       DateTime?         @default(now())
   order_id        String

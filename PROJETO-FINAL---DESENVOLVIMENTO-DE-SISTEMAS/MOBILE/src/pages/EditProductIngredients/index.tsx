@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
-  SafeAreaView,
-  StatusBar,
-  Image,
 } from "react-native";
+
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar, Image } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
@@ -51,33 +51,47 @@ export default function EditProductIngredients() {
   const { product_id, product_name, item_id } = route.params;
 
   const [productIngredients, setProductIngredients] = useState<ProductIngredient[]>([]);
+  const [originalIngredients, setOriginalIngredients] = useState<ProductIngredient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
 
   const loadProductIngredients = async () => {
     try {
       console.log("Product ID:", product_id);
       console.log("Item ID:", item_id);
-  
+
       const productIngredientsResponse = await api.get(`/product/ingredients?product_id=${product_id}`);
       const baseIngredients = (productIngredientsResponse.data || []) as ProductIngredient[];
-  
+
       let itemCustomizations: ItemCustomization[] = [];
       if (item_id) {
-        const itemCustomizationsResponse = await api.get(`/item/ingredientes?item_id=${item_id}`);
-        itemCustomizations = (itemCustomizationsResponse.data || []) as ItemCustomization[];
+        try {
+          const itemResponse = await api.get(`/item/${item_id}`);
+          itemCustomizations = (itemResponse.data.ItemIngrediente || []).map((ci: any) => ({
+            ingrediente: ci.ingrediente,
+            removed: !!ci.removed,
+          }));
+        } catch (itemErr: any) {
+          console.log("Item não encontrado ou erro ao carregar personalizações:", itemErr);
+          if (itemErr.response?.status !== 404) {
+            throw itemErr;
+          }
+          console.log("Item novo, sem personalizações prévias.");
+        }
       }
-  
+
       const removedIngredientIds = new Set(
         itemCustomizations.filter(c => c.removed).map(c => c.ingrediente.id)
       );
-  
+
       const mergedIngredients = baseIngredients.map(pi => ({
         ...pi,
         ingrediente: { ...pi.ingrediente, selected: !removedIngredientIds.has(pi.ingrediente.id) }
       }));
-  
+
       setProductIngredients(mergedIngredients);
+      setOriginalIngredients(JSON.parse(JSON.stringify(mergedIngredients))); // Deep copy
     } catch (err) {
       console.log("Erro ao carregar ingredientes do produto:", err);
       Alert.alert('Erro', 'Não foi possível carregar os ingredientes.');
@@ -103,8 +117,7 @@ export default function EditProductIngredients() {
     loadData();
   }, []);
 
-  const toggleIngredient = async (ingredient: Ingredient) => {
-    // Atualização Otimista da UI
+  const toggleIngredient = (ingredient: Ingredient) => {
     setProductIngredients(prevIngredients =>
       prevIngredients.map(pi =>
         pi.ingrediente.id === ingredient.id
@@ -112,32 +125,53 @@ export default function EditProductIngredients() {
           : pi
       )
     );
+  };
+
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    const changes: Promise<any>[] = [];
+
+    // Build map of original selections by ingredient id
+    const originalSelectionMap = new Map<string, boolean>();
+    originalIngredients.forEach(oi => {
+      originalSelectionMap.set(oi.ingrediente.id, oi.ingrediente.selected);
+    });
+
+    productIngredients.forEach((current) => {
+      const originalSelected = originalSelectionMap.get(current.ingrediente.id);
+      if (current.ingrediente.selected !== originalSelected) {
+        if (current.ingrediente.selected) {
+          // Add ingredient back
+          changes.push(api.post('/item/ingrediente/add', {
+            item_id,
+            ingrediente_id: current.ingrediente.id,
+          }));
+        } else {
+          // Mark ingredient as removed
+          changes.push(api.post('/item/ingrediente/remove', {
+            item_id, ingrediente_id: current.ingrediente.id
+          }));
+        }
+      }
+    });
 
     try {
-      if (ingredient.selected) {
-        // Marca o ingrediente como removido
-        await api.post('/item/ingrediente/remove', {
-          item_id, ingrediente_id: ingredient.id
-        });
-      } else {
-        // Add ingredient back to item
-        await api.post('/item/ingrediente/add', {
-          item_id,
-          ingrediente_id: ingredient.id,
-        });
-      }
+      await Promise.all(changes);
+      Alert.alert('Sucesso', 'Alterações salvas!');
+      navigation.goBack();
     } catch (err) {
-      await loadProductIngredients(); // Recarrega para reverter a UI em caso de erro
-      console.log('Erro ao alterar ingrediente:', err);
-      Alert.alert('Erro', 'Não foi possível alterar o ingrediente.');
+      console.log('Erro ao salvar alterações:', err);
+      Alert.alert('Erro', 'Não foi possível salvar as alterações.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  if (loading) {
+  if (loading || isSaving) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Carregando...</Text>
+          <Text style={styles.loadingText}>{isSaving ? 'Salvando...' : 'Carregando...'}</Text>
         </View>
       </SafeAreaView>
     );
@@ -151,24 +185,19 @@ export default function EditProductIngredients() {
           <Ionicons name="arrow-back" size={24} color="#5D3A2F" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Editar Ingredientes</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('EditProduct', { product_id })} style={styles.editButton}>
-          <Ionicons name="pencil" size={20} color="#5D3A2F" />
-        </TouchableOpacity>
+        <View style={{ width: 40 }} /> 
       </View>
 
       <View style={styles.productInfo}>
         <View style={styles.productImageContainer}>
           {product?.banner ? (
-            <Image source={{ uri: product.banner }} style={styles.productImage} />
+            <Image source={{ uri: `http://192.168.0.243:3333/files/${product.banner}` }} style={styles.productImage} />
           ) : (
             <View style={styles.productImagePlaceholder}>
               <Ionicons name="image" size={50} color="#911F09" />
               <Text style={styles.placeholderText}>Sem imagem</Text>
             </View>
           )}
-          <TouchableOpacity style={styles.editIcon}>
-            <Ionicons name="pencil" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
         </View>
         <Text style={styles.productName}>{product_name}</Text>
         {product && (
@@ -195,7 +224,9 @@ export default function EditProductIngredients() {
         />
       </View>
 
-
+      <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
+        <Text style={styles.saveButtonText}>Salvar Alterações</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -205,21 +236,30 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#D9D9D9', paddingVertical: 10, paddingHorizontal: 15, borderBottomWidth: 1, borderBottomColor: '#ccc' },
   backButton: { padding: 8 },
   headerTitle: { flex: 1, fontSize: 20, fontWeight: 'bold', color: '#911F09', textAlign: 'center' },
-  editButton: { padding: 8 },
   productInfo: { padding: 15, backgroundColor: '#FFF', margin: 10, borderRadius: 6 },
   productImage: { width: 100, height: 100, borderRadius: 6 },
   productImagePlaceholder: { width: 100, height: 100, borderRadius: 6, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
   placeholderText: { fontSize: 12, color: '#911F09', marginTop: 5 },
   productImageContainer: { marginBottom: 10 },
-  editIcon: { position: 'absolute', top: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 10, padding: 5 },
   productName: { fontSize: 18, fontWeight: 'bold', color: '#101026' },
   productDetails: { fontSize: 14, color: '#666', marginTop: 5 },
   ingredientsList: { flex: 1, padding: 15, backgroundColor: '#FFF', margin: 10, borderRadius: 6 },
   ingredientItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
   ingredientName: { fontSize: 16, color: '#101026' },
-  removeButton: { backgroundColor: "#B72F14", padding: 8, borderRadius: 6 },
   emptyText: { textAlign: 'center', marginTop: 20, fontSize: 16, color: '#911F09' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#D9D9D9" },
   loadingText: { fontSize: 16, color: '#911F09', fontWeight: 'bold' },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#911F09', marginBottom: 10 },
+  saveButton: {
+    backgroundColor: '#911F09',
+    padding: 15,
+    margin: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  }
 });

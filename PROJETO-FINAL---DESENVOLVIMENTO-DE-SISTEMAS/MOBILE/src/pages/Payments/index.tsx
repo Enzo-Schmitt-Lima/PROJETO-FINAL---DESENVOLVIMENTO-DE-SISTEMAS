@@ -74,7 +74,7 @@ export default function Payments() {
   return (
     <SafeAreaView style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.topBack} onPress={() => navigation.navigate('ChooseTable')}>
+  <TouchableOpacity style={styles.topBack} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={20} color="#fff" />
         </TouchableOpacity>
         <Image source={require('../../../assets/logo.png')} style={styles.logoImage} />
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   cardContainer: {
-    marginTop: 50,
+    marginTop: 20,
     marginBottom: 40,
     flex: 1,
     backgroundColor: '#F5F5F5',

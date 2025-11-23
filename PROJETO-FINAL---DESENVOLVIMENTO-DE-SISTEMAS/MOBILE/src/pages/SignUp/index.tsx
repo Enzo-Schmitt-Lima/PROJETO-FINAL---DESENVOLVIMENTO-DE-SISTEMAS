@@ -182,11 +182,11 @@ const styles = StyleSheet.create({
     elevation: 3.5,
   },
   submitButtonText: { color: "#4F5476", fontSize: 14, fontWeight: "bold" },
-  loginPromptContainer: { alignItems: "center", marginTop: 20 },
+  loginPromptContainer: { alignItems: "center", marginTop: 20, paddingVertical: 10 },
   loginPromptText: {
     color: "#B3AAAA",
-    fontSize: 12,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: "700",
     textAlign: "center",
   },
   loginPromptUnderline: {

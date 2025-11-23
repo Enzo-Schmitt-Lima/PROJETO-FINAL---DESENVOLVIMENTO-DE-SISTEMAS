@@ -125,7 +125,7 @@ export default function CreateComanda() {
           </View>
         </View>
         {/* Menu Hambúrguer Modal */}
-        <HamburgerMenu visible={menuVisible} onClose={() => setMenuVisible(false)} onNavigate={route => { setMenuVisible(false); navigation.navigate(route as any); }} />
+        <HamburgerMenu visible={menuVisible} onClose={() => setMenuVisible(false)} onNavigate={route => { setMenuVisible(false); if (route === 'Home') { navigation.navigate('Dashboard'); } else { navigation.navigate(route as any); } }} />
 
         {/* CONTEÚDO PRINCIPAL */}
         <View style={styles.content}>

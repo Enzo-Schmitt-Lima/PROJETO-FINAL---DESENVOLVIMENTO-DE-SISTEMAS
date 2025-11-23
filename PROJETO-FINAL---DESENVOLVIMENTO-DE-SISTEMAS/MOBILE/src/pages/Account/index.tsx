@@ -25,7 +25,7 @@ export default function Account() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('ChooseTable')}>
+  <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>← Voltar</Text>
         </TouchableOpacity>
         <Image 
@@ -60,9 +60,16 @@ export default function Account() {
 const styles = StyleSheet.create({
   bgContainer: { flex: 1, backgroundColor: '#911F09', justifyContent: 'center', alignItems: 'center' },
   cardContainer: { backgroundColor: '#F5F5F5', borderRadius: 30, padding: 20, width: '90%', maxWidth: 420, alignItems: 'stretch', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8, elevation: 8, position: 'relative' },
-  backButton: { position: 'absolute', top: 10, left: 10, padding: 10 },
+  backButton: { position: 'absolute', top: 10, left: 10, padding: 10, zIndex: 1 },
   backText: { color: '#911F09', fontSize: 16, fontWeight: 'bold' },
-  logoImage: { width: 100 },
+  logoImage: { 
+    width: 100, 
+    height: 50, 
+    resizeMode: 'contain', 
+    alignSelf: 'center', 
+    marginTop: 20, 
+    marginBottom: 10 
+  },
   title: { fontSize: 22, fontWeight: 'bold', color: '#1A3A6B', marginBottom: 18, marginTop: 10, textAlign: 'center', width: '100%' },
   avatarRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   avatar: { width: 54, height: 54, borderRadius: 27, backgroundColor: '#DDD', marginRight: 8 },

@@ -37,7 +37,7 @@ const Stack = createNativeStackNavigator<StackParamsList>();
 
 export default function AppRoutesGuest() {
   return (
-    <Stack.Navigator initialRouteName="CreateComanda">
+  <Stack.Navigator initialRouteName="CreateComanda">
       <Stack.Screen
         name="CreateComanda"
         component={CreateComanda}

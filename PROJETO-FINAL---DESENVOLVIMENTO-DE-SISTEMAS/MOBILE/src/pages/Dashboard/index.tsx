@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+    import React, { useState } from "react";
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -12,8 +12,12 @@ export default function Dashboard(){
     function handleMenuNavigate(route: string) {
         if (route === 'Logout') {
             navigation.navigate('Logout');
-        } else if (route === 'ChooseTable') {
-            navigation.navigate('ChooseTable');
+        } else if (route === 'Home') {
+            navigation.navigate('Dashboard');
+        } else if (route === 'Order') {
+            navigation.navigate('Order', { number: 0, order_id: '' });
+        } else if (route === 'CreateComanda' || route === 'ChooseTable') {
+            navigation.navigate('CreateComanda');
         } else if (route === 'Account') {
             navigation.navigate('Account');
         } else if (route === 'Orders') {
@@ -24,7 +28,8 @@ export default function Dashboard(){
     }
 
     function navigateToChooseTable(){
-        navigation.navigate('ChooseTable');
+        // After QR scanning the initial screen should be CreateComanda
+        navigation.navigate('CreateComanda');
     }
 
     return(

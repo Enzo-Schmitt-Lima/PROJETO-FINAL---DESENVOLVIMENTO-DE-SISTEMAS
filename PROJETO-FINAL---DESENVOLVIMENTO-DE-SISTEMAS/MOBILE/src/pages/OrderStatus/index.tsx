@@ -89,7 +89,7 @@ export default function OrderStatus() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('ChooseTable')}>
+  <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={{ color: '#911F09', fontWeight: '700' }}>← Voltar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.refreshButton} onPress={refreshOrderStatus} disabled={refreshing}>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: '#F5F5F5',
     borderRadius: 30,
-    padding: 78,
+    padding: 28,
     width: '95%',
     height: '90%',
     alignItems: 'center',

@@ -24,9 +24,6 @@ class AddIngredientToProductService {
         produtoId: product_id,
         ingredienteId: ingredient_id,
       },
-      include: {
-        ingredientes: true,
-      },
     });
 
     return productIngredient;

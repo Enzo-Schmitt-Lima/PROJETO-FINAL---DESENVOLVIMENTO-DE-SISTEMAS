@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function HamburgerMenu({ onNavigate, visible, onClose, isGuest }: { onNavigate: (route: string) => void; visible: boolean; onClose: () => void; isGuest?: boolean }) {
   const menuItems = [
-    { label: 'Início', route: 'ChooseTable' },
+    { label: 'Início', route: 'Order' },
     { label: 'Minha conta', route: 'Account' },
     { label: 'Meus pedidos', route: 'Orders' },
     { label: 'Meus pagamentos', route: 'Payments' },
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 8,
   },
-    overlay: {
+  overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.25)',
     justifyContent: 'flex-start',
@@ -70,11 +70,11 @@ const styles = StyleSheet.create({
   menuContainer: {
     backgroundColor: '#B72F14',
     borderRadius: 12,
-    marginTop: 60,
-    marginLeft: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    minWidth: 180,
+    marginTop: 10,
+    marginLeft: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minWidth: 170,
     elevation: 8,
     shadowColor: '#000',
     shadowOpacity: 0.18,
@@ -82,11 +82,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
   menuItem: {
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
   menuText: {
     color: '#FFF',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '500',
   },
 });

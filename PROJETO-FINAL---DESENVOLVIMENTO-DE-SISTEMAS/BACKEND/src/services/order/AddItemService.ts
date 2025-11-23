@@ -15,17 +15,19 @@ class AddItemService {
     });
     if (!product) throw new Error("Produto não encontrado");
 
-    // Verifica se o item já existe no pedido
+    // Procura um item existente SEM customizações (ingredientes ou adicionais)
     const existingItem = await prismaClient.item.findFirst({
       where: {
         order_id,
         product_id,
+        ItemIngrediente: { none: {} },
+        ItemAdicional: { none: {} },
       },
     });
 
     let item;
     if (existingItem) {
-      // Atualiza a quantidade do item existente
+      // Se encontrou um item limpo, apenas incrementa a quantidade
       item = await prismaClient.item.update({
         where: { id: existingItem.id },
         data: {
@@ -33,7 +35,7 @@ class AddItemService {
         },
       });
     } else {
-      // Cria um novo item
+      // Se não, cria um novo item
       item = await prismaClient.item.create({
         data: {
           order_id,
@@ -46,35 +48,40 @@ class AddItemService {
     // Calcula o total do pedido
     const items = await prismaClient.item.findMany({
       where: { order_id },
-      include: { product: true },
+      include: {
+        product: true,
+        ItemAdicional: { include: { adicionais: true } },
+      },
     });
 
-    const total = items.reduce(
-      (sum, i) => sum + parseFloat(i.product.price) * i.amount,
-      0
-    );
+    const total = items.reduce((sum, currentItem) => {
+      const productPrice = parseFloat(currentItem.product.price) * currentItem.amount;
+      const adicionaisTotal = currentItem.ItemAdicional.reduce((adicionalSum, itemAdicional) => {
+        return adicionalSum + (itemAdicional.adicionais.price * itemAdicional.quantity);
+      }, 0);
+      return sum + productPrice + adicionaisTotal;
+    }, 0);
 
     // semelhante a função da comanda, atualiza se já existir
-let pagamento = await prismaClient.pagamento.findFirst({
-  where: { order_id },
-});
+    let pagamento = await prismaClient.pagamento.findFirst({
+      where: { order_id },
+    });
 
-if (pagamento) {
-  pagamento = await prismaClient.pagamento.update({
-    where: { id: pagamento.id },
-    data: { amount: total },
-  });
-} else {
-  pagamento = await prismaClient.pagamento.create({
-    data: {
-      order_id,
-      amount: total,
-      status: 0,
-      metodo: 0,
-    },
-  });
-}
-
+    if (pagamento) {
+      pagamento = await prismaClient.pagamento.update({
+        where: { id: pagamento.id },
+        data: { amount: total },
+      });
+    } else {
+      pagamento = await prismaClient.pagamento.create({
+        data: {
+          order_id,
+          amount: total,
+          status: 0,
+          metodo: 0,
+        },
+      });
+    }
 
     // Cria ou atualiza a comanda vinculando o pagamento
     const existingComanda = await prismaClient.comanda.findFirst({
@@ -104,7 +111,10 @@ if (pagamento) {
       const io = getIO();
       io.emit("order:update", { order_id, total, pagamento });
     } catch (err) {
-      console.error("Socket emit falhou em AddItemService:", err.message || err);
+      console.error(
+        "Socket emit falhou em AddItemService:",
+        err.message || err
+      );
     }
 
     return { item, pagamento };

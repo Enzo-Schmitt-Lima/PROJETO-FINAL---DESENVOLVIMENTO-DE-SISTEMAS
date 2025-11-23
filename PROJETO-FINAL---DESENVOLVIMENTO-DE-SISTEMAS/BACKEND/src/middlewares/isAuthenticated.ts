@@ -12,9 +12,15 @@ export function isAuthenticated(
 ): void { // <-- middleware retorna void
     const authToken = req.headers.authorization;
 
+    // Log header for debugging token issues (dev only).
+    try {
+        console.log('isAuthenticated: Authorization header:', authToken);
+    } catch (e) {}
+
     if(!authToken){
-        res.status(401).end();
-        return; // <-- só para o fluxo
+        // return explicit JSON so frontend can log a clearer message
+        res.status(401).json({ error: 'Authorization header missing' });
+        return;
     }
 
     const [, token] = authToken.split(" ");
@@ -25,8 +31,10 @@ export function isAuthenticated(
         req.user_id = sub;
 
         next();
-    } catch (err) {
-        res.status(401).end();
-        return; // <-- só para o fluxo
+    } catch (err: any) {
+        // Log verification error to backend console for debugging
+        try { console.log('isAuthenticated verify error:', err.message || err); } catch (e) {}
+        res.status(401).json({ error: 'Invalid or expired token' });
+        return;
     }
 }

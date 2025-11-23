@@ -34,8 +34,21 @@ if (order.status >= 1) {
         data: { amount: item.amount - 1 },
       });
     } else {
-      await prismaClient.item.delete({
-        where: { id: item_id },
+      await prismaClient.$transaction(async (prisma) => {
+        // Delete related adicionais first
+        await prisma.itemAdicional.deleteMany({
+          where: { itemId: item_id },
+        });
+
+        // Delete related ingredientes first
+        await prisma.itemIngrediente.deleteMany({
+          where: { itemId: item_id },
+        });
+
+        // Then delete item
+        await prisma.item.delete({
+          where: { id: item_id },
+        });
       });
     }
 

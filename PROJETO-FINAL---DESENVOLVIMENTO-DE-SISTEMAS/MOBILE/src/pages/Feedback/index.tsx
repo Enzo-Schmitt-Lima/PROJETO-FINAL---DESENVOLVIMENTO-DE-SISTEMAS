@@ -11,16 +11,16 @@ export default function Feedback() {
 
   const handleSend = () => {
   // Aqui você pode enviar o feedback para o backend se quiser
-  navigation.navigate('ChooseTable');
+  navigation.navigate('CreateComanda');
   };
   const handleSkip = () => {
-  navigation.navigate('ChooseTable');
+  navigation.navigate('CreateComanda');
   };
 
   return (
     <SafeAreaView style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.topBack} onPress={() => navigation.navigate('ChooseTable')}>
+  <TouchableOpacity style={styles.topBack} onPress={() => navigation.goBack()}>
           <Text style={{ color: '#fff', fontWeight: '700' }}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Avalie seu atendimento</Text>

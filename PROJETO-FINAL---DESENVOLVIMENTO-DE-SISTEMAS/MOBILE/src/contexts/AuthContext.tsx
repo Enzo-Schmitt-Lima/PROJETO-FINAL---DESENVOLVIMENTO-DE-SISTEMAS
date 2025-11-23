@@ -79,8 +79,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return userData;
     } catch (err: any) {
       setLoadingAuth(false);
-      console.log(err.response?.data || err);
-      Alert.alert('Erro', err.response?.data?.error || 'Não foi possível entrar');
+      // Evita logar/mostrar HTML cru vindo do backend (ex.: stacktrace HTML).
+      const status = err?.response?.status;
+      const serverData = err?.response?.data;
+
+      // Extrai mensagem plausível do servidor, evitando HTML
+      let serverMsg: string | null = null;
+      try {
+        if (serverData) {
+          if (typeof serverData === 'string') {
+            // se vier HTML, descartamos; se for texto simples, usamos
+            if (!/<!doctype html/i.test(serverData) && !/<html/i.test(serverData)) {
+              serverMsg = serverData;
+            }
+          } else if (typeof serverData === 'object') {
+            serverMsg = serverData.error || serverData.message || null;
+          }
+        }
+      } catch (parseErr) {
+        serverMsg = null;
+      }
+
+      console.log('Login error:', status, serverMsg || err.message);
+
+      if (status === 401) {
+        Alert.alert('Erro', 'Usuário ou senha incorretos.');
+      } else {
+        Alert.alert('Erro', serverMsg || 'Não foi possível entrar');
+      }
       return null;
     }
   }

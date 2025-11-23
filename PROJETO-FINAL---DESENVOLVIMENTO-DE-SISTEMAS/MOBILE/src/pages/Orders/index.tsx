@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, StatusBar, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,9 +23,8 @@ interface Order {
 
 export default function Orders() {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-  const { isGuest, user } = useContext(AuthContext);
   const route = useRoute<OrdersRouteProp>();
-  const { isGuest } = useContext(AuthContext);
+  const { isGuest, user } = useContext(AuthContext);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const topOffset = (Platform.OS === 'android' ? (StatusBar.currentHeight ?? 24) : 24) + 18;
@@ -76,8 +74,10 @@ export default function Orders() {
             console.log('Retry erro orders:', retryErr);
           }
 
-          Alert.alert('Sessão expirada', 'Faça login novamente.');
-          navigation.navigate('SignIn');
+          // Não forçar logout/navegação para login aqui — mostrar mensagem genérica
+          // e limpar a lista local de pedidos. Mantemos a tentativa de retry acima.
+          Alert.alert('Erro', 'Não foi possível acessar os pedidos.');
+          setOrders([]);
           return;
         }
 
@@ -119,7 +119,7 @@ export default function Orders() {
     return () => {
       try { s.off('order:update', onOrderUpdate); s.off('order:create', onOrderCreate); } catch (e) { }
     };
-  }, [isGuest, navigation]);
+  }, [isGuest, user, navigation]);
 
   const calculateTotal = (items: Order['items']) => {
     return items.reduce((total, item) => total + item.amount * parseFloat(item.product.price), 0);
@@ -163,19 +163,13 @@ export default function Orders() {
   return (
     <View style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-        <TouchableOpacity style={[styles.backButton, { top: topOffset }]} onPress={() => navigation.navigate('ChooseTable')}>
-        <TouchableOpacity style={[styles.backButton, { top: topOffset }]} onPress={() => {
-          if (order_id && number) {
-            navigation.navigate('Order', { number, order_id });
-          } else {
-            navigation.goBack();
-          }
-        }}>
+        <TouchableOpacity style={[styles.backButton, { top: topOffset }]} onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>← Voltar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.refreshButton, { top: topOffset }]} onPress={handleRefresh}>
           <Ionicons name="refresh" size={18} color="#911F09" />
         </TouchableOpacity>
+        {/* token inspector removed for security */}
         <Text style={styles.logo}>RED HOT CHILLI</Text>
         <Text style={styles.title}>Meus pedidos</Text>
         <View style={styles.searchBar}>

@@ -17,10 +17,11 @@ class CreateProdutoIngredienteService {
     }
 
     // 2️⃣ Cria a relação conectando produto e ingrediente
+    // Use explicit foreign keys to avoid relation-name mismatches with Prisma client
     const relacao = await prismaClient.produtoIngrediente.create({
       data: {
-        product: { connect: { id: produtoId } },
-        ingredientes: { connect: { id: ingredienteId } },
+        produtoId,
+        ingredienteId,
       },
     });
 
