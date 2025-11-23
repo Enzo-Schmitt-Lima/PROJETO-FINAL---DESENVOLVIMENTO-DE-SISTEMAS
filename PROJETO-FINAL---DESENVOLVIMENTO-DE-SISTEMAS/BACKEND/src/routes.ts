@@ -71,6 +71,7 @@ import { UpdateAdicionalController } from "./controllers/Adicional/UpdateAdicion
 import { AddItemAdicionalController } from "./controllers/itemAdicional/CreateItemAdicionalController";
 import { RemoveItemAdicionalController } from "./controllers/itemAdicional/RemoveItemAdicionalController";
 import { CreateFeedbackController } from "./controllers/Feedback/CreateFeedbackController";
+import { ListFeedbackController } from "./controllers/Feedback/ListFeedbackController";
 
 // -------------------- ITEM INGREDIENTES --------------------
 import { AddItemIngredienteController } from "./controllers/itemIngrediente/AddItemIngredienteController";
@@ -198,10 +199,12 @@ router.post('/item/adicional', isAuthenticated, new AddItemAdicionalController()
 router.delete('/item/adicional', isAuthenticated, new RemoveItemAdicionalController().handle.bind(new RemoveItemAdicionalController()));
 
 // -------------------- FEEDBACK --------------------
-const createFeedbackController = new CreateFeedbackController();
+// const createFeedbackController = new CreateFeedbackController();
+const listFeedbackController = new ListFeedbackController();
 
-router.post("/feedback", isAuthenticated, new CreateFeedbackController().handle.bind(new CreateFeedbackController())
-);
+router.post("/feedback", isAuthenticated, new CreateFeedbackController().handle.bind(new CreateFeedbackController()));
+router.get("/List/feedbacks", isAuthenticated, listFeedbackController.handle);
+
 
 // -------------------- ITEM INGREDIENTES --------------------
 const addItemIngredienteController = new AddItemIngredienteController();
