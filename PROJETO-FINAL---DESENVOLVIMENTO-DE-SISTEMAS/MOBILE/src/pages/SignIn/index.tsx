@@ -26,7 +26,7 @@ type RootStackParamList = {
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, "SignIn">;
 
 const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
-  const { signIn, loadingAuth, enterAsGuest, isGuest } = useContext(AuthContext);
+  const { signIn, loadingAuth } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -38,19 +38,12 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
 
     const userData = await signIn({ email, password });
     if (userData) {
-      navigation.navigate("AssignTable");
+      navigation.navigate("CreateComanda");
     }
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {isGuest && (
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#5D3A2F" />
-          </TouchableOpacity>
-        </View>
-      )}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.mainContainer}>
           <View style={styles.contentWrapper}>
@@ -97,15 +90,6 @@ const SignIn: FC<LoginScreenProps> = ({ navigation }) => {
               <Text style={styles.signupText}>
                 Não tem uma conta? {"\n"}Cadastre-se
               </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.submitButton, { backgroundColor: "#B72F14", marginTop: 10 }]}
-              onPress={() => {
-                enterAsGuest();
-              }}
-            >
-              <Text style={[styles.submitButtonText, { color: "#FFFFFF" }]}>ENTRAR COMO VISITANTE</Text>
             </TouchableOpacity>
           </View>
 
