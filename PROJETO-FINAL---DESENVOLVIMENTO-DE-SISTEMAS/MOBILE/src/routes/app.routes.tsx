@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { AuthContext } from "../contexts/AuthContext";
 
 import Dashboard from "../pages/Dashboard";
 import ChooseTable from "../pages/ChooseTable";
@@ -10,10 +11,9 @@ import FinishOrder from "../pages/FinishOrder";
 import Payment from "../pages/Pagamento";
 import AcompanharPedido from "../pages/AcompanharPedido";
 import AssignTable from "../pages/AssignTable";
+import Orders from "../pages/Orders";
 
-import CustomizeItem from "../pages/CustomizeItem";
-
-export type StackParamsList = {
+export type AppStackParamsList = {
   Dashboard: undefined;
   ChooseTable: undefined;
   CreateComanda: { tableNumber: number } | undefined;
@@ -24,7 +24,7 @@ export type StackParamsList = {
   OrderStatus: { number?: number; order?: any; order_id?: string; total?: number };
   Feedback: undefined;
   Account: undefined;
-  Orders: { order_id: string; number: number } | undefined;
+  Orders: { order_id?: string; number?: number; fromPayment?: boolean } | undefined;
   AcompanharPedido: { order_id?: string } | undefined;
   Payments: undefined;
   Logout: undefined;
@@ -36,159 +36,31 @@ export type StackParamsList = {
   SignUp: undefined;
 };
 
-const Stack = createNativeStackNavigator<StackParamsList>();
+const Stack = createNativeStackNavigator<AppStackParamsList>();
 
 export default function AppRoutes() {
+  const { isAuthenticated } = useContext(AuthContext);
+  // Set initial route dynamically based on authentication status
+  const initialRouteName = isAuthenticated ? "CreateComanda" : "Dashboard";
+
   return (
-  <Stack.Navigator initialRouteName="CreateComanda">
-      {/* Tela inicial após login */}
-      <Stack.Screen
-        name="CreateComanda"
-        component={CreateComanda}
-        options={{ headerShown: false }}
-      />
-
-      <Stack.Screen
-        name="ChooseTable"
-        component={ChooseTable}
-        options={{ headerShown: false }}
-      />
-
-      <Stack.Screen
-        name="Dashboard"
-        component={Dashboard}
-        options={{ headerShown: false }}
-      />
-
-      <Stack.Screen
-        name="Order"
-        component={Order}
-        options={{ headerShown: false }}
-      />
-
-      <Stack.Screen
-        name="Cart"
-        component={Cart}
-        options={{ headerShown: false }}
-      />
-
-      <Stack.Screen
-        name="FinishOrder"
-        component={FinishOrder}
-        options={{
-          title: "Finalizando",
-          headerStyle: { backgroundColor: "#1d1d2e" },
-          headerTintColor: "#FFF",
-        }}
-      />
-      
-      {/* Nova tela de pagamento */}
-      <Stack.Screen
-        name="Payment"
-        component={Payment}
-        options={{
-          title: "Pagamento",
-          headerStyle: { backgroundColor: "#1d1d2e" },
-          headerTintColor: "#FFF",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="OrderStatus"
-        component={require('../pages/OrderStatus').default}
-        options={{
-          title: "Status do Pedido",
-          headerStyle: { backgroundColor: "#1d1d2e" },
-          headerTintColor: "#FFF",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="AcompanharPedido"
-        component={AcompanharPedido}
-        options={{
-          title: "Acompanhar Pedido",
-          headerStyle: { backgroundColor: "#1d1d2e" },
-          headerTintColor: "#FFF",
-        }}
-      />
-      <Stack.Screen
-        name="Feedback"
-        component={require('../pages/Feedback').default}
-        options={{
-          title: "Feedback",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Account"
-        component={require('../pages/Account').default}
-        options={{
-          title: "Minha conta",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Orders"
-        component={require('../pages/Orders').default}
-        options={{
-          title: "Meus pedidos",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Payments"
-        component={require('../pages/Payments').default}
-        options={{
-          title: "Meus pagamentos",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="Logout"
-        component={require('../pages/Logout').default}
-        options={{
-          title: "Sair",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="CustomizeItem"
-        component={CustomizeItem}
-        options={{
-          title: "Personalizar Item",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="AssignTable"
-        component={AssignTable}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EditProduct"
-        component={require('../pages/EditProduct').default}
-        options={{
-          title: "Editar Produto",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="SignIn"
-        component={require('../pages/SignIn').default}
-        options={{
-          title: "Fazer Login",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="SignUp"
-        component={require('../pages/SignUp').default}
-        options={{
-          title: "Fazer Cadastro",
-          headerShown: false,
-        }}
-      />
+    <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Dashboard" component={Dashboard} />
+      <Stack.Screen name="ChooseTable" component={ChooseTable} />
+      <Stack.Screen name="CreateComanda" component={CreateComanda} />
+      <Stack.Screen name="Order" component={Order} />
+      <Stack.Screen name="Cart" component={Cart} />
+      <Stack.Screen name="FinishOrder" component={FinishOrder} />
+      <Stack.Screen name="Payment" component={Payment} />
+      <Stack.Screen name="OrderStatus" component={require("../pages/OrderStatus").default} />
+      <Stack.Screen name="AcompanharPedido" component={AcompanharPedido} />
+      <Stack.Screen name="Feedback" component={require("../pages/Feedback").default} />
+      <Stack.Screen name="AssignTable" component={AssignTable} />
+      <Stack.Screen name="EditProductIngredients" component={require("../pages/EditProductIngredients").default} />
+      <Stack.Screen name="EditProduct" component={require("../pages/EditProduct").default} />
+      <Stack.Screen name="SignIn" component={require("../pages/SignIn").default} />
+      <Stack.Screen name="SignUp" component={require("../pages/SignUp").default} />
+      <Stack.Screen name="Orders" component={Orders} />
     </Stack.Navigator>
   );
 }

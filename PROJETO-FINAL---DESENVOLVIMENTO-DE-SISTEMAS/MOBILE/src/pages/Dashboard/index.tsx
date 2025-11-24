@@ -1,12 +1,12 @@
-    import React, { useState } from "react";
+import React, { useState } from "react";
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackParamsList } from "../../routes/app.routes";
+import { AppStackParamsList } from "../../routes/app.routes";
 import HamburgerMenu from '../../components/HamburgerMenu';
 
 export default function Dashboard(){
-    const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+    const navigation = useNavigation<NativeStackNavigationProp<AppStackParamsList>>();
     const [menuVisible, setMenuVisible] = useState(false);
 
     function handleMenuNavigate(route: string) {

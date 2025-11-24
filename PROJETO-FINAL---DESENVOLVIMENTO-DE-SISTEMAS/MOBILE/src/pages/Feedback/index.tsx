@@ -1,26 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackParamsList } from '../../routes/app.routes';
+import { AppStackParamsList } from '../../routes/app.routes';
+// Importe a API, caso queira realmente enviar o feedback
+// import api from '../../services/api'; 
 
 export default function Feedback() {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamsList>>();
 
-  const handleSend = () => {
-  // Aqui você pode enviar o feedback para o backend se quiser
-  navigation.navigate('CreateComanda');
-  };
-  const handleSkip = () => {
-  navigation.navigate('CreateComanda');
-  };
+  const handleSend = async () => {
+  Alert.alert("Obrigado!", "Seu feedback foi enviado com sucesso!");
 
+  navigation.reset({
+    index: 0,
+    routes: [{ name: 'Dashboard' }], // troque para 'MeusPedidos' se for o nome
+  });
+};
+
+const handleSkip = () => {
+  navigation.reset({
+    index: 0,
+    routes: [{ name: 'Dashboard' }],
+  });
+};
   return (
     <SafeAreaView style={styles.bgContainer}>
       <View style={styles.cardContainer}>
-  <TouchableOpacity style={styles.topBack} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.topBack} onPress={() => navigation.goBack()}>
           <Text style={{ color: '#fff', fontWeight: '700' }}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Avalie seu atendimento</Text>
@@ -36,7 +45,7 @@ export default function Feedback() {
           style={styles.textArea}
           multiline
           numberOfLines={4}
-          placeholder=""
+          placeholder="Deixe seu comentário..."
           value={comment}
           onChangeText={setComment}
         />

@@ -8,6 +8,7 @@ import {
   Alert,
   SafeAreaView,
   StatusBar,
+  Platform,
   Image,
   ScrollView,
 } from "react-native";
@@ -15,11 +16,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackParamsList } from "../../routes/app.routes";
+import { AppStackParamsList } from "../../routes/app.routes";
 import api from "../../services/api";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type CustomizeItemRouteProp = RouteProp<StackParamsList, "CustomizeItem">;
+type CustomizeItemRouteProp = RouteProp<AppStackParamsList, "CustomizeItem">;
 
 interface Ingredient {
   id: string;
@@ -67,7 +68,7 @@ interface PizzaAdicionalState {
 
 export default function CustomizeItem() {
   const route = useRoute<CustomizeItemRouteProp>();
-  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamsList>>();
   const { product_id, product_name, item_id, item_ids } = route.params;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -366,14 +367,6 @@ export default function CustomizeItem() {
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#911F09" barStyle="light-content" />
 
-      <View style={styles.debugContainer}>
-        <Text>DEBUG</Text>
-        <Text>{`Pizza Index: ${currentPizzaIndex}`}</Text>
-        <Text>{`Pizza ID: ${pizzaItemIds[currentPizzaIndex] || 'N/A'}`}</Text>
-        <Text>{`Ingredientes selecionados: ${productIngredients.filter(pi => pi.ingrediente.selected).length}`}</Text>
-        <Text>{`Adicionais selecionados: ${selectedAdicionais.reduce((sum, a) => sum + a.quantity, 0)}`}</Text>
-      </View>
-
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#5D3A2F" />
@@ -382,7 +375,7 @@ export default function CustomizeItem() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
         {renderPizzaNavigation()}
         {renderProductInfo()}
         {isPizza && renderIngredientsSelection()}
@@ -394,7 +387,9 @@ export default function CustomizeItem() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F0F0F0" },
+  container: { flex: 1, backgroundColor: "#F0F0F0" ,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",

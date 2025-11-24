@@ -3,15 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Platform, S
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackParamsList } from '../../routes/app.routes';
+import { AppStackParamsList } from '../../routes/app.routes';
 import api from '../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type PaymentRouteProp = RouteProp<StackParamsList, 'Payment'>;
+type PaymentRouteProp = RouteProp<AppStackParamsList, 'Payment'>;
 
 export default function Payment() {
   const route = useRoute<PaymentRouteProp>();
-  const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamsList>>();
   const { number, order, total } = route.params;
 
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
@@ -39,8 +39,8 @@ export default function Payment() {
       let pagamentoId;
 
       // SEMPRE buscar dados atualizados do pedido
-  const orderDetailResponse = await api.get(`/order/detail?order_id=${order.id}`);
-  const pagamentoArray = (orderDetailResponse.data as any).pagamento || [];
+      const orderDetailResponse = await api.get(`/order/detail?order_id=${order.id}`);
+      const pagamentoArray = (orderDetailResponse.data as any).pagamento || [];
 
       if (pagamentoArray.length > 0) {
         pagamentoId = pagamentoArray[0].id;
@@ -89,12 +89,17 @@ export default function Payment() {
         const updatedOrderResp = await api.get(`/order/detail?order_id=${order.id}`);
         const updatedOrder = (updatedOrderResp.data as any).order || updatedOrderResp.data;
 
-      // Navigate directly to Orders after payment with params
-        navigation.navigate('Orders', { order_id: order.id, number: route.params.number });
+        // **CORREÇÃO APLICADA AQUI:**
+        // Usamos 'replace' em vez de 'navigate' para que a tela 'Orders' substitua 'Payment'
+        // no histórico de navegação. Isso impede que o usuário volte para as telas de pedido
+        // ou pagamento após a conclusão, e garante que a próxima tela ao "voltar" seja
+        // a tela anterior ao início do pedido (a tela "ABRIR MESA" ou Dashboard).
+        navigation.replace('Orders', { order_id: order.id, number: route.params.number, fromPayment: true });
+
       } catch (errRefresh: any) {
         console.error('Erro ao atualizar pedido após pagamento:', errRefresh);
-        // Navigate directly to Orders after payment
-        navigation.navigate('Orders');
+        // Em caso de erro, ainda substituímos a tela.
+        navigation.replace('Orders');
       }
     } catch (err: any) {
       console.error('Erro ao processar pagamento:', err);
@@ -113,7 +118,7 @@ export default function Payment() {
     try {
       setRefreshing(true);
       const resp = await api.get(`/order/detail?order_id=${order.id}`);
-  const updatedOrder = (resp.data as any).order || (resp.data as any);
+      const updatedOrder = (resp.data as any).order || (resp.data as any);
       console.log('[Payment] order refreshed', updatedOrder);
       Alert.alert('Atualizado', 'Dados do pedido atualizados.');
     } catch (err) {
@@ -157,7 +162,6 @@ export default function Payment() {
   const paymentOptions = [
     { key: 'cartao', label: 'Cartão de crédito / débito (físico)' },
     { key: 'pix', label: 'PIX (digital)' },
-    { key: 'carteira', label: 'Carteira digital (digital)' },
     { key: 'dinheiro', label: 'Dinheiro (físico)' },
   ];
 
@@ -216,109 +220,115 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   cardTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#1A3A6B',
-    marginBottom: 20,
+    color: '#911F09',
+    marginBottom: 30,
+  },
+  refreshIcon: {
+    position: 'absolute',
+    right: 20,
+    padding: 10,
+    zIndex: 10,
   },
   optionsContainer: {
     width: '100%',
+    paddingHorizontal: 10,
     marginBottom: 20,
   },
   radioRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
+    padding: 10,
+    backgroundColor: '#EAEAEA',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   radioCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    height: 24,
+    width: 24,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#1A3A6B',
-    marginRight: 12,
+    borderColor: '#911F09',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 15,
   },
   radioSelected: {
-    backgroundColor: '#60a95bff',
-    borderColor: '#2b6b29ff',
+    backgroundColor: '#911F09',
   },
   radioLabel: {
-    fontSize: 17,
-    color: '#1A3A6B',
+    fontSize: 18,
+    color: '#333',
+    fontWeight: '600',
   },
   extraFieldsCard: {
     width: '100%',
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 12,
-    padding: 16,
+    padding: 15,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    borderLeftWidth: 5,
+    borderLeftColor: '#F2CA85',
     marginBottom: 20,
   },
   extraFieldsMoney: {
     width: '100%',
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 12,
-    padding: 16,
+    padding: 15,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    borderLeftWidth: 5,
+    borderLeftColor: '#F2CA85',
     marginBottom: 20,
+    alignItems: 'center',
   },
   extraLabel: {
-    fontSize: 15,
-    color: '#1A3A6B',
-    marginBottom: 8,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#5D3A2F',
+    marginBottom: 10,
     textAlign: 'center',
   },
   input: {
-    width: '100%',
-    backgroundColor: '#FFF',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: '#EEE',
+    borderRadius: 5,
+    padding: 10,
     marginBottom: 10,
-    fontSize: 16,
     borderWidth: 1,
     borderColor: '#DDD',
   },
   buttonRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
-    marginTop: 'auto',
-    paddingTop: 10,
-    justifyContent: 'space-between', // Garante espaço entre os botões
-    alignItems: 'center', // Garante que estejam alinhados verticalmente
+    marginTop: 20,
+    paddingHorizontal: 10,
   },
   backButton: {
-    backgroundColor: '#B72F14',
-    paddingVertical: 15,
-    borderRadius: 10,
     flex: 1,
+    backgroundColor: '#B72F14',
+    padding: 15,
+    borderRadius: 8,
     marginRight: 10,
-    justifyContent: 'center', // CENTRALIZA CONTEÚDO VERTICALMENTE
-    alignItems: 'center',     // CENTRALIZA CONTEÚDO HORIZONTALMENTE
+    alignItems: 'center',
   },
   backButtonText: {
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 16,
-    textAlign: 'center', // CENTRALIZA O TEXTO
   },
   finishButton: {
-    backgroundColor: '#F2CA85',
-    paddingVertical: 15,
-    borderRadius: 10,
     flex: 1,
-    justifyContent: 'center', // CENTRALIZA CONTEÚDO VERTICALMENTE
-    alignItems: 'center',     // CENTRALIZA CONTEÚDO HORIZONTALMENTE
+    backgroundColor: '#F2CA85',
+    padding: 15,
+    borderRadius: 8,
+    marginLeft: 10,
+    alignItems: 'center',
   },
   finishButtonText: {
-    color: '#911F09',
+    color: '#101026',
     fontWeight: 'bold',
     fontSize: 16,
-    textAlign: 'center', // CENTRALIZA O TEXTO
   },
-  sacImage: {
-    width: 50,
-    height: 50,
-    marginTop: 10,
-    alignSelf: 'flex-end',
-  },
-  refreshIcon: { position: 'absolute', top: 18, right: 18, zIndex: 3 },
 });
